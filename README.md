@@ -82,7 +82,7 @@ GOOGLE_CX=your_google_custom_search_id
 Basic usage example:
 
 ```python
-from fake_news_detector import FakeNewsDetectionSystem
+from Try_model import FakeNewsDetectionSystem
 
 # Initialize the system
 detector = FakeNewsDetectionSystem()
