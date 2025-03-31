@@ -1,6 +1,6 @@
-# Fake News Detection System using Spark LLM with RAG
+# Fake News Detection System using BERT with RAG
 
-This repository contains a comprehensive fake news detection system that combines modern NLP techniques, embeddings, and large language models to evaluate the truthfulness of claims.
+This repository contains a comprehensive fake news detection system that combines modern NLP techniques, embeddings, and BERT models to evaluate the truthfulness of claims.
 
 ## 🔍 Overview
 
@@ -9,7 +9,7 @@ The system uses a Retrieval-Augmented Generation (RAG) approach to fact-check cl
 1. **Web Search**: Retrieves relevant articles using Google Search API
 2. **Embedding-based Similarity**: Pre-filters content using semantic embeddings
 3. **FAISS Vector Search**: Efficiently finds the most similar documents
-4. **Spark LLM**: Uses a large language model for fact-checking and verdict generation
+4. **BERT-based Fact Checking**: Uses a fine-tuned BERT model for fact-checking and verdict generation
 5. **Sentiment Analysis**: Detects emotional manipulation in claims
 
 ## 🛠️ System Components
@@ -23,8 +23,8 @@ Creates vector embeddings for text using SentenceTransformer models and calculat
 ### 3. FAISSIndexer
 Enables efficient similarity search with Facebook AI Similarity Search (FAISS).
 
-### 4. SparkLLM
-Interfaces with the Spark LLM API to perform sophisticated fact-checking.
+### 4. BERTFactChecker
+Uses a fine-tuned BERT model to perform sophisticated fact-checking on claims against evidence.
 
 ### 5. SentimentAnalyzer
 Analyzes emotional content to detect potential manipulation.
@@ -45,6 +45,8 @@ pandas
 requests
 scikit-learn
 sentence-transformers
+transformers
+torch
 faiss-cpu (or faiss-gpu for GPU support)
 nltk
 python-dotenv
@@ -55,9 +57,6 @@ python-dotenv
 This system requires the following API keys:
 - Google API Key (for web search)
 - Google Custom Search Engine ID
-- Spark APP ID
-- Spark API Key
-- Spark API Secret
 
 ## 🚀 Installation
 
@@ -76,9 +75,6 @@ pip install -r requirements.txt
 ```
 GOOGLE_API_KEY=your_google_api_key
 GOOGLE_CX=your_google_custom_search_id
-SPARK_APP_ID=your_spark_app_id
-SPARK_API_KEY=your_spark_api_key
-SPARK_API_SECRET=your_spark_api_secret
 ```
 
 ## 💻 Usage
@@ -107,7 +103,7 @@ if result["status"] == "success":
 2. It creates embeddings for the articles and the claim
 3. Using FAISS, it retrieves the most similar articles to the claim
 4. It analyzes the sentiment of the claim to detect emotional manipulation
-5. The Spark LLM performs fact-checking based on the retrieved articles
+5. The BERT model performs fact-checking based on the retrieved articles
 6. Results are compiled into a comprehensive analysis
 
 ## 📊 Example Output
