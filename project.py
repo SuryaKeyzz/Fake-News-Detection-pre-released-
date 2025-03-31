@@ -11,8 +11,7 @@ This system combines:
 """
 from Try_model import FakeNewsDetectionSystem
 
-# Example usage
-if __name__ == "__main__":
+def main():
     # Initialize the system with the BERT fake news detection model
     # Set use_local=False to use the Hugging Face API instead of local models if needed
     detector = FakeNewsDetectionSystem(model_name="google-bert/bert-base-uncased", use_local=True)
@@ -41,3 +40,7 @@ if __name__ == "__main__":
             print("=" * 50)
         else:
             print(f"Error: {result['message']}")
+
+# Example usage
+if __name__ == "__main__":
+    main()
