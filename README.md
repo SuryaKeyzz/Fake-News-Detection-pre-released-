@@ -127,13 +127,13 @@ You can pass claims to check directly as command line arguments:
 
 ```bash
 # Check a specific claim
-python projects.py --claim "COVID-19 vaccines contain microchips for tracking people"
+python project.py --claim "COVID-19 vaccines contain microchips for tracking people"
 
 # Use verbose mode for additional logging
-python projects.py --claim "The Earth is flat" --verbose
+python project.py --claim "The Earth is flat" --verbose
 
 # Save results to a file
-python projects.py --claim "Drinking coffee reduces risk of heart disease" --output results.json
+python project.py --claim "Drinking coffee reduces risk of heart disease" --output results.json
 ```
 
 ### Using as a Library
