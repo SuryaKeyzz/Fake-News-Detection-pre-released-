@@ -52,11 +52,49 @@ nltk
 python-dotenv
 ```
 
-## 🔑 API Keys Required
+## 🔑 API Keys and Environment Setup
 
 This system requires the following API keys:
 - Google API Key (for web search)
-- Google Custom Search Engine ID
+- Google Custom Search Engine ID (CX)
+- Hugging Face API Key (for accessing models)
+
+### Getting API Keys
+
+#### Google Search API:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to "APIs & Services" > "Library"
+4. Search for and enable the "Custom Search API"
+5. Go to "APIs & Services" > "Credentials"
+6. Click "Create Credentials" > "API Key"
+7. Copy your API key
+
+#### Google Custom Search Engine ID:
+1. Go to the [Google Programmable Search Engine](https://programmablesearchengine.google.com/)
+2. Click "Create a programmable search engine"
+3. Configure your search engine (select "Search the entire web" for best results)
+4. After creation, find your "Search engine ID" (CX) in the setup page
+
+#### Hugging Face API Key:
+1. Create an account on [Hugging Face](https://huggingface.co/)
+2. Go to your profile and select "Settings"
+3. Navigate to "Access Tokens"
+4. Click "New token" and create a token with appropriate permissions
+5. Copy your token
+
+### Setting Up Environment Variables
+
+Create a `.env` file in the project root with your API keys:
+
+```
+# Google API Credentials
+GOOGLE_API_KEY=your_google_api_key_here
+GOOGLE_CX=your_google_custom_search_engine_id_here
+
+# Hugging Face API
+HF_API_KEY=your_huggingface_api_key_here
+```
 
 ## 🚀 Installation
 
@@ -71,18 +109,37 @@ cd fake-news-detection
 pip install -r requirements.txt
 ```
 
-3. Create a `.env` file in the project root with your API keys:
-```
-GOOGLE_API_KEY=your_google_api_key
-GOOGLE_CX=your_google_custom_search_id
-```
+3. Create and set up your `.env` file as described above
 
 ## 💻 Usage
 
-Basic usage example:
+### Running with project.py
+
+The main entry point for the project is `project.py`. Run it using:
+
+```bash
+python project.py
+```
+
+### Command Line Arguments
+
+You can pass claims to check directly as command line arguments:
+
+```bash
+# Check a specific claim
+python projects.py --claim "COVID-19 vaccines contain microchips for tracking people"
+
+# Use verbose mode for additional logging
+python projects.py --claim "The Earth is flat" --verbose
+
+# Save results to a file
+python projects.py --claim "Drinking coffee reduces risk of heart disease" --output results.json
+```
+
+### Using as a Library
 
 ```python
-from Try_model import FakeNewsDetectionSystem
+from fake_news_detector import FakeNewsDetectionSystem
 
 # Initialize the system
 detector = FakeNewsDetectionSystem()
@@ -143,3 +200,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## ❓ Troubleshooting
+
+### API Credentials Issues
+- Verify that your `.env` file is in the correct location (root project directory)
+- Check that all credentials are correctly copied without extra spaces
+- For Google API, make sure you've enabled billing for your project if necessary
+- Check API usage quotas if you receive rate limit errors
+- For Hugging Face API, verify you have the correct permissions for the models you're accessing
+
+### Model Loading Problems
+- Ensure you have sufficient disk space for downloading models
+- Check your internet connection if model downloads fail
+- For GPU usage, verify you have the correct CUDA version installed
