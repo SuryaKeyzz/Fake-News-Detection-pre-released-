@@ -139,7 +139,7 @@ python projects.py --claim "Drinking coffee reduces risk of heart disease" --out
 ### Using as a Library
 
 ```python
-from fake_news_detector import FakeNewsDetectionSystem
+from Try_model import FakeNewsDetectionSystem
 
 # Initialize the system
 detector = FakeNewsDetectionSystem()
