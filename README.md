@@ -1,4 +1,4 @@
-# Fake News Detection System using BERT with RAG
+# Fake News Detection System using Spark LLM with RAG
 
 This repository contains a comprehensive fake news detection system that combines modern NLP techniques, embeddings, and BERT models to evaluate the truthfulness of claims.
 
