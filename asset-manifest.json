@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/Fake-News-Detection-pre-released-/static/css/main.d7d30e93.css",
+    "main.js": "/Fake-News-Detection-pre-released-/static/js/main.37ef5b6c.js",
+    "static/js/762.983b769a.chunk.js": "/Fake-News-Detection-pre-released-/static/js/762.983b769a.chunk.js",
+    "static/js/453.99dcf01f.chunk.js": "/Fake-News-Detection-pre-released-/static/js/453.99dcf01f.chunk.js",
+    "static/js/239.14223832.chunk.js": "/Fake-News-Detection-pre-released-/static/js/239.14223832.chunk.js",
+    "static/js/977.608e27f2.chunk.js": "/Fake-News-Detection-pre-released-/static/js/977.608e27f2.chunk.js",
+    "static/js/732.010d0b1d.chunk.js": "/Fake-News-Detection-pre-released-/static/js/732.010d0b1d.chunk.js",
+    "static/media/fraction.cjs": "/Fake-News-Detection-pre-released-/static/media/fraction.7992481f3d8339b77604.cjs",
+    "index.html": "/Fake-News-Detection-pre-released-/index.html",
+    "static/media/index.cjs": "/Fake-News-Detection-pre-released-/static/media/index.f6d03137e8c9dd0de04c.cjs",
+    "main.d7d30e93.css.map": "/Fake-News-Detection-pre-released-/static/css/main.d7d30e93.css.map",
+    "main.37ef5b6c.js.map": "/Fake-News-Detection-pre-released-/static/js/main.37ef5b6c.js.map",
+    "762.983b769a.chunk.js.map": "/Fake-News-Detection-pre-released-/static/js/762.983b769a.chunk.js.map",
+    "453.99dcf01f.chunk.js.map": "/Fake-News-Detection-pre-released-/static/js/453.99dcf01f.chunk.js.map",
+    "239.14223832.chunk.js.map": "/Fake-News-Detection-pre-released-/static/js/239.14223832.chunk.js.map",
+    "977.608e27f2.chunk.js.map": "/Fake-News-Detection-pre-released-/static/js/977.608e27f2.chunk.js.map",
+    "732.010d0b1d.chunk.js.map": "/Fake-News-Detection-pre-released-/static/js/732.010d0b1d.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d7d30e93.css",
+    "static/js/main.37ef5b6c.js"
+  ]
+}
