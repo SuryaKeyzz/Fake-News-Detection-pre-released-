@@ -1,145 +1,70 @@
-# Fake News Detection System using Spark LLM with RAG
+# Getting Started with Create React App
 
-This repository contains a comprehensive fake news detection system that combines modern NLP techniques, embeddings, and the Spark LLM to evaluate the truthfulness of claims.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## 🔍 Overview
+## Available Scripts
 
-The system uses a Retrieval-Augmented Generation (RAG) approach to fact-check claims:
+In the project directory, you can run:
 
-1. **Web Search**: Retrieves relevant articles using Google Search API
-2. **Embedding-based Similarity**: Pre-filters content using semantic embeddings 
-3. **FAISS Vector Search**: Efficiently finds the most similar documents
-4. **Spark LLM Fact Checking**: Uses the Spark LLM for fact-checking and verdict generation
-5. **Sentiment Analysis**: Detects emotional manipulation in claims
+### `npm start`
 
-## 🛠️ System Components
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### 1. WebSearchEngine
-Retrieves articles from the web using the Google Custom Search API.
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-### 2. EmbeddingEngine 
-Creates vector embeddings for text using SentenceTransformer models and calculates similarity.
+### `npm test`
 
-### 3. FAISSIndexer
-Enables efficient similarity search with Facebook AI Similarity Search (FAISS).
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### 4. SparkLLM
-Uses the Spark LLM via HTTP API to perform sophisticated fact-checking on claims against evidence.
+### `npm run build`
 
-### 5. SentimentAnalyzer
-Analyzes emotional content and manipulation techniques in text.
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-### 6. FakeNewsDetectionSystem
-Integrates all components into a comprehensive detection system.
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-## 📋 Prerequisites
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-- Python 3.8+  
-- pip (Python package installer)
+### `npm run eject`
 
-## 📦 Required Libraries
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-```
-numpy 
-pandas
-requests
-scikit-learn
-sentence-transformers
-faiss-cpu (or faiss-gpu for GPU support)
-nltk
-python-dotenv
-```
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-## 🔑 API Keys and Environment Setup
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-This system requires the following API keys:
-- Google API Key (for web search)
-- Google Custom Search Engine ID (CX)  
-- Spark LLM API Key and Secret
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-### Getting API Keys
+## Learn More
 
-#### Google Search API:
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Navigate to "APIs & Services" > "Library"
-4. Search for and enable the "Custom Search API"
-5. Go to "APIs & Services" > "Credentials"  
-6. Click "Create Credentials" > "API Key"
-7. Copy your API key
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-#### Google Custom Search Engine ID:
-1. Go to the [Google Programmable Search Engine](https://programmablesearchengine.google.com/)
-2. Click "Create a programmable search engine"
-3. Configure your search engine (select "Search the entire web" for best results)
-4. After creation, find your "Search engine ID" (CX) in the setup page
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Setting Up Environment Variables
+### Code Splitting
 
-Create a `.env` file in the project root with your API keys:
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-```
-# Google API Credentials
-GOOGLE_API_KEY=your_google_api_key_here
-GOOGLE_CX=your_google_custom_search_engine_id_here
+### Analyzing the Bundle Size
 
-# Spark LLM API 
-SPARK_API_KEY=your_spark_api_key_here
-SPARK_API_SECRET=your_spark_api_secret_here
-```
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-## 🚀 Installation
+### Making a Progressive Web App
 
-1. Clone this repository:
-```bash
-git clone https://github.com/yourusername/fake-news-detection.git
-cd fake-news-detection  
-```
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-2. Install required packages:
-```bash
-pip install -r requirements.txt
-```
+### Advanced Configuration
 
-3. Create and set up your `.env` file as described above
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-## 💻 Usage
+### Deployment
 
-Run the `project.py` script to analyze a set of example claims:
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
 
-```bash 
-python project.py
-```
+### `npm run build` fails to minify
 
-This will output the analysis results for each claim, including:
-- Sentiment analysis (emotional intensity, dominant emotion)
-- Fact-checking result from Spark LLM with reasoning and sources
-
-### Using as a Library
-
-You can also use the `FakeNewsDetectionSystem` class in your own code:
-
-```python
-from Try_model import FakeNewsDetectionSystem
-
-detector = FakeNewsDetectionSystem()
-claim = "Example claim to analyze"
-result = detector.analyze_claim(claim)
-
-if result["status"] == "success":
-    print(result["fact_check_result"])
-else:
-    print(f"Error: {result['message']}")
-```
-
-## 🔒 Privacy and Ethics  
-
-This system is designed for educational and research purposes. Please use responsibly and respect privacy and ethical considerations when deploying fact-checking systems.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
