@@ -2117,7 +2117,7 @@ async def analyze_claim(request: AnalysisRequest):
         
         # Pastikan kita memiliki data yang diperlukan untuk menghitung trust_lens_score
         if 'credibility_analysis' in result and 'overall_credibility_score' in result['credibility_analysis']:
-            trust_lens_score = CredibilityAnalyzer.calculate_trust_lens_score(
+            trust_lens_score = truthlens.credibility_analyzer.calculate_trust_lens_score(
                 source_credibility=result['credibility_analysis']['overall_credibility_score'],
                 factual_match=fact_check_confidence/100,  # Convert to 0-1 scale
                 tone_neutrality=1 - sentiment_analysis.get('manipulation_score', 0),
