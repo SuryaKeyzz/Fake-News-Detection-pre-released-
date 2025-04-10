@@ -830,3 +830,21 @@ These may be the world¡¯s best warships. And they¡¯re not American ¡°We aim to e
 2025-04-10 17:38:32,746 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
           4:03 AM EDT, Tue April 8, 2025
 2025-04-10 17:38:42,739 - Try_train - ERROR - Error processing analysis request: CredibilityAnalyzer.calculate_trust_lens_score() missing 1 required positional argument: 'self'
+2025-04-10 18:39:26,229 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-10 18:39:30,494 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-10 18:39:30,735 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-10 18:39:30,743 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-10 18:39:31,017 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-10 18:39:31,021 - Try_train - INFO - Testing Spark API connection...
+2025-04-10 18:39:37,110 - Try_train - INFO - Test Response Status: 200
+2025-04-10 18:39:37,349 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-10 18:39:37,349 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-10 19:00:11,007 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-10 19:00:15,236 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-10 19:00:15,492 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-10 19:00:15,497 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-10 19:00:15,686 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-10 19:00:15,691 - Try_train - INFO - Testing Spark API connection...
+2025-04-10 19:00:21,336 - Try_train - INFO - Test Response Status: 200
+2025-04-10 19:00:21,361 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-10 19:00:21,361 - Try_train - INFO - TruthLens system initialized successfully
