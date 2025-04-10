@@ -1,0 +1,832 @@
+2025-04-08 18:02:17,894 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:02:41,710 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:02:52,391 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:03:16,319 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:03:20,316 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:03:20,570 - truthlens - INFO - SpaCy model loaded successfully
+2025-04-08 18:03:20,582 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-04-08 18:03:20,751 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:03:20,758 - truthlens - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:03:20,758 - truthlens - INFO - TruthLens system initialized successfully
+2025-04-08 18:03:30,651 - truthlens - INFO - TruthLens system shut down
+2025-04-08 18:03:43,388 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:03:59,701 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:04:34,324 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:04:50,087 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:05:47,821 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:05:51,783 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:06:40,304 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:06:56,458 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:07:32,831 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:07:36,999 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:07:37,256 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:07:37,262 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:07:37,465 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:07:40,368 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:07:40,368 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:08:17,251 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:08:17,251 - Try_train - INFO - Extracting entities...
+2025-04-08 18:08:17,270 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:08:17,278 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:08:17,278 - Try_train - INFO - Searching for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:08:18,803 - Try_train - INFO - Found 10 articles for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:08:18,807 - Try_train - INFO - Found 10 articles
+2025-04-08 18:08:18,808 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:08:19,347 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-08 18:08:19,347 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:08:19,599 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:08:19,699 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:08:19,772 - Try_train - ERROR - Error processing analysis request: string indices must be integers, not 'str'
+2025-04-08 18:10:09,016 - Try_train - INFO - TruthLens system shut down
+2025-04-08 18:10:14,129 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:10:14,401 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:10:14,407 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:10:14,614 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:10:17,263 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:10:17,263 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:11:11,656 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:11:11,656 - Try_train - INFO - Extracting entities...
+2025-04-08 18:11:11,669 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:11:11,676 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:11:11,676 - Try_train - INFO - Searching for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:11:12,866 - Try_train - INFO - Found 10 articles for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:11:12,867 - Try_train - INFO - Found 10 articles
+2025-04-08 18:11:12,868 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:11:13,121 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-08 18:11:13,121 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:11:13,228 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:11:13,292 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:11:31,107 - Try_train - INFO - Analyzing claim: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:11:31,108 - Try_train - INFO - Extracting entities...
+2025-04-08 18:11:31,117 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:11:31,118 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:11:31,118 - Try_train - INFO - Searching for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:11:32,374 - Try_train - INFO - Found 10 articles for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:11:32,376 - Try_train - INFO - Found 10 articles
+2025-04-08 18:11:32,377 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:11:32,994 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-08 18:11:32,994 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:11:33,204 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:11:33,283 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:12:45,175 - Try_train - INFO - Analyzing claim: https://en.wikipedia.org/wiki/Germany
+2025-04-08 18:12:45,175 - Try_train - INFO - Extracting entities...
+2025-04-08 18:12:45,182 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:12:45,183 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:12:45,183 - Try_train - INFO - Searching for: https://en.wikipedia.org/wiki/Germany
+2025-04-08 18:12:46,884 - Try_train - INFO - Found 10 articles for: https://en.wikipedia.org/wiki/Germany
+2025-04-08 18:12:46,887 - Try_train - INFO - Found 10 articles
+2025-04-08 18:12:46,888 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:12:47,263 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-08 18:12:47,263 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:12:47,394 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:12:47,488 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:13:08,479 - Try_train - INFO - Analyzing claim: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:13:08,480 - Try_train - INFO - Extracting entities...
+2025-04-08 18:13:08,500 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:13:08,501 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:13:08,502 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:13:10,283 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:13:10,287 - Try_train - INFO - Found 10 articles
+2025-04-08 18:13:10,289 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:13:10,655 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-08 18:13:10,655 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:13:10,795 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:13:10,875 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:14:06,899 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:06,899 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:08,327 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:08,327 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:08,866 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:08,867 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,190 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,192 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,424 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,424 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,610 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,610 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,774 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,774 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,943 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:09,943 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:10,098 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:10,098 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:14:32,126 - Try_train - INFO - Analyzing claim: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:14:32,128 - Try_train - INFO - Extracting entities...
+2025-04-08 18:14:32,133 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:14:32,134 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:14:32,134 - Try_train - INFO - Searching for: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:14:33,345 - Try_train - INFO - Found 10 articles for: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:14:33,346 - Try_train - INFO - Found 10 articles
+2025-04-08 18:14:33,347 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:14:33,515 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-08 18:14:33,515 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:14:33,542 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:14:33,602 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:22:56,262 - Try_train - INFO - TruthLens system shut down
+2025-04-08 18:23:01,430 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:01,704 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:01,711 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:23:01,957 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:23:02,821 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:23:31,567 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:45,649 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:50,199 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:50,467 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:23:50,474 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:23:50,695 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:23:51,502 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:25:22,669 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:25:22,935 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:25:22,942 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:25:23,148 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:25:24,108 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:25:53,816 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:25:54,079 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:25:54,086 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:25:54,287 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:25:57,394 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:25:57,395 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:26:03,666 - Try_train - INFO - TruthLens system shut down
+2025-04-08 18:26:08,554 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:08,820 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:08,826 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:26:09,049 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:26:22,141 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:26:22,141 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:26:22,141 - Try_train - INFO - TruthLens system shut down
+2025-04-08 18:26:27,277 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:27,528 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:27,534 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:26:27,730 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:26:30,338 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:26:30,338 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:26:43,925 - Try_train - INFO - TruthLens system shut down
+2025-04-08 18:26:48,828 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:49,087 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:26:49,094 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:26:49,291 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:26:50,132 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:27:19,939 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:27:20,202 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:27:20,208 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:27:20,403 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:27:21,174 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:28:31,934 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:28:32,199 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:28:32,204 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:28:32,401 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:28:33,236 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:29:01,875 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:29:06,310 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:29:06,599 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:29:06,606 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:29:06,835 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:29:07,709 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model XSY/albert-base-v2-fakenews-discriminator: not a string
+2025-04-08 18:30:09,900 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:30:10,152 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:30:10,157 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:30:10,339 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:30:11,139 - Try_train - ERROR - Failed to initialize TruthLens system: Error loading model albert-base-v2-fakenews-discriminator: albert-base-v2-fakenews-discriminator is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `huggingface-cli login` or by passing `token=<your_token>`
+2025-04-08 18:30:40,520 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-08 18:30:40,826 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-08 18:30:40,834 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-08 18:30:41,063 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:30:43,393 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-08 18:30:43,393 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-08 18:35:36,053 - Try_train - INFO - Analyzing claim: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:35:36,054 - Try_train - INFO - Extracting entities...
+2025-04-08 18:35:36,070 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:35:36,076 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:35:36,076 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:35:37,565 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:35:37,567 - Try_train - INFO - Found 10 articles
+2025-04-08 18:35:37,567 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:35:37,817 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-08 18:35:37,817 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:35:37,964 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:35:38,023 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:35:47,986 - Try_train - INFO - Analyzing claim: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:35:47,986 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-08 18:35:50,486 - Try_train - INFO - Analyzing claim: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:35:50,486 - Try_train - INFO - Extracting entities...
+2025-04-08 18:35:50,504 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:35:50,507 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:35:50,507 - Try_train - INFO - Searching for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:35:51,688 - Try_train - INFO - Found 10 articles for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:35:51,695 - Try_train - INFO - Found 10 articles
+2025-04-08 18:35:51,695 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:35:52,082 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-08 18:35:52,083 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:35:52,312 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:35:52,401 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:38:51,089 - Try_train - INFO - Analyzing claim: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:38:51,089 - Try_train - INFO - Returning cached analysis for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-08 18:38:54,275 - Try_train - INFO - Analyzing claim: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:38:54,275 - Try_train - INFO - Extracting entities...
+2025-04-08 18:38:54,281 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:38:54,281 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:38:54,282 - Try_train - INFO - Searching for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:38:55,318 - Try_train - INFO - Found 10 articles for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-08 18:38:55,318 - Try_train - INFO - Found 10 articles
+2025-04-08 18:38:55,319 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:38:55,492 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-08 18:38:55,492 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:38:55,649 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:38:55,703 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:39:08,488 - Try_train - INFO - Analyzing claim: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:39:08,489 - Try_train - INFO - Extracting entities...
+2025-04-08 18:39:08,494 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:39:08,495 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:39:08,496 - Try_train - INFO - Searching for: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:39:09,443 - Try_train - INFO - Found 10 articles for: https://en.wikipedia.org/wiki/Whale
+2025-04-08 18:39:09,445 - Try_train - INFO - Found 10 articles
+2025-04-08 18:39:09,445 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:39:09,605 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-08 18:39:09,605 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:39:09,637 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:39:09,693 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:39:24,227 - Try_train - INFO - Analyzing claim: President Trump has been died
+
+2025-04-08 18:39:24,227 - Try_train - INFO - Extracting entities...
+2025-04-08 18:39:24,234 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:39:24,235 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:39:24,235 - Try_train - INFO - Searching for: President Trump has been died
+
+2025-04-08 18:39:25,425 - Try_train - INFO - Found 10 articles for: President Trump has been died
+
+2025-04-08 18:39:25,428 - Try_train - INFO - Found 10 articles
+2025-04-08 18:39:25,429 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:39:25,612 - Try_train - INFO - Retrieved 1 relevant articles
+2025-04-08 18:39:25,612 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:39:25,704 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:39:25,761 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:40:05,153 - Try_train - INFO - Analyzing claim: Politicians Don’t Want to Talk About Poverty
+2025-04-08 18:40:05,155 - Try_train - INFO - Extracting entities...
+2025-04-08 18:40:05,162 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:40:05,163 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:40:05,165 - Try_train - INFO - Searching for: Politicians Don’t Want to Talk About Poverty
+2025-04-08 18:40:06,397 - Try_train - INFO - Found 10 articles for: Politicians Don’t Want to Talk About Poverty
+2025-04-08 18:40:06,398 - Try_train - INFO - Found 10 articles
+2025-04-08 18:40:06,399 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:40:06,584 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-08 18:40:06,584 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:40:06,619 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:40:06,677 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-08 18:41:52,862 - Try_train - INFO - Analyzing claim: Zelensky confirms Ukraine troops in Russia's Belgorod region
+2025-04-08 18:41:52,863 - Try_train - INFO - Extracting entities...
+2025-04-08 18:41:52,872 - Try_train - INFO - Analyzing sentiment...
+2025-04-08 18:41:52,873 - Try_train - INFO - Searching for relevant articles...
+2025-04-08 18:41:52,874 - Try_train - INFO - Searching for: Zelensky confirms Ukraine troops in Russia's Belgorod region
+2025-04-08 18:41:54,449 - Try_train - INFO - Found 10 articles for: Zelensky confirms Ukraine troops in Russia's Belgorod region
+2025-04-08 18:41:54,451 - Try_train - INFO - Found 10 articles
+2025-04-08 18:41:54,451 - Try_train - INFO - Creating embeddings...
+2025-04-08 18:41:54,881 - Try_train - INFO - Retrieved 5 relevant articles
+2025-04-08 18:41:54,881 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-08 18:41:55,116 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-08 18:41:55,208 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 11:43:54,412 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-09 11:44:15,060 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-09 11:44:19,312 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 11:44:19,586 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 11:44:19,592 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 11:44:20,044 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 11:44:22,836 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 11:44:22,837 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 11:44:47,266 - Try_train - INFO - Analyzing claim: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 11:44:47,266 - Try_train - INFO - Extracting entities...
+2025-04-09 11:44:47,278 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 11:44:47,299 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 11:44:47,300 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 11:44:48,763 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 11:44:48,764 - Try_train - INFO - Found 10 articles
+2025-04-09 11:44:48,765 - Try_train - INFO - Creating embeddings...
+2025-04-09 11:44:49,473 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 11:44:49,474 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 11:44:49,690 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 11:44:49,890 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 11:52:18,217 - Try_train - INFO - Analyzing claim: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 11:52:18,217 - Try_train - INFO - Extracting entities...
+2025-04-09 11:52:18,225 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 11:52:18,227 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 11:52:18,227 - Try_train - INFO - Searching for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 11:52:19,312 - Try_train - INFO - Found 10 articles for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 11:52:19,313 - Try_train - INFO - Found 10 articles
+2025-04-09 11:52:19,313 - Try_train - INFO - Creating embeddings...
+2025-04-09 11:52:19,488 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-09 11:52:19,488 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 11:52:19,651 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 11:52:19,709 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 12:04:06,753 - Try_train - INFO - TruthLens system shut down
+2025-04-09 12:04:11,577 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 12:04:11,868 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 12:04:11,876 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 12:04:12,095 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 12:04:14,337 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 12:04:14,337 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 12:13:02,720 - Try_train - INFO - TruthLens system shut down
+2025-04-09 12:13:08,069 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 12:13:08,335 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 12:13:08,342 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 12:13:08,534 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 12:13:11,009 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 12:13:11,010 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 12:15:27,015 - Try_train - INFO - TruthLens system shut down
+2025-04-09 16:00:07,590 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-09 16:00:11,528 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 16:00:11,801 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 16:00:11,808 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 16:00:12,402 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:00:15,282 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 16:00:15,282 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 16:01:37,393 - Try_train - INFO - Analyzing claim or URL: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 16:01:37,394 - Try_train - INFO - Extracting entities...
+2025-04-09 16:01:37,457 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 16:01:37,490 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 16:01:37,491 - Try_train - INFO - Searching for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 16:01:39,104 - Try_train - INFO - Found 10 articles for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 16:01:39,107 - Try_train - INFO - Found 10 articles
+2025-04-09 16:01:39,107 - Try_train - INFO - Creating embeddings...
+2025-04-09 16:01:39,935 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-09 16:01:39,936 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 16:01:40,198 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 16:01:40,393 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:01:40,595 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 16:04:53,466 - Try_train - INFO - Analyzing claim or URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:04:53,466 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 16:04:53,467 - Try_train - INFO - Extracting article from URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:04:56,333 - Try_train - ERROR - Error extracting article from URL: cannot access local variable 'soup' where it is not associated with a value
+2025-04-09 16:04:56,336 - Try_train - WARNING - Failed to extract article content from URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:04:56,337 - Try_train - INFO - Extracting entities...
+2025-04-09 16:04:56,346 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 16:04:56,346 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 16:04:56,347 - Try_train - INFO - Searching for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:04:58,136 - Try_train - INFO - Found 10 articles for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:04:58,138 - Try_train - INFO - Found 10 articles
+2025-04-09 16:04:58,139 - Try_train - INFO - Creating embeddings...
+2025-04-09 16:04:58,513 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-09 16:04:58,513 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 16:04:58,553 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 16:04:58,638 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:04:58,776 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 16:07:52,223 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:07:52,224 - Try_train - INFO - Extracting entities...
+2025-04-09 16:07:52,232 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 16:07:52,234 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 16:07:52,234 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:07:53,539 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:07:53,541 - Try_train - INFO - Found 10 articles
+2025-04-09 16:07:53,541 - Try_train - INFO - Creating embeddings...
+2025-04-09 16:07:53,900 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 16:07:53,901 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 16:07:54,304 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 16:07:54,393 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:07:54,533 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 16:08:40,526 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/travel/shinkansen-kiss-japan-rail-spectacle-trainspotters-intl-hnk/index.html
+2025-04-09 16:08:40,527 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 16:08:40,527 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/travel/shinkansen-kiss-japan-rail-spectacle-trainspotters-intl-hnk/index.html
+2025-04-09 16:08:41,843 - Try_train - ERROR - Error extracting article from URL: cannot access local variable 'soup' where it is not associated with a value
+2025-04-09 16:08:41,845 - Try_train - WARNING - Failed to extract article content from URL: https://edition.cnn.com/travel/shinkansen-kiss-japan-rail-spectacle-trainspotters-intl-hnk/index.html
+2025-04-09 16:08:41,846 - Try_train - INFO - Extracting entities...
+2025-04-09 16:08:41,853 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 16:08:41,853 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 16:08:41,854 - Try_train - INFO - Searching for: https://edition.cnn.com/travel/shinkansen-kiss-japan-rail-spectacle-trainspotters-intl-hnk/index.html
+2025-04-09 16:08:42,929 - Try_train - INFO - Found 10 articles for: https://edition.cnn.com/travel/shinkansen-kiss-japan-rail-spectacle-trainspotters-intl-hnk/index.html
+2025-04-09 16:08:42,931 - Try_train - INFO - Found 10 articles
+2025-04-09 16:08:42,931 - Try_train - INFO - Creating embeddings...
+2025-04-09 16:08:43,283 - Try_train - INFO - Retrieved 1 relevant articles
+2025-04-09 16:08:43,284 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 16:08:43,441 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 16:08:43,525 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:08:43,718 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 16:22:36,094 - Try_train - INFO - Analyzing claim or URL: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:22:36,094 - Try_train - INFO - Extracting entities...
+2025-04-09 16:22:36,103 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 16:22:36,105 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 16:22:36,105 - Try_train - INFO - Searching for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:22:37,415 - Try_train - INFO - Found 10 articles for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:22:37,418 - Try_train - INFO - Found 10 articles
+2025-04-09 16:22:37,418 - Try_train - INFO - Creating embeddings...
+2025-04-09 16:22:37,817 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 16:22:37,817 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 16:22:38,033 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 16:22:38,125 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 16:22:38,312 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 16:27:27,762 - Try_train - INFO - Analyzing claim or URL: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:27:27,763 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:27:28,554 - Try_train - INFO - Analyzing claim or URL: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:27:28,555 - Try_train - INFO - Returning cached analysis for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 16:38:43,105 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:43,106 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:45,566 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:45,567 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:48,886 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:48,886 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:51,923 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:38:51,924 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 16:39:34,994 - Try_train - INFO - Analyzing claim or URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 16:39:34,995 - Try_train - INFO - Returning cached analysis for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:04:10,482 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:04:17,524 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:04:17,789 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:04:17,796 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:04:18,005 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:04:20,601 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:04:20,601 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:04:43,098 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:04:48,073 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:04:48,324 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:04:48,333 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:04:48,513 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:04:50,922 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:04:50,923 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:09:44,302 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:09:54,307 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:09:54,584 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:09:54,592 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:09:54,780 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:09:57,020 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:09:57,020 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:14:49,935 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:14:54,490 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:14:54,782 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:14:54,788 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:14:55,050 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:14:58,223 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:14:58,223 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:14:58,224 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:15:03,018 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:15:03,296 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:15:03,303 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:15:03,524 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:15:05,775 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:15:05,775 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:15:05,776 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:15:10,566 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:15:10,870 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:15:10,876 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:15:11,120 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:15:13,376 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:15:13,377 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:18:30,546 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:18:30,551 - Try_train - INFO - Extracting entities...
+2025-04-09 17:18:30,584 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 17:18:30,605 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 17:18:30,608 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:18:32,642 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:18:32,645 - Try_train - INFO - Found 10 articles
+2025-04-09 17:18:32,646 - Try_train - INFO - Creating embeddings...
+2025-04-09 17:18:33,600 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 17:18:33,600 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 17:18:34,194 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 17:18:34,355 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:18:34,751 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 17:21:32,550 - Try_train - INFO - TruthLens system shut down
+2025-04-09 17:21:36,910 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 17:21:37,172 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 17:21:37,179 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 17:21:37,379 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:21:39,718 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 17:21:39,718 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 17:22:51,959 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:22:51,960 - Try_train - INFO - Extracting entities...
+2025-04-09 17:22:51,969 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 17:22:51,974 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 17:22:51,974 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:22:53,290 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:22:53,290 - Try_train - INFO - Found 10 articles
+2025-04-09 17:22:53,291 - Try_train - INFO - Creating embeddings...
+2025-04-09 17:22:53,526 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 17:22:53,526 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 17:22:53,670 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 17:22:53,731 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:22:53,765 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 17:41:00,068 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:41:00,069 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:41:18,247 - Try_train - INFO - Analyzing claim or URL: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 17:41:18,248 - Try_train - INFO - Extracting entities...
+2025-04-09 17:41:18,273 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 17:41:18,275 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 17:41:18,275 - Try_train - INFO - Searching for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 17:41:20,075 - Try_train - INFO - Found 10 articles for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 17:41:20,079 - Try_train - INFO - Found 10 articles
+2025-04-09 17:41:20,080 - Try_train - INFO - Creating embeddings...
+2025-04-09 17:41:20,462 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-09 17:41:20,463 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 17:41:20,701 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 17:41:20,784 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:41:20,899 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 17:49:06,846 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:49:06,846 - Try_train - INFO - Returning cached analysis for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 17:50:39,706 - Try_train - INFO - Analyzing claim or URL: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 17:50:39,708 - Try_train - INFO - Returning cached analysis for: Doctors discovered that drinking hot water with lemon cures all types of cancer.
+2025-04-09 17:59:35,821 - Try_train - INFO - Analyzing claim or URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:59:35,822 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 17:59:35,822 - Try_train - INFO - Extracting article from URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:59:38,246 - Try_train - ERROR - Error extracting article from URL: cannot access local variable 'soup' where it is not associated with a value
+2025-04-09 17:59:38,248 - Try_train - WARNING - Failed to extract article content from URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:59:38,249 - Try_train - INFO - Extracting entities...
+2025-04-09 17:59:38,256 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 17:59:38,256 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 17:59:38,257 - Try_train - INFO - Searching for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:59:39,714 - Try_train - INFO - Found 10 articles for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 17:59:39,716 - Try_train - INFO - Found 10 articles
+2025-04-09 17:59:39,716 - Try_train - INFO - Creating embeddings...
+2025-04-09 17:59:40,092 - Try_train - INFO - Retrieved 0 relevant articles
+2025-04-09 17:59:40,092 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 17:59:40,133 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 17:59:40,216 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 17:59:40,381 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 18:00:21,588 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 18:00:21,589 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 18:00:21,590 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 18:00:22,851 - Try_train - ERROR - Error extracting article from URL: cannot access local variable 'soup' where it is not associated with a value
+2025-04-09 18:00:22,854 - Try_train - WARNING - Failed to extract article content from URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 18:00:22,854 - Try_train - INFO - Extracting entities...
+2025-04-09 18:00:22,859 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 18:00:22,860 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 18:00:22,860 - Try_train - INFO - Searching for: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 18:00:23,891 - Try_train - INFO - Found 4 articles for: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 18:00:23,893 - Try_train - INFO - Found 4 articles
+2025-04-09 18:00:23,893 - Try_train - INFO - Creating embeddings...
+2025-04-09 18:00:24,070 - Try_train - INFO - Retrieved 3 relevant articles
+2025-04-09 18:00:24,070 - Try_train - INFO - Fact-checking with XLM Roberta...
+2025-04-09 18:00:24,390 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: paraphrase-MiniLM-L6-v2
+2025-04-09 18:00:24,472 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 18:00:24,612 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 21:07:37,275 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:07:37,898 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:07:37,910 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:07:38,899 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:07:38,921 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:07:38,922 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:07:52,765 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:07:57,715 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:07:57,971 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:07:57,981 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:07:58,188 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:07:58,191 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:07:58,191 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:08:23,892 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:08:28,655 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:08:28,924 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:08:28,934 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:08:29,133 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:08:29,137 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:08:29,137 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:08:55,136 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:08:59,920 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:09:00,206 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:09:00,213 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:09:00,415 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:09:00,418 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 21:09:04,639 - Try_train - INFO - Test Response Status: 200
+2025-04-09 21:09:04,757 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:09:04,758 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:09:26,431 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:09:38,345 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:09:38,621 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:09:38,629 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:09:38,849 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:09:38,853 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 21:09:43,284 - Try_train - INFO - Test Response Status: 200
+2025-04-09 21:09:43,291 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:09:43,291 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:10:04,873 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:10:10,403 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:10:10,666 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:10:10,672 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:10:10,860 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:10:10,864 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 21:10:16,314 - Try_train - INFO - Test Response Status: 200
+2025-04-09 21:10:16,320 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:10:16,320 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:13:15,709 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:13:21,322 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:13:21,602 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:13:21,609 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:13:21,825 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:13:21,828 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 21:13:26,704 - Try_train - INFO - Test Response Status: 200
+2025-04-09 21:13:26,711 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:13:26,711 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:21:04,227 - Try_train - INFO - Analyzing claim or URL: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 21:21:04,230 - Try_train - INFO - Extracting entities...
+2025-04-09 21:21:04,322 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 21:21:04,340 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 21:21:04,341 - Try_train - INFO - Searching for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 21:21:05,681 - Try_train - INFO - Found 10 articles for: Scientific studies prove that climate change is a hoax invented to get more funding.
+2025-04-09 21:21:05,684 - Try_train - INFO - Found 10 articles
+2025-04-09 21:21:05,684 - Try_train - INFO - Creating embeddings...
+2025-04-09 21:21:06,457 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 21:21:06,457 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 21:21:06,458 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 21:21:22,436 - Try_train - INFO - API Response Status: 200
+2025-04-09 21:21:22,439 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 21:27:49,117 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:27:49,117 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 21:27:49,118 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:27:51,378 - Try_train - ERROR - Error extracting article from URL: cannot access local variable 'soup' where it is not associated with a value
+2025-04-09 21:27:51,381 - Try_train - WARNING - Failed to extract article content from URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:27:51,381 - Try_train - INFO - Extracting entities...
+2025-04-09 21:27:51,388 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 21:27:51,388 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 21:27:51,389 - Try_train - INFO - Searching for: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:27:53,423 - Try_train - INFO - Found 5 articles for: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:27:53,428 - Try_train - INFO - Found 5 articles
+2025-04-09 21:27:53,429 - Try_train - INFO - Creating embeddings...
+2025-04-09 21:27:53,765 - Try_train - INFO - Retrieved 4 relevant articles
+2025-04-09 21:27:53,765 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 21:27:53,765 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 21:28:10,814 - Try_train - INFO - API Response Status: 200
+2025-04-09 21:28:10,818 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 21:37:59,992 - Try_train - INFO - TruthLens system shut down
+2025-04-09 21:38:05,344 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 21:38:05,600 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 21:38:05,605 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 21:38:05,802 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 21:38:05,806 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 21:38:10,451 - Try_train - INFO - Test Response Status: 200
+2025-04-09 21:38:10,458 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 21:38:10,458 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 21:38:38,498 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:38:38,500 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 21:38:38,500 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:38:41,076 - Try_train - INFO - Extracting entities...
+2025-04-09 21:38:41,202 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 21:38:41,220 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 21:38:41,221 - Try_train - INFO - Searching for: New images have emerged of one of China’s futuristic fighter jets, a three-engine, tailless flying wing aircraft that Western analysts have dubbed the J-36. It’s unclear when the images, which are taken from a video, were shot, but they appeared on Chinese social media sites on Monday and show the aircraft flying over a highway near the runway of Chengdu Aircraft Industry Group, the factory in Sichuan province where the new jet is believed to have been made. Images of the J-36 first appeared on Chinese social media late last year, quickly capturing the attention of aircraft enthusiasts and military analysts. More appeared online last month. The jet is thought to be a sixth-generation aircraft, incorporating the latest stealth technology, avionics and powerplant and airframe engineering. Military aviation expert David Cenciotti, a former Italian Air Force officer, said on his website, The Aviationist, that the six-second video gives a close look at the design of the J-36. Related article
+China to unveil J-35A stealth fighter jet as air force aims to match US aerial power “The trijet engine arrangement, with two engine intakes under the wings and a dorsally-mounted intake behind the cockpit, is a departure from conventional twin-engine setups seen in many contemporary fighters. This configuration may offer advantages in terms of thrust and redundancy,” Cenciotti wrote. He said space on the aircraft’s belly shows room for internal weapons bays that could enable it to carry long-range strike missiles. The J-36 could see China pull even with, or possibly ahead of, the United States in the race to field a sixth-generation fighter. The US military’s fifth-generation jets – the twin-engine F-22 and single-engine F-35 – are generally regarded as the world’s best at the moment, though China also has two fifth-generation models, the J-20 and J-35. Neither of those Chinese jets has proven combat experience and effectiveness like the two US fighters, however. US President Donald Trump announced last month that a contract for the US Air Force’s sixth-generation fighter – dubbed the F-47 – had been awarded to Boeing. Trump said a prototype of the jet had been flying for five years. But a US Air Force announcement of the Boeing contract for the F-47 did not give a timeline for when the jets would be deployable, saying only the contract awarded on March 21 covered “the engineering and manufacturing development phase” as well as funds for “a small number of test aircraft for evaluation.” While China’s J-36 was dominating military aviation chatter this week, it’s not the only sixth-generation jet that Beijing seems to have in the works. Related article
+Is China’s military really built for war? New report questions Beijing’s arms buildup The same day that pictures emerged of the J-36 in December, photos were also posted of a new tailless, twin-engine jet, referred to by analysts as the J-XX and sometimes the J-50. The People’s Liberation Army (PLA) hasn’t publicly acknowledged the existence of either the J-36 or J-50. But the state-run tabloid Global Times last month ran a story quoting various Chinese military experts as saying the images of the two new aircraft “if authentic,” show China is making quick progress on sixth-generation fighter jets. “From a development point of view, China appears to be determined to make explorations on next-generation aviation equipment,” Wang Ya’nan, chief editor of Aerospace Knowledge magazine, was quoted as saying. It can take years for a fighter jet to go from concept to public introduction, let alone deployment. China’s J-35 was first shown to the public at last November’s Airshow China in Zuhai, but it had been in development for 10 or more years, according to analysts.
+2025-04-09 21:38:42,737 - Try_train - INFO - Found 10 articles for: New images have emerged of one of China’s futuristic fighter jets, a three-engine, tailless flying wing aircraft that Western analysts have dubbed the J-36. It’s unclear when the images, which are taken from a video, were shot, but they appeared on Chinese social media sites on Monday and show the aircraft flying over a highway near the runway of Chengdu Aircraft Industry Group, the factory in Sichuan province where the new jet is believed to have been made. Images of the J-36 first appeared on Chinese social media late last year, quickly capturing the attention of aircraft enthusiasts and military analysts. More appeared online last month. The jet is thought to be a sixth-generation aircraft, incorporating the latest stealth technology, avionics and powerplant and airframe engineering. Military aviation expert David Cenciotti, a former Italian Air Force officer, said on his website, The Aviationist, that the six-second video gives a close look at the design of the J-36. Related article
+China to unveil J-35A stealth fighter jet as air force aims to match US aerial power “The trijet engine arrangement, with two engine intakes under the wings and a dorsally-mounted intake behind the cockpit, is a departure from conventional twin-engine setups seen in many contemporary fighters. This configuration may offer advantages in terms of thrust and redundancy,” Cenciotti wrote. He said space on the aircraft’s belly shows room for internal weapons bays that could enable it to carry long-range strike missiles. The J-36 could see China pull even with, or possibly ahead of, the United States in the race to field a sixth-generation fighter. The US military’s fifth-generation jets – the twin-engine F-22 and single-engine F-35 – are generally regarded as the world’s best at the moment, though China also has two fifth-generation models, the J-20 and J-35. Neither of those Chinese jets has proven combat experience and effectiveness like the two US fighters, however. US President Donald Trump announced last month that a contract for the US Air Force’s sixth-generation fighter – dubbed the F-47 – had been awarded to Boeing. Trump said a prototype of the jet had been flying for five years. But a US Air Force announcement of the Boeing contract for the F-47 did not give a timeline for when the jets would be deployable, saying only the contract awarded on March 21 covered “the engineering and manufacturing development phase” as well as funds for “a small number of test aircraft for evaluation.” While China’s J-36 was dominating military aviation chatter this week, it’s not the only sixth-generation jet that Beijing seems to have in the works. Related article
+Is China’s military really built for war? New report questions Beijing’s arms buildup The same day that pictures emerged of the J-36 in December, photos were also posted of a new tailless, twin-engine jet, referred to by analysts as the J-XX and sometimes the J-50. The People’s Liberation Army (PLA) hasn’t publicly acknowledged the existence of either the J-36 or J-50. But the state-run tabloid Global Times last month ran a story quoting various Chinese military experts as saying the images of the two new aircraft “if authentic,” show China is making quick progress on sixth-generation fighter jets. “From a development point of view, China appears to be determined to make explorations on next-generation aviation equipment,” Wang Ya’nan, chief editor of Aerospace Knowledge magazine, was quoted as saying. It can take years for a fighter jet to go from concept to public introduction, let alone deployment. China’s J-35 was first shown to the public at last November’s Airshow China in Zuhai, but it had been in development for 10 or more years, according to analysts.
+2025-04-09 21:38:42,740 - Try_train - INFO - Found 10 articles
+2025-04-09 21:38:42,740 - Try_train - INFO - Creating embeddings...
+2025-04-09 21:38:43,331 - Try_train - INFO - Retrieved 6 relevant articles
+2025-04-09 21:38:43,331 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 21:38:43,331 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 21:39:14,330 - Try_train - INFO - API Response Status: 200
+2025-04-09 21:39:14,332 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 21:39:14,333 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
+          12:07 AM EDT, Wed April 9, 2025
+2025-04-09 21:58:52,387 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 21:58:52,388 - Try_train - INFO - Returning cached analysis for: https://edition.cnn.com/2025/04/08/asia/china-new-stealth-fighter-jet-pictures-intl-hnk-ml/index.html
+2025-04-09 22:00:11,029 - Try_train - INFO - Analyzing claim or URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 22:00:11,030 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 22:00:11,031 - Try_train - INFO - Extracting article from URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 22:00:13,659 - Try_train - INFO - Extracting entities...
+2025-04-09 22:00:13,998 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 22:00:14,027 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 22:00:16,103 - Try_train - INFO - Found 10 articles
+2025-04-09 22:00:16,104 - Try_train - INFO - Creating embeddings...
+2025-04-09 22:00:16,566 - Try_train - INFO - Retrieved 9 relevant articles
+2025-04-09 22:00:16,566 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 22:00:16,567 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 22:00:59,297 - Try_train - INFO - API Response Status: 200
+2025-04-09 22:00:59,299 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 22:00:59,301 - Try_train - INFO - Analyzing claim or URL: https://en.wikipedia.org/wiki/Bear
+2025-04-09 22:00:59,301 - Try_train - INFO - Returning cached analysis for: https://en.wikipedia.org/wiki/Bear
+2025-04-09 22:39:16,889 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-09 22:39:16,890 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 22:39:16,890 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-09 22:39:18,290 - Try_train - INFO - Extracting entities...
+2025-04-09 22:39:18,570 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 22:39:18,587 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 22:39:18,588 - Try_train - INFO - Searching for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-09 22:39:20,517 - Try_train - INFO - Found 10 articles for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-09 22:39:20,520 - Try_train - INFO - Found 10 articles
+2025-04-09 22:39:20,521 - Try_train - INFO - Creating embeddings...
+2025-04-09 22:39:20,924 - Try_train - INFO - Retrieved 9 relevant articles
+2025-04-09 22:39:20,924 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 22:39:20,924 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 22:39:46,425 - Try_train - INFO - API Response Status: 200
+2025-04-09 22:39:46,430 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 22:39:46,433 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
+          4:03 AM EDT, Tue April 8, 2025
+2025-04-09 22:54:59,422 - Try_train - INFO - Analyzing claim or URL: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 22:54:59,423 - Try_train - INFO - Extracting entities...
+2025-04-09 22:54:59,447 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 22:54:59,448 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 22:54:59,450 - Try_train - INFO - Searching for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 22:55:00,507 - Try_train - INFO - Found 10 articles for: COVID-19 vaccines contain microchips for tracking people.
+2025-04-09 22:55:00,509 - Try_train - INFO - Found 10 articles
+2025-04-09 22:55:00,511 - Try_train - INFO - Creating embeddings...
+2025-04-09 22:55:00,691 - Try_train - INFO - Retrieved 2 relevant articles
+2025-04-09 22:55:00,692 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 22:55:00,692 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 22:55:16,485 - Try_train - INFO - API Response Status: 200
+2025-04-09 22:55:16,486 - Try_train - INFO - Analyzing top result source credibility...
+2025-04-09 23:37:33,288 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-09 23:37:37,747 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-09 23:37:38,027 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-09 23:37:38,036 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-09 23:37:38,277 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-09 23:37:38,280 - Try_train - INFO - Testing Spark API connection...
+2025-04-09 23:37:42,292 - Try_train - INFO - Test Response Status: 200
+2025-04-09 23:37:42,304 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-09 23:37:42,305 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-09 23:38:28,737 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-09 23:38:28,738 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-09 23:38:28,738 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-09 23:38:31,003 - Try_train - INFO - Extracting entities...
+2025-04-09 23:38:31,196 - Try_train - INFO - Analyzing sentiment...
+2025-04-09 23:38:31,225 - Try_train - INFO - Searching for relevant articles...
+2025-04-09 23:38:31,226 - Try_train - INFO - Searching for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-09 23:38:32,912 - Try_train - INFO - Found 10 articles for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-09 23:38:32,915 - Try_train - INFO - Found 10 articles
+2025-04-09 23:38:32,915 - Try_train - INFO - Creating embeddings...
+2025-04-09 23:38:33,669 - Try_train - INFO - Retrieved 9 relevant articles
+2025-04-09 23:38:33,669 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-09 23:38:33,669 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-09 23:38:59,471 - Try_train - INFO - API Response Status: 200
+2025-04-09 23:38:59,474 - Try_train - INFO - Analyzing source credibility...
+2025-04-09 23:38:59,475 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
+          4:03 AM EDT, Tue April 8, 2025
+2025-04-10 09:19:13,558 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-10 09:19:17,750 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-10 09:19:18,016 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-10 09:19:18,022 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-10 09:19:18,516 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-10 09:19:18,520 - Try_train - INFO - Testing Spark API connection...
+2025-04-10 09:19:22,864 - Try_train - INFO - Test Response Status: 200
+2025-04-10 09:19:23,168 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-10 09:19:23,169 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-10 16:49:12,978 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-10 16:49:12,980 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-10 16:49:12,980 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-10 16:49:15,731 - Try_train - INFO - Extracting entities...
+2025-04-10 16:49:15,886 - Try_train - INFO - Analyzing sentiment...
+2025-04-10 16:49:15,918 - Try_train - INFO - Searching for relevant articles...
+2025-04-10 16:49:15,920 - Try_train - INFO - Searching for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-10 16:49:21,656 - Try_train - ERROR - Error in web search: HTTPSConnectionPool(host='www.googleapis.com', port=443): Max retries exceeded with url: /customsearch/v1?key=AIzaSyAznugqkhwueWvNLkGxVk9Wiz7Lb03bLVY&cx=357e0d7f1bd094fad&q=America%E2%80%99s+largest+military+shipbuilder+has+signed+a+deal+with+a+South+Korean+company+that+experts+say+could+be+a+big+step+in+helping+the+US+Navy+build+new+warships+to+keep+pace+with+rival+China+in+fleet+size.+Virginia-based+HII+%28Huntington+Ingalls+Industries%29+and+South+Korea%E2%80%99s+Hyundai+Heavy+Industries+inked+the+memorandum+of+understanding+%28MOU%29+on+Monday+at+a+defense+exhibition+in+Maryland.+%E2%80%9CToday%E2%80%99s+agreement+reflects+our+commitment+to+explore+all+opportunities+to+expand+US+shipbuilding+capacity+in+support+of+national+security%2C%E2%80%9D+HII+Executive+Vice+President+Brian+Blanchette+said+at+a+ceremony+at+the+Sea+Air+Space+2025+exposition.+%E2%80%9CBy+working+with+our+shipbuilding+allies+and+sharing+best+practices%2C+we+believe+this+MOU+offers+real+potential+to+help+accelerate+delivery+of+quality+ships.%E2%80%9D+A+Hyundai+Heavy+Industries+statement+noted+that+both+HII+and+the+South+Korean+shipyard+build+Aegis+destroyers%2C+the+backbones+of+the+US+and+South+Korean+surface+fleets.+Aegis+ships+provide+protection+against+missile+threats%2C+including+powerful+ballistic+missiles+in+the+arsenals+of+rivals+China+and+North+Korea.+%E2%80%9CThis+MOU+is+particularly+significant+as+it+marks+the+first+collaboration+between+two+leading+shipbuilding+companies+from+Korea+and+the+US%2C+both+of+which+have+the+capability+to+construct+the+world%E2%80%99s+most+advanced+Aegis+ships%2C%E2%80%9D+the+statement+said.+Hyundai+Heavy+Industries+operates+the+world%E2%80%99s+largest+shipyard+in+Ulsan%2C+South+Korea%2C+and+it+builds+10%25+of+the+world%E2%80%99s+ships%2C+according+to+the+company%E2%80%99s+website.+Analysts+have+long+called+for+the+US+to+take+steps+with+allies+like+South+Korea+and+Japan+to+cooperate+on+naval+shipbuilding+as+Chinese+shipyards+have+been+churning+out+warships+at+breakneck+speed%2C+giving+the+People%E2%80%99s+Liberation+Army+Navy+the+world%E2%80%99s+largest+fleet.+Meanwhile%2C+Washington+has+failed+to+keep+pace%2C+due+in+large+part+to+limited+capacity+in+shipyard+space+and+insufficient+workers+in+the+US.+%E2%80%9CThis+agreement+is+a+strong+start+towards+alleviating+the+impact+of+America%E2%80%99s+shortfall+in+shipbuilding+capacity%2C%E2%80%9D+said+Hawaii-based+analyst+Carl+Schuster%2C+a+former+US+Navy+captain.+Schuster+said+while+changes+would+be+needed+to+US+law+to+enable+the+South+Korean+shipyard+to+begin+fully+constructing+destroyers+for+the+US+Navy%2C+the+pact+signed+Monday+could+yield+immediate+benefits.+%E2%80%9C%28US%29+law+does+not+prohibit+using+foreign+yards+to+repair+and+do+maintenance+on+US+Navy+ships%2C+and+we+have+a+36-month+backlog+on+shipyard+maintenance+and+hull+refurbishment%2C%E2%80%9D+he+said.+Another+South+Korean+shipyard%2C+Hanwha+Ocean%2C+last+month+completed+a+seven-month+overhaul+of+a+US+Military+Sealift+Command+supply+ship%2C+the+USNS+Wally+Schirra%2C+a+feat+a+US+Navy+admiral+called+a+%E2%80%9Clandmark+achievement.%E2%80%9D+%E2%80%9CMaintenance+in+Theater+reduces+downtime+and+costs%2C+while+enhancing+operational+readiness%2C%E2%80%9D+Rear+Adm.+Neil+Koprowski%2C+commander+of+US+Naval+Forces+Korea%2C+said+in+a+statement.+But+cooperation+between+the+builders+of+Aegis+destroyers+takes+the+alliance+to+a+higher+level.+Related+article%0AThese+may+be+the+world%E2%80%99s+best+warships.+And+they%E2%80%99re+not+American+%E2%80%9CWe+aim+to+enhance+the+shipbuilding+capacities+and+capabilities+of+both+nations+and%2C+furthermore%2C+to+contribute+to+the+strengthening+of+bilateral+security+cooperation%2C%E2%80%9D+said+Joo+Wonho%2C+chief+executive+of+naval+and+special+shipbuilding+at+Hyundai+Heavy%2C+in+a+statement.+South+Korean+lawmaker+Yu+Yong-weon+called+the+deal+%E2%80%9Ca+new+win-win+model+of+shipbuilding+and+defense+industry+cooperation+between+South+Korea+and+the+United+States.%E2%80%9D+%E2%80%9CWith+Korean+shipyards+directly+participating+in+the+enhancement+of+US+naval+power%2C+it+is+also+expected+to+contribute+to+ROK-US+security+cooperation%2C+including+efforts+to+keep+China+in+check%2C%E2%80%9D+Yu+said.+ROK+stands+for+Republic+of+Korea.+Schuster+sees+another+big+benefit+from+the+deal.+%E2%80%9CHyundai+and+Huntington+can+use+the+agreement+to+train+new+American+workers+for+HII%E2%80%99s+shipyards.+A+labor+shortage+is+the+primary+limiting+factor+in+America%E2%80%99s+shipyard+capacity%2C%E2%80%9D+he+said.+If+it+can+eventually+be+worked+out+that+warships+for+the+US+Navy+could+be+built+in+South+Korea%2C+the+impact+could+be+even+more+substantial.+Woo-man+Jeong%2C+Hyundai+Heavy%E2%80%99s+specialized+ship+business+division+managing+director%2C+told+South+Korea%E2%80%99s+Chosun+Ilbo+newspaper+last+month+that+his+company+could+build+five+or+more+Aegis+destroyers+a+year.+US+shipyards+average+two+or+fewer+destroyers+built+per+year.+The+HII-Hyundai+deal+follows+a+big+investment+in+US-based+shipbuilding+last+year+by+Hanwha+Ocean%2C+when+it+purchased+Philly+Shipyard%2C+which+builds+mainly+commercial+vessels+but+also+does+maintenance+and+repair+work+on+government+vessels.+Bence+Nemeth%2C+a+senior+lecturer+at+King%E2%80%99s+College+London%2C+said+after+the+Philly+Shipyard+deal+that+US-South+Korea+shipbuilding+cooperation+benefits+the+security+of+both+countries.+%E2%80%9CIn+the+short+term%2C+the+US+Navy+will+benefit+from+increased+availability+of+ships%2C+and+in+the+medium+term%2C+it+could+accelerate+the+growth+of+its+fleet.+This+can+help+Washington+maintain+its+global+maritime+dominance%2C%E2%80%9D+Nemeth+wrote+on+the+Korea+Institute+for+Maritime+Strategy%E2%80%99s+website.+%E2%80%9CA+strong+U.S.+Navy+is+also+crucial+for+South+Korean+national+security%2C+as+it+helps+deter+North+Korean+aggression%2C%E2%80%9D+Nemeth+said.+CNN%E2%80%99s+Gawon+Bae+contributed+to+this+report.&num=10 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1006)')))
+2025-04-10 16:49:21,659 - Try_train - WARNING - No articles found for the claim
+2025-04-10 16:49:21,660 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-10 16:49:21,661 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-10 16:49:50,416 - Try_train - INFO - API Response Status: 200
+2025-04-10 16:49:50,421 - Try_train - INFO - Analyzing source credibility...
+2025-04-10 16:49:50,421 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
+          4:03 AM EDT, Tue April 8, 2025
+2025-04-10 16:55:14,737 - Try_train - INFO - TruthLens system shut down
+2025-04-10 16:55:56,992 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-10 16:56:01,042 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-10 16:56:01,307 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-10 16:56:01,314 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-10 16:56:01,666 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-10 16:56:01,670 - Try_train - INFO - Testing Spark API connection...
+2025-04-10 16:56:35,365 - Try_train - INFO - Test Response Status: 200
+2025-04-10 16:56:35,590 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-10 16:56:35,592 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-10 16:57:35,888 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/10/tech/elon-musk-sam-altman-open-ai-countersue-intl/index.html
+2025-04-10 16:57:35,892 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-10 16:57:35,893 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/10/tech/elon-musk-sam-altman-open-ai-countersue-intl/index.html
+2025-04-10 16:57:38,240 - Try_train - INFO - Extracting entities...
+2025-04-10 16:57:38,344 - Try_train - INFO - Analyzing sentiment...
+2025-04-10 16:57:38,356 - Try_train - INFO - Searching for relevant articles...
+2025-04-10 16:57:38,357 - Try_train - INFO - Searching for: OpenAI countersued Elon Musk Wednesday, citing a pattern of harassment by Musk and asking a federal judge to stop him from any “further unlawful and unfair action” against OpenAI, in a court case over the future structure of the firm that helped launch the AI revolution. Musk and OpenAI CEO Sam Altman co-founded OpenAI in 2015, but Musk left before the company became a technology star. Recently Musk, who went on to create his own AI firm, xAI, in 2023, has tried to prevent the ChatGPT maker from transitioning to a for-profit model, culminating in the current court case. In order for OpenAI to secure the entire $40 billion of its current fundraising round, the company must complete its transition by the end of the year. Related video
+Bernie Sanders’ warning to Americans about Musk, AI and jobs “Through press attacks, malicious campaigns broadcast to Musk’s more than 200 million followers on the social media platform he controls, a pretextual demand for corporate records, harassing legal claims and a sham bid for OpenAI’s assets, Musk has tried every tool available to harm OpenAI,” the company wrote in a filing in Musk’s existing lawsuit against OpenAI in the US District Court for the Northern District of California. OpenAI asked the judge to stop Musk from any further attacks, as well as that Musk be “held responsible for the damage he has already caused.” The two parties are set to begin a jury trial in spring next year. In response, Musk’s legal team referred to a $97.4 billion unsolicited takeover bid earlier this year from a Musk-led consortium, which OpenAI rejected. “Had OpenAI’s board genuinely considered the bid as they were obligated to do, they would have seen how serious it was. It’s telling that having to pay fair market value for OpenAI’s assets allegedly ‘interferes’ with their business plans,” Musk’s lawyer Marc Toberoff said in a statement provided to Reuters. In a post on X, the social media platform that Musk owns, OpenAI said: “Elon’s nonstop actions against us are just bad-faith tactics to slow down OpenAI and seize control of the leading AI innovations for his personal benefit.” Musk’s xAI last month acquired X in a deal that values the social media company at $33 billion and allows the value of his artificial intelligence firm to be shared with co-investors in X. Last year, Musk, who is also the CEO of electric carmaker Tesla, sued OpenAI and Altman, accusing OpenAI of straying from its founding mission – to develop AI for the good of humanity, not corporate profit. Musk did not respond to a request for comment on the OpenAI filing. OpenAI and Altman have denied the allegations, while Altman alleges that Musk has been trying to slow down a competitor. At stake in the lawsuit is the ChatGPT maker’s transition to a for-profit model, which the start-up says is crucial to raising more capital and competing well in the expensive AI race.
+2025-04-10 16:57:40,189 - Try_train - INFO - Found 10 articles for: OpenAI countersued Elon Musk Wednesday, citing a pattern of harassment by Musk and asking a federal judge to stop him from any “further unlawful and unfair action” against OpenAI, in a court case over the future structure of the firm that helped launch the AI revolution. Musk and OpenAI CEO Sam Altman co-founded OpenAI in 2015, but Musk left before the company became a technology star. Recently Musk, who went on to create his own AI firm, xAI, in 2023, has tried to prevent the ChatGPT maker from transitioning to a for-profit model, culminating in the current court case. In order for OpenAI to secure the entire $40 billion of its current fundraising round, the company must complete its transition by the end of the year. Related video
+Bernie Sanders’ warning to Americans about Musk, AI and jobs “Through press attacks, malicious campaigns broadcast to Musk’s more than 200 million followers on the social media platform he controls, a pretextual demand for corporate records, harassing legal claims and a sham bid for OpenAI’s assets, Musk has tried every tool available to harm OpenAI,” the company wrote in a filing in Musk’s existing lawsuit against OpenAI in the US District Court for the Northern District of California. OpenAI asked the judge to stop Musk from any further attacks, as well as that Musk be “held responsible for the damage he has already caused.” The two parties are set to begin a jury trial in spring next year. In response, Musk’s legal team referred to a $97.4 billion unsolicited takeover bid earlier this year from a Musk-led consortium, which OpenAI rejected. “Had OpenAI’s board genuinely considered the bid as they were obligated to do, they would have seen how serious it was. It’s telling that having to pay fair market value for OpenAI’s assets allegedly ‘interferes’ with their business plans,” Musk’s lawyer Marc Toberoff said in a statement provided to Reuters. In a post on X, the social media platform that Musk owns, OpenAI said: “Elon’s nonstop actions against us are just bad-faith tactics to slow down OpenAI and seize control of the leading AI innovations for his personal benefit.” Musk’s xAI last month acquired X in a deal that values the social media company at $33 billion and allows the value of his artificial intelligence firm to be shared with co-investors in X. Last year, Musk, who is also the CEO of electric carmaker Tesla, sued OpenAI and Altman, accusing OpenAI of straying from its founding mission – to develop AI for the good of humanity, not corporate profit. Musk did not respond to a request for comment on the OpenAI filing. OpenAI and Altman have denied the allegations, while Altman alleges that Musk has been trying to slow down a competitor. At stake in the lawsuit is the ChatGPT maker’s transition to a for-profit model, which the start-up says is crucial to raising more capital and competing well in the expensive AI race.
+2025-04-10 16:57:40,191 - Try_train - INFO - Found 10 articles
+2025-04-10 16:57:40,191 - Try_train - INFO - Creating embeddings...
+2025-04-10 16:57:40,997 - Try_train - INFO - Retrieved 10 relevant articles
+2025-04-10 16:57:40,998 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-10 16:57:40,998 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-10 16:57:45,051 - Try_train - INFO - API Response Status: 500
+2025-04-10 16:57:45,052 - Try_train - ERROR - Spark API Error: 500 Server Error: Internal Server Error for url: https://spark-api-open.xf-yun.com/v1/chat/completions
+2025-04-10 16:57:45,052 - Try_train - ERROR - Response text: {"error":{"message":"非常抱歉，根据相关法律法规，我们无法提供关于以下内容的答案，包括但不限于：\n\t(1) 涉及国家安全的信息；\n\t(2) 涉及政治与宗教类的信息；\n\t(3) 涉及暴力与恐怖主义的信息；\n\t(4) 涉及黄赌毒类的信息；\n\t(5) 涉及不文明的信息。\n我们会继续遵循相关法规法律的要求，共创一个健康和谐网络环境，谢谢您的理解。\n (sid: cha000b8e4d@dx1961eeb5931b8f2532)","type":"api_error","param":null,"code":"10013"}}
+2025-04-10 16:58:03,073 - Try_train - INFO - TruthLens system shut down
+2025-04-10 17:03:53,185 - __main__ - INFO - SpaCy model loaded successfully
+2025-04-10 17:03:57,246 - __mp_main__ - INFO - SpaCy model loaded successfully
+2025-04-10 17:03:57,504 - Try_train - INFO - SpaCy model loaded successfully
+2025-04-10 17:03:57,512 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: distilbert-base-nli-mean-tokens
+2025-04-10 17:03:57,720 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device: cpu
+2025-04-10 17:03:57,723 - Try_train - INFO - Testing Spark API connection...
+2025-04-10 17:04:02,979 - Try_train - INFO - Test Response Status: 200
+2025-04-10 17:04:03,000 - Try_train - WARNING - Knowledge Graph not initialized due to missing credentials
+2025-04-10 17:04:03,001 - Try_train - INFO - TruthLens system initialized successfully
+2025-04-10 17:37:54,806 - Try_train - INFO - Analyzing claim or URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-10 17:37:54,810 - Try_train - INFO - Input is a URL. Extracting article content...
+2025-04-10 17:37:54,811 - Try_train - INFO - Extracting article from URL: https://edition.cnn.com/2025/04/08/business/us-south-korea-military-shipbuilding-deal-intl-hnk-ml/index.html?iid=cnn_buildContentRecirc_end_recirc
+2025-04-10 17:37:58,223 - Try_train - INFO - Extracting entities...
+2025-04-10 17:37:58,566 - Try_train - INFO - Analyzing sentiment...
+2025-04-10 17:37:58,625 - Try_train - INFO - Searching for relevant articles...
+2025-04-10 17:37:58,626 - Try_train - INFO - Searching for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-10 17:38:00,736 - Try_train - INFO - Found 10 articles for: America’s largest military shipbuilder has signed a deal with a South Korean company that experts say could be a big step in helping the US Navy build new warships to keep pace with rival China in fleet size. Virginia-based HII (Huntington Ingalls Industries) and South Korea’s Hyundai Heavy Industries inked the memorandum of understanding (MOU) on Monday at a defense exhibition in Maryland. “Today’s agreement reflects our commitment to explore all opportunities to expand US shipbuilding capacity in support of national security,” HII Executive Vice President Brian Blanchette said at a ceremony at the Sea Air Space 2025 exposition. “By working with our shipbuilding allies and sharing best practices, we believe this MOU offers real potential to help accelerate delivery of quality ships.” A Hyundai Heavy Industries statement noted that both HII and the South Korean shipyard build Aegis destroyers, the backbones of the US and South Korean surface fleets. Aegis ships provide protection against missile threats, including powerful ballistic missiles in the arsenals of rivals China and North Korea. “This MOU is particularly significant as it marks the first collaboration between two leading shipbuilding companies from Korea and the US, both of which have the capability to construct the world’s most advanced Aegis ships,” the statement said. Hyundai Heavy Industries operates the world’s largest shipyard in Ulsan, South Korea, and it builds 10% of the world’s ships, according to the company’s website. Analysts have long called for the US to take steps with allies like South Korea and Japan to cooperate on naval shipbuilding as Chinese shipyards have been churning out warships at breakneck speed, giving the People’s Liberation Army Navy the world’s largest fleet. Meanwhile, Washington has failed to keep pace, due in large part to limited capacity in shipyard space and insufficient workers in the US. “This agreement is a strong start towards alleviating the impact of America’s shortfall in shipbuilding capacity,” said Hawaii-based analyst Carl Schuster, a former US Navy captain. Schuster said while changes would be needed to US law to enable the South Korean shipyard to begin fully constructing destroyers for the US Navy, the pact signed Monday could yield immediate benefits. “(US) law does not prohibit using foreign yards to repair and do maintenance on US Navy ships, and we have a 36-month backlog on shipyard maintenance and hull refurbishment,” he said. Another South Korean shipyard, Hanwha Ocean, last month completed a seven-month overhaul of a US Military Sealift Command supply ship, the USNS Wally Schirra, a feat a US Navy admiral called a “landmark achievement.” “Maintenance in Theater reduces downtime and costs, while enhancing operational readiness,” Rear Adm. Neil Koprowski, commander of US Naval Forces Korea, said in a statement. But cooperation between the builders of Aegis destroyers takes the alliance to a higher level. Related article
+These may be the world’s best warships. And they’re not American “We aim to enhance the shipbuilding capacities and capabilities of both nations and, furthermore, to contribute to the strengthening of bilateral security cooperation,” said Joo Wonho, chief executive of naval and special shipbuilding at Hyundai Heavy, in a statement. South Korean lawmaker Yu Yong-weon called the deal “a new win-win model of shipbuilding and defense industry cooperation between South Korea and the United States.” “With Korean shipyards directly participating in the enhancement of US naval power, it is also expected to contribute to ROK-US security cooperation, including efforts to keep China in check,” Yu said. ROK stands for Republic of Korea. Schuster sees another big benefit from the deal. “Hyundai and Huntington can use the agreement to train new American workers for HII’s shipyards. A labor shortage is the primary limiting factor in America’s shipyard capacity,” he said. If it can eventually be worked out that warships for the US Navy could be built in South Korea, the impact could be even more substantial. Woo-man Jeong, Hyundai Heavy’s specialized ship business division managing director, told South Korea’s Chosun Ilbo newspaper last month that his company could build five or more Aegis destroyers a year. US shipyards average two or fewer destroyers built per year. The HII-Hyundai deal follows a big investment in US-based shipbuilding last year by Hanwha Ocean, when it purchased Philly Shipyard, which builds mainly commercial vessels but also does maintenance and repair work on government vessels. Bence Nemeth, a senior lecturer at King’s College London, said after the Philly Shipyard deal that US-South Korea shipbuilding cooperation benefits the security of both countries. “In the short term, the US Navy will benefit from increased availability of ships, and in the medium term, it could accelerate the growth of its fleet. This can help Washington maintain its global maritime dominance,” Nemeth wrote on the Korea Institute for Maritime Strategy’s website. “A strong U.S. Navy is also crucial for South Korean national security, as it helps deter North Korean aggression,” Nemeth said. CNN’s Gawon Bae contributed to this report.
+2025-04-10 17:38:00,739 - Try_train - INFO - Found 10 articles
+2025-04-10 17:38:00,740 - Try_train - INFO - Creating embeddings...
+2025-04-10 17:38:01,455 - Try_train - INFO - Retrieved 8 relevant articles
+2025-04-10 17:38:01,455 - Try_train - INFO - Fact-checking with Spark LLM...
+2025-04-10 17:38:01,456 - Try_train - INFO - Sending request to Spark LLM API...
+2025-04-10 17:38:32,745 - Try_train - INFO - API Response Status: 200
+2025-04-10 17:38:32,746 - Try_train - INFO - Analyzing source credibility...
+2025-04-10 17:38:32,746 - Try_train - ERROR - Error parsing date: Unknown string format: Updated
+          4:03 AM EDT, Tue April 8, 2025
+2025-04-10 17:38:42,739 - Try_train - ERROR - Error processing analysis request: CredibilityAnalyzer.calculate_trust_lens_score() missing 1 required positional argument: 'self'
