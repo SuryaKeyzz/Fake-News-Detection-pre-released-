@@ -1,4 +1,3 @@
-import AIDetectionVisualization from "./components/AIDetectionvisualization";
 import React, { useState, useEffect } from "react";
 import {
   AlertTriangle,
@@ -89,8 +88,11 @@ const TruthLensApp = () => {
   }, []);
 
   useEffect(() => {
+    console.log("Result updated:", result);
     if (result && result.ai_detection) {
       console.log("AI Detection data:", result.ai_detection);
+    } else if (result) {
+      console.log("Result exists but no AI detection data found");
     }
   }, [result]);
 
@@ -299,6 +301,7 @@ const TruthLensApp = () => {
       console.log("Response from backend:", data); // Log the full response
       console.log("Verdict:", data.verdict); // Specifically log the verdict
       console.log("Confidence:", data.confidence); // Specifically log the confidence
+      console.log("AI Detection data:", data.ai_detection); // Specifically log AI detection data
 
       if (data.error) {
         setError(data.error);
@@ -364,6 +367,7 @@ const TruthLensApp = () => {
       setIsAnalyzing(false);
     }
   };
+
   const saveToHistory = (result) => {
     // Create a new history item with timestamp
     const historyItem = {
@@ -807,8 +811,7 @@ const TruthLensApp = () => {
       </div>
     );
   };
-
-  console.log("AI Detection data:", result.ai_detection);
+  
 
   const VerificationBadge = ({ verificationPerformed }) => {
     if (!verificationPerformed) return null;
@@ -2173,12 +2176,7 @@ const TruthLensApp = () => {
                         result.emotional_manipulation.score
                       )}
                     </div>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-1">Analysis</div>
-                      <p className="text-gray-800 bg-gray-50 p-3 rounded-lg">
-                        {result.explanation}
-                      </p>
-                    </div>
+                   
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">
                         Emotional Analysis
@@ -2254,17 +2252,22 @@ const TruthLensApp = () => {
                       {renderEntities(result.entities)}
                     </div>
 
-                   
+            
 
-                    {/* Add this new component here */}
+                    {result && (
+                      <>
+                        {/* Debug information */}
+                        <div className="hidden">
+                          Debug: AI Detection available:{" "}
+                          {result.ai_detection ? "Yes" : "No"}
+                        </div>
 
-                    {result?.ai_detection && (
-                      <AIDetectionVisualization
-                        aiDetection={result.ai_detection}
-                      />
+                        {/* Enhanced AI Detection Widget with better prop handling */}
+                        <AIDetectionWidget
+                          aiDetection={result.ai_detection || null}
+                        />
+                      </>
                     )}
-
-                    <AIDetectionWidget aiDetection={result.ai_detection} />
 
                     <div className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200 flex items-center justify-end">
                       <Clock size={14} className="mr-1" />
