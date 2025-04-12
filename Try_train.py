@@ -1,5 +1,5 @@
 """
-Fake News Detection System using XLM-RoBERTa with RAG
+Fake News Detection System using Spark LLM with RAG
 ==================================================
 This system combines:
 1. Web search for retrieving relevant articles
@@ -3534,10 +3534,10 @@ async def analyze_claim(request: AnalysisRequest):
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
-@app.post("/analyze", response_model=AnalysisResponse)
-async def analyze_claim(request: AnalysisRequest):
+@app.post("/analyze-prompt", response_model=PromptAnalysisResponse)
+async def analyze_prompt(request: PromptAnalysisRequest):
     """
-    Analyze a claim or URL for fake news detection.
+    Analyze a user's prompt and provide suggestions for improvement.
     """
     global truthlens
     
@@ -3545,157 +3545,14 @@ async def analyze_claim(request: AnalysisRequest):
         raise HTTPException(status_code=503, detail="TruthLens system not initialized")
     
     try:
-        result = truthlens.analyze_claim(
-            claim=request.claim,
-            use_rag=request.use_rag,
-            use_kg=request.use_kg
-        )
-        
-        if result["status"] == "error":
-            raise HTTPException(status_code=500, detail=result["message"])
-        
-        # Extract relevant information for the response
-        response = {
-            "status": result["status"],
-            "claim": result["claim"],
-            "is_url_input": result.get("is_url_input", False),
-            "verdict": None,  # We'll set this below
-            "confidence": None,
-            "explanation": None,
-            "emotional_manipulation": {
-                "score": result["sentiment_analysis"]["manipulation_score"],
-                "level": result["sentiment_analysis"]["manipulation_level"],
-                "explanation": result["sentiment_analysis"]["explanation"]
-            },
-            "processing_time": result["processing_time"],
-            "entities": result["entities"]
-        }
-        
-        # Parse fact_check result if it's a string
-        if isinstance(result["fact_check"], str):
-            fact_check_text = result["fact_check"]
-            
-            # Extract verdict with improved regex
-            verdict_match = re.search(r"Verdict:\s*(.*?)(?:\n|$)", fact_check_text, re.IGNORECASE)
-            if verdict_match:
-                response["verdict"] = verdict_match.group(1).strip()
-            else:
-                # Try alternate patterns for verdict extraction
-                alt_verdict_match = re.search(r"(True|False|Partially True|REAL|FAKE|MISLEADING)", fact_check_text)
-                if alt_verdict_match:
-                    response["verdict"] = alt_verdict_match.group(1).strip()
-                else:
-                    # If we can't extract verdict, use a default based on confidence
-                    if "confidence" in response and response["confidence"]:
-                        conf = response["confidence"]
-                        if conf >= 80:
-                            response["verdict"] = "True"
-                        elif conf >= 40:
-                            response["verdict"] = "Partially True"
-                        else:
-                            response["verdict"] = "False"
-                    else:
-                        response["verdict"] = "Unverified"
-            
-            # Extract confidence
-            confidence_match = re.search(r"Confidence:\s*(\d+)%", fact_check_text)
-            if confidence_match:
-                response["confidence"] = int(confidence_match.group(1))
-            else:
-                # Try to find any number followed by % sign if the standard format fails
-                alt_confidence_match = re.search(r"(\d+)%", fact_check_text)
-                if alt_confidence_match:
-                    response["confidence"] = int(alt_confidence_match.group(1))
-                else:
-                    # Default confidence if we can't extract it
-                    response["confidence"] = 75
-            
-            # Extract explanation
-            explanation_match = re.search(r"Explanation:\s*(.*?)(?:\n\n|$)", fact_check_text, re.DOTALL)
-            if explanation_match:
-                response["explanation"] = explanation_match.group(1).strip()
-            else:
-                # Take a larger chunk as explanation if the format doesn't match
-                explanation_fallback = "\n".join(fact_check_text.split("\n")[3:])
-                response["explanation"] = explanation_fallback[:500] + "..."
-                
-        else:
-            # Handle as dictionary if it's not a string
-            response["verdict"] = result["fact_check"].get("verdict")
-            response["confidence"] = result["fact_check"].get("confidence")
-            response["explanation"] = result["fact_check"].get("explanation")
-        
-        # Add source metadata if available
-        if "source_metadata" in result:
-            response["source_metadata"] = result["source_metadata"]
-        
-        # Add credibility assessment if available
-        if "credibility_analysis" in result:
-            response["credibility_assessment"] = {
-                "score": result["credibility_analysis"]["overall_credibility_score"],
-                "level": result["credibility_analysis"]["credibility_level"],
-                "explanation": result["credibility_analysis"]["explanation"],
-                "details": result["credibility_analysis"]["details"]
-            }
-            
-            # For URL inputs, if verdict is still None, derive it from credibility assessment
-            if response["verdict"] is None and response["is_url_input"]:
-                cred_score = result["credibility_analysis"]["overall_credibility_score"]
-                if cred_score >= 0.75:
-                    response["verdict"] = "True"
-                elif cred_score >= 0.4:
-                    response["verdict"] = "Partially True"
-                else:
-                    response["verdict"] = "False"
-        
-        # If verdict is still None or "Unknown", provide a default based on the text assessment
-        if response["verdict"] is None or response["verdict"] == "Unknown":
-            # Check if there's any indication in the explanation
-            if response["explanation"] and "true" in response["explanation"].lower():
-                response["verdict"] = "True"
-            elif response["explanation"] and "false" in response["explanation"].lower():
-                response["verdict"] = "False"
-            elif response["explanation"] and "partially" in response["explanation"].lower():
-                response["verdict"] = "Partially True"
-            else:
-                # Final fallback
-                response["verdict"] = "Unverified"
-                
-        # Add additional analysis data
-        if 'title_content_contradiction' in result:
-            response['title_content_contradiction'] = result['title_content_contradiction']
-            
-        if "ai_detection" in result:
-            response["ai_detection"] = result["ai_detection"]
-        
-        # Calculate trust_lens_score
-        if 'credibility_analysis' in result and 'overall_credibility_score' in result['credibility_analysis']:
-           source_credibility = result["credibility_analysis"]["overall_credibility_score"] 
-           fact_confidence = response.get("confidence", 0) / 100.0 if response.get("confidence") else 0.5
-           sentiment_score = result["sentiment_analysis"].get("manipulation_score", 0)
-           tone_neutrality = 1.0 - sentiment_score
-           
-           author_credibility = result.get("credibility_analysis", {}).get("factors", {}).get("author", {}).get("credibility_factor", 0.5)
-           
-           # Calculate trust score
-           trust_lens_score = truthlens.credibility_analyzer.calculate_trust_lens_score(
-                source_credibility=source_credibility,
-                factual_match=fact_confidence,
-                tone_neutrality=tone_neutrality,
-                source_transparency=author_credibility
-            )
-           response["trust_lens_score"] = trust_lens_score
-        
-        # Log the final verdict and confidence
-        logger.info(f"Final verdict: {response['verdict']}, Confidence: {response['confidence']}%")
-        
-        return response
-
-    except HTTPException:
-        raise
+        result = truthlens.suggest_prompt(request.prompt)
+        return result
     except Exception as e:
-        logger.error(f"Error processing analysis request: {e}")
-        raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+        logger.error(f"Error analyzing prompt: {e}")
+        raise HTTPException(status_code=500, detail=f"Prompt analysis failed: {str(e)}")
+
+
+
 
 # Command line interface
 def main():
@@ -3803,3 +3660,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
