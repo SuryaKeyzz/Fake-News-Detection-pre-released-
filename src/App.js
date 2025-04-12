@@ -36,7 +36,9 @@ import {
   Bar,
   PieChart,
   Pie,
+  ReferenceLine,
   Cell,
+  Label,
 } from "recharts";
 import { data } from "autoprefixer";
 
@@ -55,6 +57,11 @@ const TruthLensApp = () => {
   const [credibilitySourceData, setCredibilitySourceData] = useState([]);
   const [fakeNewsExamples, setFakeNewsExamples] = useState([]);
   const [activeDashboardTab, setActiveDashboardTab] = useState("trends");
+  // Add these state variables
+  const [promptSuggestions, setPromptSuggestions] = useState(null);
+  const [showPromptSuggestions, setShowPromptSuggestions] = useState(false);
+  const [improvedPrompt, setImprovedPrompt] = useState("");
+  const [promptAnalysisTimeout, setPromptAnalysisTimeout] = useState(null);
   // Add with your other state variables
   const [analysisHistory, setAnalysisHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -79,6 +86,20 @@ const TruthLensApp = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (result && result.ai_detection) {
+      console.log("AI Detection data:", result.ai_detection);
+    }
+  }, [result]);
+
+  useEffect(() => {
+    if (result) {
+      console.log("Analysis result:", result);
+      console.log("Confidence value:", result.confidence);
+      console.log("Verdict:", result.verdict);
+    }
+  }, [result]);
 
   useEffect(() => {
     // Mock statistics data
@@ -188,35 +209,21 @@ const TruthLensApp = () => {
     console.error("API Error:", error);
   };
 
-  const analyzeClaim = async () => {
-    if (!claim.trim()) {
-      setError("Please enter a claim to analyze");
+  // Add this function to analyze prompts as the user types
+  const analyzePrompt = async (promptText) => {
+    if (!promptText || promptText.trim().length < 5) {
+      setShowPromptSuggestions(false);
       return;
     }
 
-    setError("");
-    setIsAnalyzing(true);
-
-    const resultElement = document.getElementById("result-area");
-    if (resultElement && window.innerWidth < 1024) {
-      resultElement.scrollIntoView({ behavior: "smooth" });
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    setResult(null);
-
-    let mockResult = null;
     try {
-      // In a real implementation, call the API
-      const response = await fetch(`${apiBaseUrl}/analyze`, {
+      const response = await fetch(`${apiBaseUrl}/analyze-prompt`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          claim,
-          use_rag: useRag,
-          use_kg: useKg,
+          prompt: promptText,
         }),
       });
 
@@ -226,48 +233,136 @@ const TruthLensApp = () => {
 
       const data = await response.json();
 
-      // Transform API data to ensure compatibility with frontend
-      const transformedData = {
-        ...data,
-        // Map backend verdict to frontend format if needed
-        verdict: data.verdict || "Unknown",
-        // Ensure confidence is a number
-        confidence:
-          typeof data.confidence === "number"
-            ? data.confidence
-            : parseInt(data.confidence) || 0,
-        // Ensure emotional manipulation data exists
-        emotional_manipulation: data.emotional_manipulation || {
-          score: 0,
-          level: "Unknown",
-          explanation: "No emotional analysis available",
-        },
-      };
-
-      setResult(transformedData);
-      mockResult = transformedData;
-    } catch (err) {
-      handleSparkApiError(err);
-
-      // Fall back to mock response for demo
-      const isUrl = claim.toLowerCase().startsWith("http");
-      const isFake =
-        claim.toLowerCase().includes("microchip") ||
-        claim.toLowerCase().includes("hoax") ||
-        claim.toLowerCase().includes("cure") ||
-        claim.toLowerCase().includes("government is hiding");
-
-      mockResult = createMockResult(claim, isFake, isUrl);
-      setResult(mockResult);
-    } finally {
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      setIsAnalyzing(false);
-      if (mockResult) {
-        saveToHistory(mockResult);
+      if (
+        !data.is_good_prompt &&
+        data.suggestions &&
+        data.suggestions.length > 0
+      ) {
+        setPromptSuggestions(data.suggestions);
+        setImprovedPrompt(data.improved_prompt);
+        setShowPromptSuggestions(true);
+      } else {
+        setShowPromptSuggestions(false);
       }
+    } catch (err) {
+      console.error("Error analyzing prompt:", err);
+      setShowPromptSuggestions(false);
     }
   };
 
+  // Handle claim input with debounce
+  const handleClaimChange = (e) => {
+    const newClaim = e.target.value;
+    setClaim(newClaim);
+
+    // Clear previous timeout
+    if (promptAnalysisTimeout) {
+      clearTimeout(promptAnalysisTimeout);
+    }
+
+    // Set new timeout for prompt analysis (800ms debounce)
+    const newTimeout = setTimeout(() => {
+      analyzePrompt(newClaim);
+    }, 800);
+
+    setPromptAnalysisTimeout(newTimeout);
+  };
+
+  // Function to use the improved prompt
+  const useImprovedPrompt = () => {
+    if (improvedPrompt) {
+      setClaim(improvedPrompt);
+      setShowPromptSuggestions(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    try {
+      setIsAnalyzing(true);
+      setError(null);
+
+      const response = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          claim: claim,
+          use_rag: useRag,
+          use_kg: useKg,
+          is_url: claim.trim().toLowerCase().startsWith("http"),
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Response from backend:", data); // Log the full response
+      console.log("Verdict:", data.verdict); // Specifically log the verdict
+      console.log("Confidence:", data.confidence); // Specifically log the confidence
+
+      if (data.error) {
+        setError(data.error);
+        return;
+      }
+
+      // Normalize the verdict if it exists but might have different formatting
+      if (data.verdict) {
+        console.log("Original verdict:", data.verdict);
+
+        // Keep the original verdict but make sure we handle various formats
+        if (typeof data.verdict === "string") {
+          const lowerVerdict = data.verdict.toLowerCase();
+
+          // Log what type of verdict it was classified as
+          if (
+            lowerVerdict.includes("true") &&
+            !lowerVerdict.includes("partially")
+          ) {
+            console.log("Classified as: True");
+          } else if (
+            lowerVerdict.includes("partially") ||
+            lowerVerdict.includes("misleading")
+          ) {
+            console.log("Classified as: Partially True");
+          } else if (
+            lowerVerdict.includes("false") ||
+            lowerVerdict.includes("fake")
+          ) {
+            console.log("Classified as: False");
+          } else {
+            console.log("Unrecognized verdict format");
+          }
+        }
+      } else {
+        console.warn("No verdict in response data");
+        // Assign a default verdict based on confidence
+        if (data.confidence !== undefined) {
+          if (data.confidence >= 80) {
+            data.verdict = "True";
+          } else if (data.confidence >= 40) {
+            data.verdict = "Partially True";
+          } else {
+            data.verdict = "False";
+          }
+          console.log(
+            "Assigned default verdict based on confidence:",
+            data.verdict
+          );
+        }
+      }
+
+      // Save to history if analysis was successful
+      if (data.status === "success") {
+        saveToHistory(data);
+      }
+
+      setResult(data);
+    } catch (error) {
+      console.error("Error during analysis:", error);
+      setError("Terjadi kesalahan saat menganalisis klaim. Silakan coba lagi.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
   const saveToHistory = (result) => {
     // Create a new history item with timestamp
     const historyItem = {
@@ -520,41 +615,38 @@ const TruthLensApp = () => {
   };
 
   // Add a new component to display contradiction analysis
-const TitleContentContradictionWidget = ({ contradiction }) => {
-  if (!contradiction) return null;
+  const TitleContentContradictionWidget = ({ contradiction }) => {
+    if (!contradiction) return null;
 
-  const getSeverityColor = (severity) => {
-    if (severity < 0.3) return 'text-green-600';
-    if (severity < 0.7) return 'text-yellow-600';
-    return 'text-red-600';
-  };
+    const getSeverityColor = (severity) => {
+      if (severity < 0.3) return "text-green-600";
+      if (severity < 0.7) return "text-yellow-600";
+      return "text-red-600";
+    };
 
-  return (
-    <div className="bg-gray-50 p-3 rounded-lg">
-      <h4 className="font-medium mb-2">Title-Content Analysis</h4>
-      <div className={`text-sm ${getSeverityColor(contradiction.severity)}`}>
-        <div>
-          <strong>Contradiction Type:</strong> {contradiction.type}
-        </div>
-        <div>
-          <strong>Severity:</strong> {(contradiction.severity * 100).toFixed(0)}%
-        </div>
-        {contradiction.is_misleading && (
-          <div className="mt-2 text-red-600 font-semibold">
-            Potentially Misleading Content
+    return (
+      <div className="bg-gray-50 p-3 rounded-lg">
+        <h4 className="font-medium mb-2">Title-Content Analysis</h4>
+        <div className={`text-sm ${getSeverityColor(contradiction.severity)}`}>
+          <div>
+            <strong>Contradiction Type:</strong> {contradiction.type}
           </div>
-        )}
-        <div className="mt-2 text-gray-700">
-          <strong>Explanation:</strong> {contradiction.explanation}
+          <div>
+            <strong>Severity:</strong>{" "}
+            {(contradiction.severity * 100).toFixed(0)}%
+          </div>
+          {contradiction.is_misleading && (
+            <div className="mt-2 text-red-600 font-semibold">
+              Potentially Misleading Content
+            </div>
+          )}
+          <div className="mt-2 text-gray-700">
+            <strong>Explanation:</strong> {contradiction.explanation}
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-
-
-
+    );
+  };
 
   const createMockResult = (claim, isFake, isUrl = false) => {
     const confidence = isFake ? 89 : 78;
@@ -715,6 +807,350 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
     );
   };
 
+  const VerificationBadge = ({ verificationPerformed }) => {
+    if (!verificationPerformed) return null;
+
+    return (
+      <div className="flex items-center bg-indigo-50 text-indigo-800 text-xs px-2 py-1 rounded mb-4">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 mr-1"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+          />
+        </svg>
+        Advanced verification analysis performed
+      </div>
+    );
+  };
+
+
+  // Add this component for visualizing the verdict assessment
+  const VerdictVisualization = ({ verdict, confidence }) => {
+    // Determine colors and position based on verdict
+    let position = 50; // Default position (middle)
+    let color = "#9ca3af"; // Default color (gray)
+
+    if (verdict) {
+      const verdictLower = verdict.toLowerCase();
+      if (
+        verdictLower.includes("true") &&
+        !verdictLower.includes("partially")
+      ) {
+        position = 85;
+        color = "#10b981"; // Green
+      } else if (
+        verdictLower.includes("partially") ||
+        verdictLower.includes("misleading")
+      ) {
+        position = 50;
+        color = "#f59e0b"; // Yellow
+      } else if (
+        verdictLower.includes("false") ||
+        verdictLower.includes("fake")
+      ) {
+        position = 15;
+        color = "#ef4444"; // Red
+      }
+    }
+
+    // Data for bullet chart
+    const bulletData = [
+      {
+        name: "Verdict",
+        ranges: [100],
+        measures: [confidence || 0],
+        markers: [position],
+      },
+    ];
+
+    return (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h4 className="font-medium mb-3">Verdict Assessment Visualization</h4>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-red-600 font-medium">False</span>
+          <span className="text-yellow-600 font-medium">Partially True</span>
+          <span className="text-green-600 font-medium">True</span>
+        </div>
+        <div className="h-24">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              layout="vertical"
+              data={bulletData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <YAxis dataKey="name" type="category" />
+              <XAxis type="number" domain={[0, 100]} />
+              <Tooltip />
+              <Bar dataKey="ranges" fill="#e5e7eb" barSize={30} />
+              <Bar dataKey="measures" fill={color} barSize={20} />
+              <ReferenceLine x={position} stroke={color} strokeWidth={2}>
+                <Label value={verdict} position="top" fill={color} />
+              </ReferenceLine>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  // Add a component to visualize emotional manipulation
+  const EmotionalAnalysisChart = ({ sentimentAnalysis }) => {
+    if (
+      !sentimentAnalysis ||
+      !sentimentAnalysis.details ||
+      !sentimentAnalysis.details.emotion_keywords
+    ) {
+      return null;
+    }
+
+    // Prepare emotion data for bar chart
+    const emotionData = Object.entries(
+      sentimentAnalysis.details.emotion_keywords
+    )
+      .map(([emotion, score]) => ({
+        emotion: emotion.charAt(0).toUpperCase() + emotion.slice(1),
+        score: score * 100, // Convert to percentage
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5); // Get top 5 emotions
+
+    return (
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <h4 className="font-medium mb-3">Emotional Content Analysis</h4>
+        <div className="h-64">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={emotionData}
+              layout="vertical"
+              margin={{ top: 5, right: 30, left: 70, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                type="number"
+                domain={[0, Math.max(...emotionData.map((d) => d.score)) * 1.2]}
+              />
+              <YAxis dataKey="emotion" type="category" />
+              <Tooltip
+                formatter={(value) => [`${value.toFixed(1)}%`, "Intensity"]}
+              />
+              <Bar dataKey="score" fill="#8884d8">
+                {emotionData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={
+                      entry.score > 10
+                        ? "#ef4444"
+                        : entry.score > 5
+                        ? "#f59e0b"
+                        : "#10b981"
+                    }
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  };
+
+  // Add this component before your return statement in TruthLensApp:
+  const EnhancedVerdictAssessment = ({ result }) => {
+    if (!result) return null;
+
+    // Extract key properties
+    const verdict = result.verdict || result.fact_check?.verdict;
+    const confidence = result.confidence || result.fact_check?.confidence;
+    const explanation = result.explanation || result.fact_check?.explanation;
+
+    // Determine verdict colors and labels
+    const getVerdictInfo = () => {
+      if (!verdict) {
+        return {
+          color: "gray",
+          label: "Unverified",
+          bgColor: "bg-gray-500",
+          textColor: "text-gray-800",
+        };
+      }
+
+      const verdictLower = verdict.toLowerCase();
+      if (verdictLower === "true" || verdictLower === "real") {
+        return {
+          color: "green",
+          label: "True",
+          bgColor: "bg-green-500",
+          textColor: "text-green-800",
+        };
+      } else if (
+        verdictLower === "partially true" ||
+        verdictLower === "misleading"
+      ) {
+        return {
+          color: "yellow",
+          label: "Partially True",
+          bgColor: "bg-yellow-500",
+          textColor: "text-yellow-800",
+        };
+      } else if (verdictLower === "false" || verdictLower === "fake") {
+        return {
+          color: "red",
+          label: "False",
+          bgColor: "bg-red-500",
+          textColor: "text-red-800",
+        };
+      } else {
+        return {
+          color: "gray",
+          label: "Unverified",
+          bgColor: "bg-gray-500",
+          textColor: "text-gray-800",
+        };
+      }
+    };
+
+    const verdictInfo = getVerdictInfo();
+
+    // Generate detailed explanation based on verdict
+    const getDetailedExplanation = () => {
+      if (verdictInfo.label === "True") {
+        return "This claim is well-supported by reliable evidence. Multiple credible sources confirm the information.";
+      } else if (verdictInfo.label === "Partially True") {
+        return "This claim contains some accurate information but is misleading or omits important context.";
+      } else if (verdictInfo.label === "False") {
+        return "This claim is contradicted by reliable evidence. Credible sources refute the information.";
+      } else {
+        return "There is insufficient evidence to determine the accuracy of this claim.";
+      }
+    };
+
+    return (
+      <div className="mb-6 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-medium">Verdict Assessment</h3>
+          <div
+            className={`px-3 py-1 rounded-full ${verdictInfo.bgColor} bg-opacity-20 ${verdictInfo.textColor} font-medium`}
+          >
+            {verdictInfo.label}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-sm text-gray-600">Confidence Level</span>
+            <span className="text-sm font-medium">{confidence || 0}%</span>
+          </div>
+          <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className={`h-3 ${verdictInfo.bgColor}`}
+              style={{ width: `${confidence || 0}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div
+            className={`p-3 rounded-lg ${verdictInfo.bgColor} bg-opacity-10 border border-${verdictInfo.color}-200`}
+          >
+            <h4 className={`font-medium ${verdictInfo.textColor} mb-1`}>
+              Verdict
+            </h4>
+            <p className="text-sm text-gray-700">{verdictInfo.label}</p>
+          </div>
+
+          <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 md:col-span-2">
+            <h4 className="font-medium text-blue-800 mb-1">
+              Expert Assessment
+            </h4>
+            <p className="text-sm text-gray-700">
+              {explanation || getDetailedExplanation()}
+            </p>
+          </div>
+        </div>
+
+        {result.verification_note && (
+          <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 mb-4">
+            <h4 className="font-medium text-purple-800 mb-1">
+              Verification Note
+            </h4>
+            <p className="text-sm text-gray-700">{result.verification_note}</p>
+          </div>
+        )}
+
+        {result.reasoning && (
+          <div>
+            <h4 className="font-medium mb-2">Analysis Reasoning</h4>
+            <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg whitespace-pre-wrap">
+              {result.reasoning}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Add this component before your return statement in TruthLensApp:
+  const ConfidenceFactorsWidget = ({ factors }) => {
+    if (!factors) return null;
+
+    // Format the factors for better display
+    const formatFactor = (value, label) => {
+      const percentage = (value * 100).toFixed(0);
+      let color = "text-gray-600";
+
+      if (value > 0.7) color = "text-green-600";
+      else if (value > 0.4) color = "text-yellow-600";
+      else color = "text-red-600";
+
+      return (
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-sm font-medium">{label}</span>
+          <span className={`text-sm ${color}`}>{percentage}%</span>
+          <div className="w-24 h-2 bg-gray-200 rounded-full ml-2">
+            <div
+              className={`h-2 rounded-full ${
+                value > 0.7
+                  ? "bg-green-500"
+                  : value > 0.4
+                  ? "bg-yellow-500"
+                  : "bg-red-500"
+              }`}
+              style={{ width: `${percentage}%` }}
+            ></div>
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+        <h4 className="font-medium mb-3">Confidence Factors</h4>
+        <div className="space-y-1">
+          {factors.semantic_similarity !== undefined &&
+            formatFactor(factors.semantic_similarity, "Evidence Similarity")}
+          {factors.entity_overlap !== undefined &&
+            formatFactor(factors.entity_overlap, "Entity Match")}
+          {factors.evidence_strength !== undefined &&
+            formatFactor(factors.evidence_strength, "Evidence Strength")}
+          {factors.source_credibility !== undefined &&
+            formatFactor(factors.source_credibility, "Source Credibility")}
+        </div>
+        <div className="mt-3 text-xs text-gray-500">
+          These factors were used to calibrate the confidence score
+        </div>
+      </div>
+    );
+  };
+
   const renderCredibilityAssessment = (assessment) => {
     if (!assessment) {
       return null;
@@ -744,62 +1180,61 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
   };
 
   const renderVerdictBadge = (verdict) => {
-    // Handle both old verdict formats and new Spark LLM format
-    switch (verdict) {
-      case "REAL":
-      case "True":
-        return (
-          <div className="bg-green-100 text-green-800 rounded-full px-3 py-1 flex items-center">
-            <Check size={16} className="mr-1" />
-            Reliable
-          </div>
-        );
-      case "MISLEADING":
-      case "Partially True":
-        return (
-          <div className="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 flex items-center">
-            <AlertTriangle size={16} className="mr-1" />
-            Misleading
-          </div>
-        );
-      case "FAKE":
-      case "False":
-        return (
-          <div className="bg-red-100 text-red-800 rounded-full px-3 py-1 flex items-center">
-            <AlertCircle size={16} className="mr-1" />
-            Fake News
-          </div>
-        );
-      case "UNVERIFIED":
-      case "Unverified":
-        return (
-          <div className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 flex items-center">
-            <Info size={16} className="mr-1" />
-            Unverified
-          </div>
-        );
-      default:
-        return (
-          <div className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 flex items-center">
-            <Info size={16} className="mr-1" />
-            Unknown
-          </div>
-        );
+    // Normalize verdict text to handle different formats
+    const normalizedVerdict = verdict ? verdict.toLowerCase().trim() : "";
+
+    // True verdicts
+    if (normalizedVerdict === "real" || normalizedVerdict === "true") {
+      return (
+        <div className="bg-green-100 text-green-800 rounded-full px-3 py-1 flex items-center">
+          <Check size={16} className="mr-1" />
+          Reliable
+        </div>
+      );
+    }
+    // Partially true verdicts
+    else if (
+      normalizedVerdict === "misleading" ||
+      normalizedVerdict === "partially true" ||
+      normalizedVerdict.includes("partial")
+    ) {
+      return (
+        <div className="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 flex items-center">
+          <AlertTriangle size={16} className="mr-1" />
+          Misleading
+        </div>
+      );
+    }
+    // False verdicts
+    else if (normalizedVerdict === "fake" || normalizedVerdict === "false") {
+      return (
+        <div className="bg-red-100 text-red-800 rounded-full px-3 py-1 flex items-center">
+          <AlertCircle size={16} className="mr-1" />
+          Fake News
+        </div>
+      );
+    }
+    // Unverified/unknown verdicts
+    else {
+      return (
+        <div className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 flex items-center">
+          <Info size={16} className="mr-1" />
+          Unverified
+        </div>
+      );
     }
   };
-
-
   const TrustLensScoreWidget = ({ score }) => {
     const getColor = (score) => {
-      if (score >= 0.8) return 'bg-green-500';
-      if (score >= 0.5) return 'bg-yellow-500';
-      return 'bg-red-500';
+      if (score >= 0.8) return "bg-green-500";
+      if (score >= 0.5) return "bg-yellow-500";
+      return "bg-red-500";
     };
-  
+
     return (
       <div className="flex items-center">
         <div className="w-24 h-3 bg-gray-200 rounded-full">
-          <div 
+          <div
             className={`h-3 rounded-full ${getColor(score)}`}
             style={{ width: `${score * 100}%` }}
           ></div>
@@ -807,6 +1242,151 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
         <span className="ml-2 text-sm font-medium">
           {(score * 100).toFixed(0)}% Trust Score
         </span>
+      </div>
+    );
+  };
+
+  // Add this component inside your TruthLensApp component but outside the return statement
+  const PromptSuggestionPanel = ({
+    prompt,
+    suggestions,
+    onUseImproved,
+    isVisible,
+  }) => {
+    if (!isVisible || !suggestions || suggestions.length === 0) return null;
+
+    return (
+      <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-100 animate-fade-in">
+        <div className="flex justify-between items-start">
+          <div className="flex items-center">
+            <Info size={16} className="text-blue-600 mr-2 flex-shrink-0" />
+            <h4 className="font-medium text-blue-800">Prompt Suggestions</h4>
+          </div>
+          {onUseImproved && (
+            <button
+              onClick={onUseImproved}
+              className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+            >
+              Use Improved Prompt
+            </button>
+          )}
+        </div>
+        <ul className="mt-2 space-y-1 text-sm text-blue-700">
+          {suggestions.map((suggestion, index) => (
+            <li key={index} className="flex items-start">
+              <ChevronRight size={14} className="mr-1 mt-1 flex-shrink-0" />
+              <span>{suggestion}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  const getConfidenceColor = (score) => {
+    if (score >= 0.8) return "text-red-600";
+    if (score >= 0.5) return "text-yellow-600";
+    return "text-green-600";
+  };
+
+  const AIDetectionWidget = ({ aiDetection }) => {
+    if (!aiDetection) return null;
+
+    // Normalize the data structure regardless of how it comes in
+    const normalizedData = {
+      score:
+        aiDetection.ai_score !== undefined
+          ? aiDetection.ai_score
+          : aiDetection.ai_likelihood !== undefined
+          ? aiDetection.ai_likelihood
+          : aiDetection.ai_detection && aiDetection.ai_detection.ai_score
+          ? aiDetection.ai_detection.ai_score
+          : 0,
+      verdict:
+        aiDetection.ai_verdict ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.ai_verdict) ||
+        "Unknown",
+      reasoning:
+        aiDetection.reasoning ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.reasoning) ||
+        "No analysis available",
+      category:
+        aiDetection.content_category ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.content_category) ||
+        "Unknown",
+      subcategory:
+        aiDetection.content_subcategory ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.content_subcategory) ||
+        null,
+      patterns:
+        aiDetection.pattern_analysis ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.pattern_analysis) ||
+        null,
+    };
+
+    const scorePercentage = Math.round(normalizedData.score * 100);
+
+    return (
+      <div className="mb-6 p-4 border rounded-lg bg-white shadow-sm">
+        <h3 className="text-lg font-medium mb-3">Deteksi AI</h3>
+        <div className="space-y-3">
+          <div className="flex items-center">
+            <span className="font-medium">Probabilitas Konten AI:</span>
+            <span
+              className={`ml-2 font-bold ${getConfidenceColor(
+                normalizedData.score
+              )}`}
+            >
+              {scorePercentage}%
+            </span>
+          </div>
+
+          {normalizedData.verdict && (
+            <div>
+              <span className="font-medium">Verdict:</span>
+              <span className="ml-2">{normalizedData.verdict}</span>
+            </div>
+          )}
+
+          {normalizedData.reasoning && (
+            <div>
+              <span className="font-medium">Analisis:</span>
+              <p className="mt-1 text-gray-700">{normalizedData.reasoning}</p>
+            </div>
+          )}
+
+          {normalizedData.category && (
+            <div>
+              <span className="font-medium">Kategori Konten:</span>
+              <span className="ml-2">{normalizedData.category}</span>
+              {normalizedData.subcategory && (
+                <span className="ml-1 text-gray-500">
+                  ({normalizedData.subcategory})
+                </span>
+              )}
+            </div>
+          )}
+
+          {normalizedData.patterns &&
+            normalizedData.patterns.patterns_found && (
+              <div>
+                <span className="font-medium">Pola AI Terdeteksi:</span>
+                <div className="mt-1 text-sm text-gray-600">
+                  {Object.entries(normalizedData.patterns.patterns_found).map(
+                    ([pattern, count]) =>
+                      count > 0 && (
+                        <div key={pattern} className="ml-4">
+                          • {pattern}: {count} kali
+                        </div>
+                      )
+                  )}
+                </div>
+              </div>
+            )}
+        </div>
       </div>
     );
   };
@@ -1117,8 +1697,16 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
                       rows="4"
                       value={claim}
-                      onChange={(e) => setClaim(e.target.value)}
+                      onChange={handleClaimChange}
                       placeholder="Enter a claim to analyze, e.g., 'Scientists discovered that drinking coffee prevents cancer' or paste a URL"
+                    />
+
+                    {/* Add the prompt suggestion panel here */}
+                    <PromptSuggestionPanel
+                      prompt={claim}
+                      suggestions={promptSuggestions}
+                      onUseImproved={useImprovedPrompt}
+                      isVisible={showPromptSuggestions}
                     />
                     {claim.trim().startsWith("http") && (
                       <div className="absolute top-2 right-2 bg-blue-100 text-blue-800 rounded-full px-2 py-1 text-xs flex items-center">
@@ -1165,7 +1753,7 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
 
                 <button
                   className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-                  onClick={analyzeClaim}
+                  onClick={handleAnalyze}
                   disabled={isAnalyzing}
                 >
                   {isAnalyzing ? "Analyzing..." : "Analyze Claim"}
@@ -1202,7 +1790,14 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                         Analysis Results
                       </h2>
                       <div className="flex items-center space-x-3">
-                        {renderVerdictBadge(result.verdict)}
+                        {result.verdict ? (
+                          renderVerdictBadge(result.verdict)
+                        ) : (
+                          <div className="bg-gray-100 text-gray-800 rounded-full px-3 py-1 flex items-center">
+                            <Info size={16} className="mr-1" />
+                            Unverified
+                          </div>
+                        )}
                         <button
                           onClick={() => setShowShareModal(true)}
                           className="flex items-center text-blue-600 hover:text-blue-800 text-sm"
@@ -1246,28 +1841,6 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                       </div>
                     </div>
 
-                    {result.title_content_contradiction && (
-        <TitleContentContradictionWidget 
-          contradiction={result.title_content_contradiction} 
-        />
-      )}
-
-                    {/* Add Trust Lens Score widget here */}
-    {result.trust_lens_score && (
-      <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <div className="text-sm text-gray-500 mb-1">Trust Lens Score</div>
-        <div className="flex items-center">
-          <div className="w-full max-w-md">
-            <TrustLensScoreWidget score={result.trust_lens_score} />
-          </div>
-        </div>
-        <p className="text-xs text-gray-600 mt-2">
-          A comprehensive score combining source credibility, factual accuracy, 
-          and content neutrality.
-        </p>
-      </div>
-    )}
-
                     {/* Add confidence gauge chart */}
                     <div className="mb-6">
                       <div className="text-sm text-gray-500 mb-1">
@@ -1290,11 +1863,11 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                                   ? "bg-green-500"
                                   : "bg-gray-500"
                               }`}
-                              style={{ width: `${result.confidence}%` }}
+                              style={{ width: `${result.confidence || 0}%` }}
                             ></div>
                           </div>
                           <span className="ml-2 font-medium">
-                            {result.confidence}%
+                            {result.confidence || 0}%
                           </span>
                         </div>
 
@@ -1308,11 +1881,11 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                                 data={[
                                   {
                                     name: "Confidence",
-                                    value: result.confidence,
+                                    value: result.confidence || 0,
                                   },
                                   {
                                     name: "Remaining",
-                                    value: 100 - result.confidence,
+                                    value: 100 - (result.confidence || 0),
                                   },
                                 ]}
                                 cx="50%"
@@ -1346,61 +1919,11 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                                 className="font-bold"
                                 fontSize="24"
                               >
-                                {result.confidence}%
+                                {result.confidence || 0}%
                               </text>
                             </PieChart>
                           </ResponsiveContainer>
                         </div>
-                      </div>
-                    </div>
-
-                    {/* Add verdict visualization */}
-                    <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                      <h3 className="text-md font-medium mb-3">
-                        Verdict Assessment
-                      </h3>
-                      <div className="flex items-center justify-center">
-                        <div className="w-full max-w-lg bg-gray-200 h-4 rounded-full overflow-hidden relative">
-                          <div className="absolute inset-0 flex">
-                            <div className="w-1/3 border-r border-white"></div>
-                            <div className="w-1/3 border-r border-white"></div>
-                            <div className="w-1/3"></div>
-                          </div>
-                          <div
-                            className={`h-full ${
-                              result.verdict === "FAKE" ||
-                              result.verdict === "False"
-                                ? "bg-red-500"
-                                : result.verdict === "MISLEADING" ||
-                                  result.verdict === "Partially True"
-                                ? "bg-yellow-500"
-                                : "bg-green-500"
-                            }`}
-                            style={{
-                              width:
-                                result.verdict === "FAKE" ||
-                                result.verdict === "False"
-                                  ? "15%"
-                                  : result.verdict === "MISLEADING" ||
-                                    result.verdict === "Partially True"
-                                  ? "50%"
-                                  : "85%",
-                            }}
-                          ></div>
-                          <div className="absolute inset-0 flex items-center justify-between px-2 text-xs text-white font-bold">
-                            <span>False</span>
-                            <span>Partially True</span>
-                            <span>True</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-3 text-center text-sm text-gray-600">
-                        {result.verdict === "FAKE" || result.verdict === "False"
-                          ? "This claim is assessed to be false based on available evidence"
-                          : result.verdict === "MISLEADING" ||
-                            result.verdict === "Partially True"
-                          ? "This claim contains some accurate information but is misleading overall"
-                          : "This claim is assessed to be true based on available evidence"}
                       </div>
                     </div>
 
@@ -1467,6 +1990,23 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                       </div>
                     </div>
 
+                    <VerdictVisualization
+                      verdict={result.verdict}
+                      confidence={result.confidence}
+                    />
+
+                    {/* Replace the existing verdict visualization with our new enhanced component */}
+                    <EnhancedVerdictAssessment result={result} />
+
+                   
+
+                    {/* Add the confidence factors widget after the verdict assessment */}
+                    {result.confidence_factors && (
+                      <ConfidenceFactorsWidget
+                        factors={result.confidence_factors}
+                      />
+                    )}
+
                     {/* Add this Spark LLM badge */}
                     <div className="mb-4 flex justify-end">
                       <div className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded flex items-center">
@@ -1474,6 +2014,14 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                         Powered by Spark LLM
                       </div>
                     </div>
+
+                    <EmotionalAnalysisChart
+                      sentimentAnalysis={result.emotional_manipulation}
+                    />
+
+                    {result.verification_analysis && (
+                      <VerificationBadge verificationPerformed={true} />
+                    )}
 
                     {result.is_url_input && (
                       <>
@@ -1493,14 +2041,12 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                         result.emotional_manipulation.score
                       )}
                     </div>
-
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">Analysis</div>
                       <p className="text-gray-800 bg-gray-50 p-3 rounded-lg">
                         {result.explanation}
                       </p>
                     </div>
-
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">
                         Emotional Analysis
@@ -1509,6 +2055,68 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                         {result.emotional_manipulation.explanation}
                       </p>
                     </div>
+                    {/* You can keep your existing AI Detection Widget */}
+                    {result.ai_detection && (
+                      <AIDetectionWidget aiDetection={result.ai_detection} />
+                    )}
+                    {result.title_content_contradiction && (
+                      <TitleContentContradictionWidget
+                        contradiction={result.title_content_contradiction}
+                      />
+                    )}
+
+                    {/* Add Trust Lens Score widget here */}
+                    {result.trust_lens_score !== undefined &&
+                      result.trust_lens_score !== null && (
+                        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                          <div className="text-sm text-gray-500 mb-1">
+                            Trust Lens Score
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-full max-w-md">
+                              <TrustLensScoreWidget
+                                score={result.trust_lens_score}
+                              />
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-2">
+                            A comprehensive score combining source credibility,
+                            factual accuracy, and content neutrality.
+                          </p>
+                        </div>
+                      )}
+
+                    {/* Add propaganda techniques display */}
+                    {result.emotional_manipulation &&
+                      result.emotional_manipulation.propaganda_analysis &&
+                      result.emotional_manipulation.propaganda_analysis
+                        .has_propaganda && (
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
+                          <h4 className="font-medium mb-2">
+                            Detected Propaganda Techniques
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {Object.entries(
+                              result.emotional_manipulation.propaganda_analysis
+                                .detected_techniques
+                            ).map(([technique, data]) => (
+                              <div
+                                key={technique}
+                                className="bg-white p-2 rounded border border-yellow-200"
+                              >
+                                <div className="font-medium">
+                                  {technique
+                                    .replace("_", " ")
+                                    .replace(/\b\w/g, (l) => l.toUpperCase())}
+                                </div>
+                                <div className="text-xs text-gray-600 mt-1">
+                                  Examples: {data.examples.join(", ")}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">
@@ -1516,7 +2124,6 @@ const TitleContentContradictionWidget = ({ contradiction }) => {
                       </div>
                       {renderEntities(result.entities)}
                     </div>
-
                     <div className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200 flex items-center justify-end">
                       <Clock size={14} className="mr-1" />
                       Analysis completed in{" "}

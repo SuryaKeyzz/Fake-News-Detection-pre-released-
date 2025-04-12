@@ -894,47 +894,96 @@ class SparkLLMFactChecker:
         evidence_text = evidence_text[:2500]
         return evidence_text
     
-    def build_fact_check_prompt(self, claim: str, evidence_text: str) -> str:
-        """Build a prompt for fact-checking that avoids content filter triggers
+    def build_fact_check_prompt(self, claim: str, evidence_text: str, entities: Dict[str, List[str]] = None, source_credibility: float = None) -> str:
+        """Build an enhanced prompt for fact-checking with better structure and context
         
         Args:
             claim: The claim to fact-check
             evidence_text: Preprocessed evidence text
+            entities: Named entities found in the claim
+            source_credibility: Optional credibility score of the source
             
         Returns:
-            Prompt string
+            Enhanced prompt string
         """
-        # Build the prompt with neutral examples to avoid content filter
+        # Format entity information if available
+        entity_context = ""
+        if entities:
+            entity_context = "Named entities in the claim:\n"
+            for entity_type, entity_list in entities.items():
+                if entity_list:
+                    entity_context += f"- {entity_type}: {', '.join(entity_list)}\n"
+        
+        # Format source credibility if available
+        credibility_context = ""
+        if source_credibility is not None:
+            credibility_level = "HIGH" if source_credibility > 0.7 else "MEDIUM" if source_credibility > 0.4 else "LOW"
+            credibility_context = f"Source credibility: {credibility_level} ({source_credibility:.2f}/1.0)\n"
+        
+        # Few-shot examples to guide the model
+        few_shot_examples = """
+    Example 1:
+    Claim: "Scientists have confirmed that drinking lemon water cures cancer."
+    Evidence: Research shows lemon has some antioxidant properties but no studies demonstrate it cures cancer. Medical authorities confirm there is no evidence for this claim.
+    Verdict: False
+    Confidence: 95%
+    Reasoning: This claim contradicts established medical science. While lemons have health benefits, no peer-reviewed studies support anticancer properties of the magnitude claimed.
+
+    Example 2:
+    Claim: "The government announced a 2% increase in healthcare spending."
+    Evidence: Official budget documents show a 1.8% increase in healthcare allocation for the next fiscal year.
+    Verdict: True
+    Confidence: 90%
+    Reasoning: The claim is essentially accurate with only a minor numerical discrepancy that doesn't change the overall message.
+
+    Example 3:
+    Claim: "New study shows coffee might reduce risk of certain diseases."
+    Evidence: Several studies indicate potential benefits of moderate coffee consumption for specific conditions, but results are preliminary and scientists caution more research is needed.
+    Verdict: Partially True
+    Confidence: 75%
+    Reasoning: The claim accurately represents that research exists, but overstates the certainty of the findings.
+    """
+        
+        # Enhanced prompt with better structure
         prompt = f"""
-Please help me evaluate the accuracy of the following claim using the provided evidence articles.
+    I need you to carefully evaluate the following claim using the evidence provided. This is critical for detecting misinformation.
 
-Claim to evaluate: "{claim}"
+    CLAIM TO EVALUATE: "{claim}"
 
-Evidence from reputable sources:
-{evidence_text}
+    EVIDENCE FROM SOURCES:
+    {evidence_text}
 
-Please follow this structured analysis approach:
-1) Identify the main factual assertions in the claim
-2) Compare these assertions with the evidence provided
-3) Note areas where the evidence supports or contradicts the claim
-4) Assess if there is sufficient evidence to make a determination
-5) Provide a final assessment with confidence level
+    {entity_context}
+    {credibility_context}
 
-Format your response as follows:
-Verdict: [True/Partially True/False/Unverified]
-Confidence: [percentage]
-Reasoning:
-- Step 1: [Your analysis of factual assertions]
-- Step 2: [Your comparison with evidence]
-- Step 3: [Support/contradiction analysis]
-- Step 4: [Evidence sufficiency assessment]
-- Step 5: [Final assessment]
+    ANALYSIS INSTRUCTIONS:
+    Follow this step-by-step reasoning process:
+    1) Identify the main factual assertions in the claim
+    2) Compare these factual assertions with the evidence provided
+    3) Check if the named entities and relationships between them are accurately represented
+    4) Evaluate if there are logical fallacies or emotional manipulation in the claim
+    5) Determine if the evidence is sufficient to make a definitive assessment
+    6) Consider the credibility of the sources when weighing evidence
+    7) Provide a final assessment with a specific confidence level
 
-Explanation: [Summary of why the claim is true, partially true, false, or unverified]
+    {few_shot_examples}
 
-Sources: [Which articles support or contradict the claim]
-"""
+    FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
+    Verdict: [True/Partially True/False/Unverified]
+    Confidence: [percentage between 0-100]
+    Reasoning:
+    - Factual assertions: [List the main factual claims]
+    - Evidence analysis: [How evidence supports or contradicts each assertion]
+    - Entity verification: [Whether entities and relationships are accurate]
+    - Logical assessment: [Identify any fallacies or manipulation]
+    - Evidence sufficiency: [Is there enough evidence for a verdict?]
+    - Final assessment: [Overall conclusion with justification]
+
+    Remember that "Unverified" is an appropriate verdict when evidence is insufficient.
+    """
         return prompt
+    
+    
     
     def analyze_claim_evidence_alignment(self, claim: str, evidence: str) -> Dict[str, Any]:
         """Analyze alignment between claim and evidence
@@ -994,16 +1043,17 @@ Sources: [Which articles support or contradict the claim]
             "confidence": float(confidence)
         }
     
-    def fact_check(self, claim: str, retrieved_articles: List[Dict[str, str]], entities: Dict[str, List[str]] = None) -> Optional[str]:
-        """Perform fact-checking using Spark LLM
-        
+    def fact_check(self, claim: str, retrieved_articles: List[Dict[str, str]], entities: Dict[str, List[str]] = None, source_credibility: float = None) -> Optional[str]:
+        """Perform enhanced fact-checking using Spark LLM with chain-of-thought reasoning
+    
         Args:
             claim: The claim to fact-check
             retrieved_articles: List of retrieved articles
             entities: Optional dict of extracted entities
+            source_credibility: Optional credibility score of the source
             
         Returns:
-            Fact-checking result
+            Fact-checking result dictionary
         """
         # Check cache first
         cache_key = f"fact_check_{hash(claim)}_{hash(str(retrieved_articles))}"
@@ -1014,8 +1064,8 @@ Sources: [Which articles support or contradict the claim]
         # Preprocess evidence
         evidence = self.preprocess_evidence(retrieved_articles)
         
-        # Build the prompt
-        prompt = self.build_fact_check_prompt(claim, evidence)
+        # Build the enhanced prompt
+        prompt = self.build_fact_check_prompt(claim, evidence, entities, source_credibility)
         
         # Make API request to Spark LLM
         try:
@@ -1027,17 +1077,17 @@ Sources: [Which articles support or contradict the claim]
                 "messages": [
                     {
                         "role": "system",
-                        "content": "You are a professional fact-checker. Your task is to analyze claims and evidence objectively. Provide clear verdicts with confidence levels and detailed reasoning."
+                        "content": "You are a professional fact-checker with expertise in detecting misinformation. Your analysis must be thorough, objective, and evidence-based. You should reason step-by-step and avoid making assumptions not supported by the provided evidence."
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
                 ],
-                "temperature": 0.3,     # Moderate temperature for factual responses
-                "top_k": 4,             # From documentation
-                "max_tokens": 1500,     # Sufficient for detailed analysis
-                "stream": False         # Non-streaming mode
+                "temperature": 0.2,  # Lower temperature for more factual responses
+                "top_k": 4,          # From documentation
+                "max_tokens": 2000,   # Increased for more detailed reasoning
+                "stream": False      # Non-streaming mode
             }
             
             # Simple Bearer token authentication as per docs
@@ -1056,63 +1106,376 @@ Sources: [Which articles support or contradict the claim]
             if result.get("code") == 0:  # Success code per documentation
                 content = result["choices"][0]["message"]["content"]
                 
+                # Parse the response to extract structured information
+                parsed_result = self.parse_fact_check_response(content, claim, retrieved_articles)
+                
+                # Perform secondary verification (multi-pass)
+                verified_result = self.verify_fact_check_result(parsed_result, claim, evidence)
+                
                 # Cache the result
-                result_cache[cache_key] = content
-                return content
+                result_cache[cache_key] = verified_result
+                return verified_result
             else:
                 error_message = result.get("message", "Unknown error")
                 error_code = result.get("code", "Unknown code")
                 logger.error(f"Spark API Error {error_code}: {error_message}")
                 
                 # If API fails, fall back to using alignment analysis for a basic response
-                alignment = self.analyze_claim_evidence_alignment(claim, evidence)
-                similarity = alignment["semantic_similarity"]
-                confidence = int(alignment["confidence"] * 100)
-                
-                # Determine verdict based on similarity
-                if similarity > 0.8:
-                    verdict = "True"
-                elif similarity > 0.5:
-                    verdict = "Partially True"
-                elif similarity > 0.3:
-                    verdict = "Unverified"
-                else:
-                    verdict = "False"
-                
-                # Create a fallback response
-                fallback_response = f"""
-Verdict: {verdict}
-Confidence: {confidence}%
-Reasoning:
-- Step 1: Entity analysis
-  Found entities in claim: {', '.join(alignment["entity_overlap"]["claim_entities"]) or "None"}
-  Found entities in evidence: {', '.join(alignment["entity_overlap"]["evidence_entities"][:5]) or "None"}...
-  Entity overlap: {alignment["entity_overlap"]["entity_coverage"]:.2f}
-
-- Step 2: Evidence comparison
-  Semantic similarity between claim and evidence: {similarity:.2f}
-  
-- Step 3: Contradiction/confirmation analysis
-  The evidence {"supports" if similarity > 0.7 else "partially supports" if similarity > 0.4 else "contradicts"} the claim.
-  
-- Step 4: Evidence sufficiency
-  {"Sufficient evidence exists to make a determination." if len(retrieved_articles) >= 2 else "Limited evidence available, reducing confidence."}
-
-Explanation: {"The claim is well-supported by the evidence, with strong entity overlap and semantic alignment." if verdict == "True" else
-              "The claim has partial support in the evidence but contains some unverified elements." if verdict == "Partially True" else
-              "The claim contradicts available evidence or lacks sufficient support in reliable sources."}
-
-Sources: {', '.join([article.get("source", "Unknown Source") for article in retrieved_articles[:3]])}
-"""
-                # Cache the fallback result
-                result_cache[cache_key] = fallback_response
-                return fallback_response
-                
+                return self._generate_fallback_response(claim, evidence, retrieved_articles, entities)
+                    
         except Exception as e:
             logger.error(f"Spark API Error: {str(e)}")
             if 'response' in locals():
                 logger.error(f"Response text: {response.text}")
-            return None
+            
+            # Generate fallback response
+            return self._generate_fallback_response(claim, evidence, retrieved_articles, entities)
+     
+     
+    def verify_fact_check_result(self, result: Dict[str, Any], claim: str, evidence: str) -> Dict[str, Any]:
+        """Verify the fact-check result using a second pass of analysis
+        
+        Args:
+            result: The initial fact-check result
+            claim: The original claim
+            evidence: The evidence text
+            
+        Returns:
+            Verified and potentially adjusted result
+        """
+        # Extract the verdict and reasoning
+        verdict = result.get("verdict", "Unverified")
+        confidence = result.get("confidence", 50)
+        reasoning = result.get("reasoning", "")
+        
+        # Prepare the verification prompt
+        verification_prompt = f"""
+    Review the following fact-check analysis for accuracy and bias:
+
+    Original claim: "{claim}"
+
+    Initial verdict: {verdict}
+    Initial confidence: {confidence}%
+    Reasoning: {reasoning}
+
+    Please critically evaluate this analysis by checking for:
+    1. Is the verdict consistent with the reasoning provided?
+    2. Is the confidence level appropriate given the evidence strength?
+    3. Are there any logical errors or biases in the reasoning?
+    4. Is there a more appropriate verdict based on standard fact-checking principles?
+
+    Provide your assessment:
+    1. Should the verdict be changed? If so, to what?
+    2. Should the confidence level be adjusted? If so, to what percentage?
+    3. What are the strengths and weaknesses of the original analysis?
+    """
+        
+        try:
+            # Make second API request to Spark LLM
+            payload = {
+                "model": "4.0Ultra",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a critical fact-checking reviewer who evaluates the quality and accuracy of fact-check analyses."
+                    },
+                    {
+                        "role": "user",
+                        "content": verification_prompt
+                    }
+                ],
+                "temperature": 0.3,
+                "max_tokens": 1000,
+                "stream": False
+            }
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_password}"
+            }
+            
+            verification_response = requests.post(self.api_url, headers=headers, json=payload)
+            verification_response.raise_for_status()
+            verification_result = verification_response.json()
+            
+            if verification_result.get("code") == 0:
+                verification_content = verification_result["choices"][0]["message"]["content"]
+                
+                # Extract any suggested verdict changes
+                change_verdict_match = re.search(r"verdict be changed\?.*?(True|False|Partially True|Unverified)", verification_content, re.DOTALL | re.IGNORECASE)
+                if change_verdict_match and "yes" in verification_content.lower():
+                    new_verdict = change_verdict_match.group(1)
+                    result["verdict"] = new_verdict
+                    result["verification_note"] = "Verdict was adjusted during verification"
+                
+                # Extract any suggested confidence changes
+                confidence_match = re.search(r"confidence level be adjusted\?.*?(\d+)%", verification_content, re.DOTALL | re.IGNORECASE)
+                if confidence_match and "yes" in verification_content.lower():
+                    new_confidence = int(confidence_match.group(1))
+                    result["confidence"] = new_confidence
+                    if "verification_note" in result:
+                        result["verification_note"] += " with adjusted confidence"
+                    else:
+                        result["verification_note"] = "Confidence was adjusted during verification"
+                
+                # Add verification analysis to result
+                result["verification_analysis"] = verification_content
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error during verification: {e}")
+            # If verification fails, return the original result
+            return result
+     
+    def parse_fact_check_response(self, content: str, claim: str, retrieved_articles: List[Dict[str, str]]) -> Dict[str, Any]:
+        """Parse the fact-check response to extract structured information
+        
+        Args:
+            content: The response content from Spark LLM
+            claim: The original claim
+            retrieved_articles: The articles used for fact-checking
+            
+        Returns:
+            Structured fact-check result
+        """
+        # Initialize the result dictionary
+        result = {
+            "claim": claim,
+            "full_response": content,
+            "retrieved_article_count": len(retrieved_articles)
+        }
+        
+        # Extract verdict with improved regex
+        verdict_match = re.search(r"Verdict:\s*(True|Partially True|False|Unverified)", content, re.IGNORECASE)
+        if verdict_match:
+            result["verdict"] = verdict_match.group(1)
+        else:
+            # Try to infer verdict from content
+            content_lower = content.lower()
+            if "true" in content_lower and "partially" not in content_lower and "not true" not in content_lower:
+                result["verdict"] = "True"
+            elif "partially true" in content_lower or "somewhat true" in content_lower or "misleading" in content_lower:
+                result["verdict"] = "Partially True"
+            elif "false" in content_lower or "not true" in content_lower:
+                result["verdict"] = "False"
+            else:
+                result["verdict"] = "Unverified"
+        
+        # Extract confidence
+        confidence_match = re.search(r"Confidence:\s*(\d+)%", content)
+        if confidence_match:
+            result["confidence"] = int(confidence_match.group(1))
+        else:
+            # Default confidence based on verdict
+            if result["verdict"] == "True":
+                result["confidence"] = 85
+            elif result["verdict"] == "Partially True":
+                result["confidence"] = 65
+            elif result["verdict"] == "False":
+                result["confidence"] = 80
+            else:  # Unverified
+                result["confidence"] = 50
+        
+        # Extract reasoning
+        factual_assertions_match = re.search(r"Factual assertions:(.*?)(?:Evidence analysis:|$)", content, re.DOTALL)
+        evidence_analysis_match = re.search(r"Evidence analysis:(.*?)(?:Entity verification:|$)", content, re.DOTALL)
+        entity_verification_match = re.search(r"Entity verification:(.*?)(?:Logical assessment:|$)", content, re.DOTALL)
+        logical_assessment_match = re.search(r"Logical assessment:(.*?)(?:Evidence sufficiency:|$)", content, re.DOTALL)
+        evidence_sufficiency_match = re.search(r"Evidence sufficiency:(.*?)(?:Final assessment:|$)", content, re.DOTALL)
+        final_assessment_match = re.search(r"Final assessment:(.*?)(?:\n\n|$)", content, re.DOTALL)
+        
+        # Build structured reasoning
+        reasoning_parts = []
+        
+        if factual_assertions_match:
+            fact_assertions = factual_assertions_match.group(1).strip()
+            result["factual_assertions"] = fact_assertions
+            reasoning_parts.append(f"Factual assertions: {fact_assertions}")
+        
+        if evidence_analysis_match:
+            evidence_analysis = evidence_analysis_match.group(1).strip()
+            result["evidence_analysis"] = evidence_analysis
+            reasoning_parts.append(f"Evidence analysis: {evidence_analysis}")
+        
+        if entity_verification_match:
+            entity_verification = entity_verification_match.group(1).strip()
+            result["entity_verification"] = entity_verification
+            reasoning_parts.append(f"Entity verification: {entity_verification}")
+        
+        if logical_assessment_match:
+            logical_assessment = logical_assessment_match.group(1).strip()
+            result["logical_assessment"] = logical_assessment
+            reasoning_parts.append(f"Logical assessment: {logical_assessment}")
+        
+        if evidence_sufficiency_match:
+            evidence_sufficiency = evidence_sufficiency_match.group(1).strip()
+            result["evidence_sufficiency"] = evidence_sufficiency
+            reasoning_parts.append(f"Evidence sufficiency: {evidence_sufficiency}")
+        
+        if final_assessment_match:
+            final_assessment = final_assessment_match.group(1).strip()
+            result["final_assessment"] = final_assessment
+            reasoning_parts.append(f"Final assessment: {final_assessment}")
+        
+        # Combine all reasoning parts
+        result["reasoning"] = "\n\n".join(reasoning_parts)
+        
+        # Extract or generate a concise explanation
+        explanation_match = re.search(r"Explanation:(.*?)(?:\n\n|$)", content, re.DOTALL)
+        if explanation_match:
+            result["explanation"] = explanation_match.group(1).strip()
+        elif "final_assessment" in result:
+            result["explanation"] = result["final_assessment"]
+        else:
+            # Generate a generic explanation based on verdict
+            if result["verdict"] == "True":
+                result["explanation"] = "The claim is well-supported by available evidence."
+            elif result["verdict"] == "Partially True":
+                result["explanation"] = "The claim contains some accurate information but is misleading or includes unverified assertions."
+            elif result["verdict"] == "False":
+                result["explanation"] = "The claim is contradicted by available evidence."
+            else:  # Unverified
+                result["explanation"] = "There is insufficient evidence to verify this claim."
+        
+        # Add article sources
+        if retrieved_articles:
+            result["sources"] = [article.get("source", "Unknown source") for article in retrieved_articles[:3]]
+        
+        return result
+     
+     
+    
+    def _generate_fallback_response(self, claim: str, evidence: str, retrieved_articles: List[Dict[str, str]], entities: Dict[str, List[str]] = None) -> Dict[str, Any]:
+        """Generate a fallback response when the API fails
+        
+        Args:
+            claim: The claim to analyze
+            evidence: The evidence text
+            retrieved_articles: The retrieved articles
+            entities: Optional entities dictionary
+            
+        Returns:
+            A fallback fact-check response
+        """
+        # Analyze claim-evidence alignment for basic assessment
+        alignment = self.analyze_claim_evidence_alignment(claim, evidence)
+        similarity = alignment["semantic_similarity"]
+        confidence = int(alignment["confidence"] * 100)
+        
+        # Get entity overlap information
+        entity_overlap = alignment["entity_overlap"]["entity_coverage"] if entities else 0.5
+        
+        # Determine fallback verdict based on similarity and entity overlap
+        if similarity > 0.8 and entity_overlap > 0.7:
+            verdict = "True"
+            explanation = "The claim appears to be supported by the evidence, with strong semantic similarity and entity matches."
+        elif similarity > 0.6 or entity_overlap > 0.6:
+            verdict = "Partially True"
+            explanation = "The claim has some support in the evidence but may contain unverified elements."
+        elif similarity < 0.3 and entity_overlap < 0.3:
+            verdict = "False"
+            explanation = "The claim contradicts available evidence or lacks sufficient support in reliable sources."
+        else:
+            verdict = "Unverified"
+            explanation = "There is insufficient evidence to verify this claim."
+        
+        # Create a structured response
+        fallback_response = {
+            "verdict": verdict,
+            "confidence": confidence,
+            "reasoning": f"""
+    Fallback analysis (API unavailable):
+    - Semantic similarity between claim and evidence: {similarity:.2f}
+    - Entity overlap: {entity_overlap:.2f}
+    - Evidence sources: {len(retrieved_articles)} articles retrieved
+            """,
+            "explanation": explanation,
+            "sources": [article.get("source", "Unknown Source") for article in retrieved_articles[:3]],
+            "is_fallback": True
+        }
+        
+        return fallback_response
+     
+     
+    
+    def calibrate_confidence(self, result: Dict[str, Any], claim: str, evidence: str, source_credibility: float = None, entities: Dict[str, List[str]] = None) -> Dict[str, Any]:
+        """Calibrate the confidence score based on multiple factors
+        
+        Args:
+            result: The initial fact-check result
+            claim: The original claim
+            evidence: The evidence text
+            source_credibility: Optional source credibility score
+            entities: Optional entities dictionary
+            
+        Returns:
+            Result with calibrated confidence
+        """
+        initial_confidence = result.get("confidence", 50)
+        
+        # If this is a fallback result, use as is
+        if result.get("is_fallback", False):
+            return result
+        
+        # Calculate evidence strength factor
+        evidence_length = min(len(evidence.split()) / 500, 1.0)  # Normalize evidence length
+        evidence_strength = evidence_length * 0.5  # Longer evidence can contribute up to 0.5
+        
+        # Calculate semantic similarity factor
+        alignment = self.analyze_claim_evidence_alignment(claim, evidence)
+        semantic_similarity = alignment["semantic_similarity"]
+        
+        # Calculate entity verification factor
+        entity_overlap = 0.5  # Default value
+        if entities:
+            entity_overlap = alignment["entity_overlap"]["entity_coverage"]
+        
+        # Source credibility factor
+        credibility_factor = 0.5  # Default value
+        if source_credibility is not None:
+            credibility_factor = source_credibility
+        
+        # Verdict type factor - different verdicts have different baseline confidence
+        verdict_type_factor = 0.0
+        if result["verdict"] == "True":
+            verdict_type_factor = 0.1
+        elif result["verdict"] == "False":
+            verdict_type_factor = 0.2  # False claims often have stronger evidence
+        elif result["verdict"] == "Partially True":
+            verdict_type_factor = -0.1  # Partial truths inherently have more uncertainty
+        
+        # Calculate adjustment based on all factors
+        confidence_adjustment = (
+            (semantic_similarity - 0.5) * 10 +  # Semantic similarity contribution
+            (entity_overlap - 0.5) * 5 +        # Entity overlap contribution
+            (evidence_strength - 0.5) * 5 +     # Evidence strength contribution
+            (credibility_factor - 0.5) * 10 +   # Source credibility contribution
+            verdict_type_factor * 10            # Verdict type contribution
+        )
+        
+        # Apply the adjustment to the initial confidence
+        calibrated_confidence = initial_confidence + confidence_adjustment
+        
+        # Ensure the confidence stays within reasonable bounds
+        calibrated_confidence = max(min(calibrated_confidence, 98), 20)
+        
+        # Round to a natural-looking number
+        calibrated_confidence = round(calibrated_confidence / 5) * 5
+        
+        # Update the result with calibrated confidence
+        result["original_confidence"] = initial_confidence
+        result["confidence"] = int(calibrated_confidence)
+        result["confidence_factors"] = {
+            "semantic_similarity": semantic_similarity,
+            "entity_overlap": entity_overlap,
+            "evidence_strength": evidence_strength,
+            "source_credibility": credibility_factor,
+            "verdict_type_factor": verdict_type_factor
+        }
+        
+        return result
+     
             
     def test_api_connection(self) -> bool:
         """Test the API connection with a simple, safe prompt
@@ -1233,8 +1596,8 @@ Sources: {', '.join([article.get("source", "Unknown Source") for article in retr
             explanation = explanation_match.group(1).strip() if explanation_match else "No detailed explanation available"
             
             return {
-                "contradiction_severity": contradiction_severity,
-                "contradiction_type": contradiction_type,
+                "severity": contradiction_severity,
+                "type": contradiction_type,
                 "explanation": explanation,
                 "is_misleading": contradiction_severity > 0.5
             }
@@ -1242,13 +1605,11 @@ Sources: {', '.join([article.get("source", "Unknown Source") for article in retr
         except Exception as e:
             logger.error(f"Error detecting title-content contradiction: {e}")
             return {
-                "contradiction_severity": 0.0,
-                "contradiction_type": "Analysis Failed",
+                "severity": 0.0,
+                "type": "Analysis Failed",
                 "explanation": f"Could not analyze contradiction: {str(e)}",
                 "is_misleading": False
             }
-    
-       
 
 # Sentiment analysis component
 class SentimentAnalyzer:
@@ -1422,6 +1783,19 @@ class SentimentAnalyzer:
         if explanation_details:
             explanation += " " + " ".join(explanation_details)
         
+         # Add propaganda technique detection
+        propaganda_analysis = self.detect_propaganda_techniques(text)
+        
+        # Incorporate propaganda into manipulation score
+        if propaganda_analysis["propaganda_score"] > 0:
+            manipulation_score = 0.7 * manipulation_score + 0.3 * propaganda_analysis["propaganda_score"]
+        
+        # Update explanation
+        if propaganda_analysis["has_propaganda"]:
+            primary_technique = propaganda_analysis["primary_technique"]
+            readable_technique = primary_technique.replace("_", " ").title()
+            explanation += f" Uses '{readable_technique}' propaganda technique."
+            
         # Determine dominant emotion
         if sentiment_scores["compound"] >= 0.5:
             dominant_emotion = "strongly positive"
@@ -1454,8 +1828,92 @@ class SentimentAnalyzer:
                     "polarity_variance": float(polarity_variance),
                     "emotion_keyword_density": float(emotion_keyword_score),
                     "extreme_sentence_ratio": float(extreme_sentence_ratio)
-                }
+                },
+                "propaganda_analysis": propaganda_analysis
             }
+        }
+        
+    def detect_propaganda_techniques(self, text: str) -> Dict[str, Any]:
+        """
+        Detect propaganda techniques used in text
+        
+        Args:
+            text: Text to analyze
+            
+        Returns:
+            Dictionary with detected propaganda techniques
+        """
+        # Define propaganda technique patterns and keywords
+        propaganda_techniques = {
+            "name_calling": [
+                "thug", "radical", "terrorist", "commie", "fascist", "libtard", 
+                "nutjob", "traitor", "crook", "criminal", "extremist"
+            ],
+            "bandwagon": [
+                "everyone knows", "majority believes", "people agree", 
+                "most people", "widely accepted", "general consensus"
+            ],
+            "fear_mongering": [
+                "catastrophe", "crisis", "threat", "danger", "disaster", "terrifying",
+                "devastating", "alarming", "frightening", "panic"
+            ],
+            "appeal_to_authority": [
+                "experts say", "scientists confirm", "doctors recommend", 
+                "studies show", "research confirms", "according to authorities"
+            ],
+            "false_dilemma": [
+                "either", "or", "there are only two", "it's either", "it's one or the other",
+                "have no choice", "must choose between"
+            ],
+            "strawman": [
+                "claim", "argue", "believe", "want", "they say", "they think", 
+                "they believe", "they want", "position"
+            ],
+            "ad_hominem": [
+                "corrupt", "dishonest", "liar", "incompetent", "stupid", 
+                "evil", "greedy", "selfish"
+            ],
+            "whataboutism": [
+                "what about", "but what about", "compared to", "instead of focusing on"
+            ],
+        }
+        
+        text_lower = text.lower()
+        detected = {}
+        
+        # Check for each technique
+        for technique, keywords in propaganda_techniques.items():
+            hits = []
+            for keyword in keywords:
+                if keyword in text_lower:
+                    hits.append(keyword)
+            
+            if hits:
+                detected[technique] = {
+                    "detected": True,
+                    "match_count": len(hits),
+                    "examples": hits[:5]  # Limit to 5 examples
+                }
+        
+        # Calculate overall propaganda score
+        technique_count = len(detected)
+        propaganda_score = min(technique_count / len(propaganda_techniques), 1.0)
+        
+        # Determine primary technique
+        primary_technique = None
+        max_hits = 0
+        
+        for technique, data in detected.items():
+            if data["match_count"] > max_hits:
+                max_hits = data["match_count"]
+                primary_technique = technique
+        
+        return {
+            "detected_techniques": detected,
+            "technique_count": technique_count,
+            "propaganda_score": propaganda_score,
+            "primary_technique": primary_technique,
+            "has_propaganda": technique_count > 0
         }
 
 
@@ -1608,10 +2066,35 @@ class CredibilityAnalyzer:
         
         try:
             # Try to parse date - handle multiple formats
-            import dateutil.parser
-            from datetime import datetime, timedelta
+            from datetime import datetime
+            import re
             
-            pub_date = dateutil.parser.parse(date_str)
+            # Clean up the date string
+            date_str = date_str.strip()
+            
+            # Handle "Updated" prefix
+            if date_str.startswith("Updated"):
+                date_str = date_str.replace("Updated", "").strip()
+            
+            # Try different date parsing approaches
+            try:
+                # First try: direct parsing
+                pub_date = datetime.strptime(date_str, "%Y-%m-%d")
+            except ValueError:
+                try:
+                    # Second try: parse with dateutil
+                    import dateutil.parser
+                    pub_date = dateutil.parser.parse(date_str)
+                except:
+                    # Third try: extract date using regex
+                    date_pattern = r'(\d{1,2}:\d{2}\s*[AP]M\s*[A-Z]{3,4},\s*(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},\s*\d{4})'
+                    match = re.search(date_pattern, date_str)
+                    if match:
+                        date_str = match.group(1)
+                        pub_date = dateutil.parser.parse(date_str)
+                    else:
+                        raise ValueError(f"Could not parse date: {date_str}")
+            
             current_date = datetime.now()
             
             # Calculate days difference
@@ -1764,7 +2247,567 @@ class CredibilityAnalyzer:
         return min(max(trust_score, 0), 1)  # Ensure score between 0-1
 
 
+# Add these classes after the CredibilityAnalyzer class in Try_train.py
 
+# Add this class after PromptQualityAnalyzer in Try_train.py
+class AIContentDetector:
+    """Component for detecting if content was likely generated by AI and categorizing news type"""
+    
+    def __init__(self, spark_api_password=None):
+        """Initialize with Spark API credentials"""
+        self.spark_api_password = spark_api_password or os.getenv('SPARK_API_PASSWORD')
+        self.api_url = "https://spark-api-open.xf-yun.com/v1/chat/completions"
+        
+        # Linguistic patterns common in AI-generated text
+        self.ai_patterns = [
+            r'\b(moreover|furthermore|additionally|consequently)\b',
+            r'\b(in conclusion|to summarize|to sum up)\b',
+            r'\b(it is important to note that|it should be noted that)\b',
+            r'\b(various|numerous|multiple|several|diverse)\b',
+            r'\b(as mentioned earlier|as previously stated|as noted above)\b'
+        ]
+        
+        # Category features
+        self.category_keywords = {
+            'official_news': ['press release', 'official statement', 'announces', 'government', 'authority', 'ministry', 'department'],
+            'educational': ['research', 'study', 'university', 'professor', 'academic', 'science', 'findings', 'education'],
+            'opinion': ['opinion', 'editorial', 'commentary', 'perspective', 'viewpoint', 'column'],
+            'entertainment': ['celebrity', 'movie', 'entertainment', 'film', 'music', 'TV', 'star', 'actress', 'actor'],
+            'sports': ['game', 'match', 'player', 'team', 'tournament', 'championship', 'sports', 'league', 'score'],
+            'technology': ['tech', 'technology', 'app', 'software', 'digital', 'internet', 'device', 'startup'],
+            'health': ['health', 'medical', 'disease', 'treatment', 'patient', 'doctor', 'hospital', 'medicine']
+        }
+    
+    def _check_basic_ai_patterns(self, text: str) -> Dict[str, float]:
+        """Check for common AI writing patterns
+        
+        Args:
+            text: The content to analyze
+            
+        Returns:
+            Dictionary with pattern match statistics
+        """
+        # Count pattern occurrences
+        pattern_counts = {}
+        text_lower = text.lower()
+        
+        for pattern in self.ai_patterns:
+            matches = re.findall(pattern, text_lower)
+            pattern_counts[pattern] = len(matches)
+        
+        # Calculate overall score based on pattern density
+        word_count = len(text_lower.split())
+        if word_count == 0:
+            return {"ai_pattern_score": 0.0, "patterns_found": pattern_counts}
+        
+        total_matches = sum(pattern_counts.values())
+        pattern_density = total_matches / (word_count / 100)  # Matches per 100 words
+        
+        # Normalize to a 0-1 score
+        ai_pattern_score = min(1.0, pattern_density / 5)  # Cap at 1.0
+        
+        return {
+            "ai_pattern_score": ai_pattern_score,
+            "patterns_found": pattern_counts,
+            "pattern_density": pattern_density
+        }
+    
+    def _identify_content_category(self, text: str) -> Dict[str, Any]:
+        """Identify the most likely category of the content
+        
+        Args:
+            text: The content to analyze
+            
+        Returns:
+            Dictionary with category analysis
+        """
+        text_lower = text.lower()
+        category_scores = {}
+        
+        # Calculate scores for each category based on keyword matches
+        for category, keywords in self.category_keywords.items():
+            matches = sum(1 for keyword in keywords if keyword in text_lower)
+            category_scores[category] = matches / len(keywords)  # Normalize by keyword count
+        
+        # Find the top categories
+        sorted_categories = sorted(category_scores.items(), key=lambda x: x[1], reverse=True)
+        top_category = sorted_categories[0][0] if sorted_categories else "general"
+        top_score = sorted_categories[0][1] if sorted_categories else 0
+        
+        # Check if the top category is significantly higher than others
+        is_clear_category = len(sorted_categories) > 1 and sorted_categories[0][1] > sorted_categories[1][1] * 1.5
+        
+        return {
+            "primary_category": top_category,
+            "category_confidence": min(1.0, top_score * 2),  # Scale up but cap at 1.0
+            "is_clear_category": is_clear_category,
+            "category_scores": category_scores,
+            "top_categories": sorted_categories[:3] if len(sorted_categories) >= 3 else sorted_categories
+        }
+    
+    def _analyze_structural_features(self, text: str) -> Dict[str, Any]:
+        """Analyze structural features that might indicate AI generation
+        
+        Args:
+            text: The content to analyze
+            
+        Returns:
+            Dictionary with structural analysis
+        """
+        # Split into paragraphs
+        paragraphs = [p for p in text.split('\n') if p.strip()]
+        
+        if not paragraphs:
+            return {
+                "avg_paragraph_length": 0,
+                "paragraph_length_variance": 0,
+                "structure_score": 0
+            }
+        
+        # Calculate paragraph lengths
+        paragraph_lengths = [len(p.split()) for p in paragraphs]
+        avg_paragraph_length = sum(paragraph_lengths) / len(paragraph_lengths)
+        
+        # Calculate variance in paragraph lengths
+        if len(paragraph_lengths) > 1:
+            variance = sum((length - avg_paragraph_length) ** 2 for length in paragraph_lengths) / len(paragraph_lengths)
+            std_dev = variance ** 0.5
+            normalized_std_dev = std_dev / avg_paragraph_length if avg_paragraph_length > 0 else 0
+        else:
+            normalized_std_dev = 0
+        
+        # AI-generated content often has very consistent paragraph lengths
+        # Lower variance might indicate AI-generation
+        structure_score = max(0, min(1, 1 - normalized_std_dev))
+        
+        return {
+            "avg_paragraph_length": avg_paragraph_length,
+            "paragraph_length_variance": normalized_std_dev,
+            "structure_score": structure_score
+        }
+    
+    def detect_ai_content(self, text: str) -> Dict[str, Any]:
+        """Detect if content was likely generated by AI and categorize it
+        
+        Args:
+            text: The content to analyze
+            
+        Returns:
+            Dictionary with AI detection results and content categorization
+        """
+        # Check cache first
+        cache_key = f"ai_detection_{hash(text)}"
+        if cache_key in result_cache:
+            return result_cache[cache_key]
+        
+        # Run basic pattern analysis
+        pattern_analysis = self._check_basic_ai_patterns(text)
+        
+        # Run structural analysis
+        structure_analysis = self._analyze_structural_features(text)
+        
+        # Run category analysis
+        category_analysis = self._identify_content_category(text)
+        
+        # Make preliminary AI detection based on patterns and structure
+        preliminary_ai_score = 0.4 * pattern_analysis["ai_pattern_score"] + 0.6 * structure_analysis["structure_score"]
+        
+        try:
+            # Use Spark LLM for more sophisticated detection
+            meta_prompt = f"""
+            Analyze the following text and determine if it was likely written by AI or by a human. 
+            Also categorize the type of content.
+            
+            Text to analyze:
+            "{text[:2000]}..." [truncated due to length]
+            
+            Please consider:
+            1. Writing style (repetitive phrases, formulaic structure)
+            2. Language naturality (awkward phrasing, unnatural transitions)
+            3. Content depth and complexity
+            4. Variation in sentence structure
+            5. Presence of nuance and subtle contextual understanding
+            
+            Also determine what category the content belongs to:
+            - Official News (government announcements, press releases)
+            - Educational (research, academic articles, explanatory content)
+            - Opinion/Editorial (commentary, personal viewpoints)
+            - Entertainment (celebrity news, culture)
+            - Sports News
+            - Technology News
+            - Health/Medical News
+            - Other (specify)
+            
+            Format your response exactly as follows:
+            AI_SCORE: [numerical score from 0.0 to 1.0, where 1.0 means definitely AI-generated]
+            CATEGORY: [primary category]
+            SUBCATEGORY: [more specific if possible]
+            REASONING: [brief explanation of your assessment]
+            """
+            
+            # Make API request to Spark LLM
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.spark_api_password}"
+            }
+            
+            payload = {
+                "model": "4.0Ultra",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an expert at detecting AI-generated content and categorizing text."
+                    },
+                    {
+                        "role": "user",
+                        "content": meta_prompt
+                    }
+                ],
+                "temperature": 0.2,
+                "max_tokens": 500,
+                "stream": False
+            }
+            
+            response = requests.post(self.api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            
+            # Parse Spark LLM response
+            if result.get("code") == 0:
+                content = result["choices"][0]["message"]["content"]
+                
+                # Extract AI score
+                ai_score_match = re.search(r'AI_SCORE:\s*(\d+\.\d+)', content)
+                ai_score = float(ai_score_match.group(1)) if ai_score_match else preliminary_ai_score
+                
+                # Extract category
+                category_match = re.search(r'CATEGORY:\s*([^\n]+)', content)
+                category = category_match.group(1).strip() if category_match else category_analysis["primary_category"]
+                
+                # Extract subcategory
+                subcategory_match = re.search(r'SUBCATEGORY:\s*([^\n]+)', content)
+                subcategory = subcategory_match.group(1).strip() if subcategory_match else "General"
+                
+                # Extract reasoning
+                reasoning_match = re.search(r'REASONING:\s*(.*?)$', content, re.DOTALL)
+                reasoning = reasoning_match.group(1).strip() if reasoning_match else "No detailed reasoning provided."
+                
+                # Combine LLM assessment with pattern analysis
+                final_ai_score = 0.7 * ai_score + 0.3 * preliminary_ai_score
+                
+                # Determine AI generated verdict
+                if final_ai_score >= 0.8:
+                    ai_verdict = "Highly likely AI-generated"
+                elif final_ai_score >= 0.6:
+                    ai_verdict = "Possibly AI-generated"
+                elif final_ai_score >= 0.4:
+                    ai_verdict = "Uncertain origin"
+                elif final_ai_score >= 0.2:
+                    ai_verdict = "Likely human-written"
+                else:
+                    ai_verdict = "Very likely human-written"
+                
+                # Prepare the result
+                result_data = {
+                    "ai_score": final_ai_score,
+                    "ai_verdict": ai_verdict,
+                    "content_category": category,
+                    "content_subcategory": subcategory,
+                    "reasoning": reasoning,
+                    "pattern_analysis": pattern_analysis,
+                    "structure_analysis": structure_analysis,
+                    "category_analysis": category_analysis
+                }
+                
+                # Cache the result
+                result_cache[cache_key] = result_data
+                return self.ai_detector.detect_ai_content(text)
+            else:
+                # Fallback if API fails
+                return self._fallback_detection(text, pattern_analysis, structure_analysis, category_analysis)
+                
+        except Exception as e:
+            logger.error(f"Error in AI content detection: {e}")
+            return self._fallback_detection(text, pattern_analysis, structure_analysis, category_analysis)
+    
+    def _fallback_detection(self, text: str, pattern_analysis: Dict, structure_analysis: Dict, category_analysis: Dict) -> Dict[str, Any]:
+        """Generate fallback AI detection when API is unavailable
+        
+        Args:
+            text: The content to analyze
+            pattern_analysis: Results of pattern analysis
+            structure_analysis: Results of structure analysis
+            category_analysis: Results of category analysis
+            
+        Returns:
+            Dictionary with AI detection results using only rule-based methods
+        """
+        # Calculate AI score from pattern and structure analysis
+        ai_score = 0.4 * pattern_analysis["ai_pattern_score"] + 0.6 * structure_analysis["structure_score"]
+        
+        # Determine AI generated verdict
+        if ai_score >= 0.8:
+            ai_verdict = "Highly likely AI-generated"
+        elif ai_score >= 0.6:
+            ai_verdict = "Possibly AI-generated"
+        elif ai_score >= 0.4:
+            ai_verdict = "Uncertain origin"
+        elif ai_score >= 0.2:
+            ai_verdict = "Likely human-written"
+        else:
+            ai_verdict = "Very likely human-written"
+        
+        # Basic reasoning based on patterns and structure
+        reasoning_parts = []
+        
+        if pattern_analysis["ai_pattern_score"] > 0.6:
+            reasoning_parts.append("Contains many linguistic patterns common in AI-generated text.")
+        elif pattern_analysis["ai_pattern_score"] > 0.3:
+            reasoning_parts.append("Contains some linguistic patterns that may suggest AI-generation.")
+            
+        if structure_analysis["structure_score"] > 0.7:
+            reasoning_parts.append("Has very consistent paragraph and sentence structures typical of AI writing.")
+        elif structure_analysis["structure_score"] > 0.4:
+            reasoning_parts.append("Shows moderately consistent structural patterns.")
+            
+        if not reasoning_parts:
+            reasoning_parts.append("Shows natural variation in writing style and structure typical of human writing.")
+            
+        reasoning = " ".join(reasoning_parts)
+        
+        return {
+            "ai_score": ai_score,
+            "ai_verdict": ai_verdict,
+            "content_category": category_analysis["primary_category"],
+            "content_subcategory": "General",
+            "reasoning": reasoning,
+            "pattern_analysis": pattern_analysis,
+            "structure_analysis": structure_analysis,
+            "category_analysis": category_analysis,
+            "note": "This is a simplified analysis due to API limitations."
+        }
+
+    def categorize_content(self, text: str) -> Dict[str, Any]:
+        """Categorize the content type and detect AI generation likelihood
+        
+        Args:
+            text: The content to analyze
+            
+        Returns:
+            Dictionary with categorization results
+        """
+        # Check for AI patterns
+        ai_patterns = self._check_basic_ai_patterns(text)
+        
+        # Determine content category
+        category_scores = {}
+        for category, keywords in self.category_keywords.items():
+            score = sum(1 for keyword in keywords if keyword.lower() in text.lower())
+            category_scores[category] = score
+        
+        # Get the dominant category
+        dominant_category = max(category_scores.items(), key=lambda x: x[1])[0] if category_scores else "unknown"
+        
+        return {
+            "ai_likelihood": ai_patterns.get("ai_score", 0.0),
+            "category": dominant_category,
+            "category_scores": category_scores,
+            "pattern_matches": ai_patterns.get("matches", {})
+        }
+
+# Add this class to Try_train.py after the CredibilityAnalyzer class
+class PromptQualityAnalyzer:
+    """Component for analyzing the quality of user prompts and providing suggestions for improvement"""
+    
+    def __init__(self, spark_api_password=None):
+        """Initialize with Spark API credentials"""
+        self.spark_api_password = spark_api_password or os.getenv('SPARK_API_PASSWORD')
+        self.api_url = "https://spark-api-open.xf-yun.com/v1/chat/completions"
+        
+    def analyze_prompt_quality(self, prompt: str) -> Dict[str, Any]:
+        """Analyze the quality of a user prompt and provide suggestions
+        
+        Args:
+            prompt: The user's prompt text
+            
+        Returns:
+            Dictionary with quality assessment and suggestions
+        """
+        # Check cache first
+        cache_key = f"prompt_quality_{hash(prompt)}"
+        if cache_key in result_cache:
+            return result_cache[cache_key]
+        
+        # Check if prompt is a URL
+        is_url = re.match(r'^https?://', prompt.strip())
+        
+        # Check if prompt is too short
+        too_short = len(prompt.split()) < 5 and not is_url
+        
+        # Check if prompt contains specific details
+        has_specific_details = len(prompt.split()) > 10 and not is_url
+        
+        # For URLs, use different criteria
+        if is_url:
+            return {
+                "is_good_prompt": True,
+                "quality_score": 0.85,
+                "is_url": True,
+                "suggestions": ["URL detected. Ready to analyze this source."],
+                "improved_prompt": prompt
+            }
+        
+        # For very short prompts, provide immediate feedback without API call
+        if too_short:
+            return {
+                "is_good_prompt": False,
+                "quality_score": 0.3,
+                "is_url": False,
+                "suggestions": [
+                    "Prompt is too brief. Add more details about the claim.",
+                    "Include the source, date, or context of the information.",
+                    "Specify what aspect of the claim you want to verify."
+                ],
+                "improved_prompt": prompt  # Keep original for very short prompts
+            }
+        
+        # For moderately detailed prompts, use Spark LLM to analyze quality
+        try:
+            # Build the prompt
+            meta_prompt = f"""
+            Analyze the following user prompt for fact-checking. Evaluate the prompt quality and suggest improvements.
+            
+            User Prompt: "{prompt}"
+            
+            Analyze the prompt for:
+            1. Specificity: How specific is the claim being made?
+            2. Verifiability: Can the claim be verified with evidence?
+            3. Context: Does the prompt provide enough context (e.g., date, source)?
+            4. Clarity: Is the request clear about what needs to be verified?
+            
+            Rate the prompt quality on a scale from 0 to 1.
+            
+            Provide 2-3 specific suggestions to improve the prompt if needed.
+            If the prompt is already high quality, acknowledge that.
+            
+            Format response as:
+            QUALITY_SCORE: [0.0-1.0]
+            SUGGESTIONS:
+            - [Suggestion 1]
+            - [Suggestion 2]
+            IMPROVED_PROMPT: [A better version of their prompt]
+            """
+            
+            # Make API request to Spark LLM
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.spark_api_password}"
+            }
+            
+            payload = {
+                "model": "4.0Ultra",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a prompt engineering expert who helps users create better prompts for fact-checking."
+                    },
+                    {
+                        "role": "user",
+                        "content": meta_prompt
+                    }
+                ],
+                "temperature": 0.3,
+                "max_tokens": 500,
+                "stream": False
+            }
+            
+            response = requests.post(self.api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            
+            # Extract content
+            if result.get("code") == 0:
+                content = result["choices"][0]["message"]["content"]
+                
+                # Parse the structured response
+                quality_score_match = re.search(r'QUALITY_SCORE:\s*(\d+\.\d+)', content)
+                quality_score = float(quality_score_match.group(1)) if quality_score_match else 0.5
+                
+                # Extract suggestions (list items after SUGGESTIONS:)
+                suggestions_section = re.search(r'SUGGESTIONS:(.*?)IMPROVED_PROMPT:', content, re.DOTALL)
+                suggestions = []
+                if suggestions_section:
+                    suggestion_text = suggestions_section.group(1).strip()
+                    for line in suggestion_text.split('\n'):
+                        line = line.strip()
+                        if line.startswith('-'):
+                            suggestions.append(line[1:].strip())
+                
+                # Extract improved prompt
+                improved_prompt_match = re.search(r'IMPROVED_PROMPT:(.*?)$', content, re.DOTALL)
+                improved_prompt = improved_prompt_match.group(1).strip() if improved_prompt_match else prompt
+                
+                result_data = {
+                    "is_good_prompt": quality_score >= 0.7,
+                    "quality_score": quality_score,
+                    "is_url": False,
+                    "suggestions": suggestions if quality_score < 0.7 else ["Prompt is already well-structured for analysis."],
+                    "improved_prompt": improved_prompt
+                }
+                
+                # Cache the result
+                result_cache[cache_key] = result_data
+                return result_data
+            else:
+                # Fallback if API fails
+                return self._generate_basic_quality_assessment(prompt)
+                
+        except Exception as e:
+            logger.error(f"Error analyzing prompt quality: {e}")
+            return self._generate_basic_quality_assessment(prompt)
+    
+    def _generate_basic_quality_assessment(self, prompt: str) -> Dict[str, Any]:
+        """Generate a basic quality assessment without using the API
+        
+        Args:
+            prompt: The user's prompt text
+            
+        Returns:
+            Dictionary with quality assessment and suggestions
+        """
+        # Simple heuristic analysis
+        words = prompt.split()
+        word_count = len(words)
+        
+        # Calculate a basic quality score
+        if word_count < 5:
+            quality_score = 0.3
+        elif word_count < 10:
+            quality_score = 0.5
+        elif word_count < 20:
+            quality_score = 0.7
+        else:
+            quality_score = 0.8
+        
+        # Generate generic suggestions based on prompt length
+        suggestions = []
+        if word_count < 10:
+            suggestions.append("Add more details about the claim you're verifying.")
+            suggestions.append("Include information about where you encountered this claim.")
+        if not any(entity in prompt.lower() for entity in ["who", "what", "when", "where", "why", "how"]):
+            suggestions.append("Include specifics like who, what, when, where about the claim.")
+        
+        # If no suggestions were added, add a default one
+        if not suggestions:
+            suggestions.append("Consider adding more context about the source or timing of this information.")
+        
+        return {
+            "is_good_prompt": quality_score >= 0.7,
+            "quality_score": quality_score,
+            "is_url": False,
+            "suggestions": suggestions,
+            "improved_prompt": prompt  # Keep original in basic assessment
+        }
 
 # Main Fake News Detection System
 class FakeNewsDetectionSystem:
@@ -1782,6 +2825,10 @@ class FakeNewsDetectionSystem:
         self.entity_extractor = EntityExtractor()
         self.url_handler = URLHandler()
         self.credibility_analyzer = CredibilityAnalyzer()
+        
+        # Add the new components
+        self.ai_detector = AIContentDetector(SPARK_API_PASSWORD)
+        self.prompt_suggester = PromptQualityAnalyzer(SPARK_API_PASSWORD)
 
         # Test Spark API connection
         self.spark_llm.test_api_connection()
@@ -1795,13 +2842,15 @@ class FakeNewsDetectionSystem:
 
 
     def analyze_claim(self, claim: str, use_rag: bool = True, use_kg: bool = True) -> Dict[str, Any]:
-        """Analyze a claim for fake news detection
+        """Analyze a claim for fake news detection with enhanced models
         
         Args:
             claim: The claim to analyze or a URL
+            use_rag: Whether to use RAG for context
+            use_kg: Whether to use knowledge graph
             
         Returns:
-            Dictionary with analysis results
+                Dictionary with analysis results
         """
         logger.info(f"Analyzing claim or URL: {claim}")
         start_time = datetime.now()
@@ -1816,6 +2865,7 @@ class FakeNewsDetectionSystem:
             # Check if input is a URL
             is_url_input = self.url_handler.is_url(claim)
             article_from_url = None
+            source_credibility = None
             
             # If it's a URL, extract the article
             if is_url_input:
@@ -1827,6 +2877,16 @@ class FakeNewsDetectionSystem:
                 if not claim_for_analysis:
                     claim_for_analysis = claim
                     logger.warning(f"Failed to extract article content from URL: {claim}")
+                
+                # Analyze source credibility for URL inputs
+                logger.info("Analyzing source credibility...")
+                credibility_analysis = self.credibility_analyzer.assess_overall_source_credibility(
+                    domain=article_from_url["source_domain"],
+                    author=article_from_url["author"],
+                    date_str=article_from_url["published_date"],
+                    claim_text=claim_for_analysis
+                )
+                source_credibility = credibility_analysis.get("overall_credibility_score")
             else:
                 claim_for_analysis = claim
             
@@ -1859,10 +2919,6 @@ class FakeNewsDetectionSystem:
                     similarities = self.embedding_engine.compute_similarity(claim_embedding[0], article_embeddings)
                     retrieved_articles = self.embedding_engine.filter_by_threshold(articles, similarities)
                     
-                    # Alternatively, use FAISS for retrieval
-                    # self.faiss_indexer.create_index(article_embeddings)
-                    # retrieved_articles = self.faiss_indexer.retrieve_docs(claim_embedding, articles)
-                    
                     logger.info(f"Retrieved {len(retrieved_articles)} relevant articles")
             
             # Step 6: Verify entities using Knowledge Graph
@@ -1871,20 +2927,32 @@ class FakeNewsDetectionSystem:
                 logger.info("Verifying entities with Knowledge Graph...")
                 entity_verification = self.knowledge_graph.verify_entity_relationships(entities)
             
-            # Step 7: Fact-check using XLM RoBERTa
-            logger.info("Fact-checking with Spark LLM...")
-            fact_check_result = self.spark_llm.fact_check(claim_for_analysis, retrieved_articles, entities)
+            # Step 7: Enhanced fact-check using Spark LLM with all our improvements
+            logger.info("Enhanced fact-checking with Spark LLM...")
+            fact_check_result = self.spark_llm.fact_check(claim_for_analysis, retrieved_articles, entities, source_credibility)
             
             if not fact_check_result:
                 return {
                     "status": "error",
-                    "message": "Failed to get fact-checking result from XLM Roberta",
+                    "message": "Failed to get fact-checking result from Spark LLM",
                     "claim": claim,
                     "sentiment_analysis": sentiment_analysis
                 }
             
+            # Step 8: Calibrate confidence score
+            evidence_text = self.spark_llm.preprocess_evidence(retrieved_articles)
+            calibrated_result = self.spark_llm.calibrate_confidence(
+                fact_check_result, 
+                claim_for_analysis, 
+                evidence_text, 
+                source_credibility, 
+                entities
+            )
+            
             # New Step: Analyze credibility if URL input
             credibility_analysis = None
+            ai_detection_result = None
+            
             if is_url_input and article_from_url:
                 logger.info("Analyzing source credibility...")
                 credibility_analysis = self.credibility_analyzer.assess_overall_source_credibility(
@@ -1893,8 +2961,40 @@ class FakeNewsDetectionSystem:
                     date_str=article_from_url["published_date"],
                     claim_text=claim_for_analysis
                 )
+                ai_detection_result = self.ai_detector.detect_ai_content(article_from_url["content"])
+            else:
+                ai_detection_result = self.ai_detector.detect_ai_content(claim_for_analysis)
             
-            # Step 8: Compile and return results
+            # Analyze title-content contradiction for URL inputs
+            title_content_contradiction = None
+            if is_url_input and article_from_url:
+                try:
+                    title_content_contradiction = self.spark_llm.detect_title_content_contradiction(
+                        title=article_from_url['title'], 
+                        content=article_from_url['content']
+                    )
+                except Exception as e:
+                    logger.error(f"Error detecting title-content contradiction: {e}")
+            
+            # Step 9: Calculate overall trust lens score
+            trust_lens_score = None
+            if credibility_analysis:
+                source_cred = credibility_analysis["overall_credibility_score"] 
+                fact_confidence = calibrated_result.get("confidence", 0) / 100.0
+                sentiment_score = sentiment_analysis.get("manipulation_score", 0)
+                tone_neutrality = 1.0 - sentiment_score
+                
+                author_credibility = credibility_analysis.get("factors", {}).get("author", {}).get("credibility_factor", 0.5)
+                
+                # Calculate trust score
+                trust_lens_score = self.credibility_analyzer.calculate_trust_lens_score(
+                    source_credibility=source_cred,
+                    factual_match=fact_confidence,
+                    tone_neutrality=tone_neutrality,
+                    source_transparency=author_credibility
+                )
+            
+            # Step 10: Compile and return results
             result = {
                 "status": "success",
                 "claim": claim,
@@ -1903,7 +3003,17 @@ class FakeNewsDetectionSystem:
                 "retrieved_articles": retrieved_articles,
                 "sentiment_analysis": sentiment_analysis,
                 "entity_verification": entity_verification,
-                "fact_check": fact_check_result,
+                "fact_check": calibrated_result,
+                "verdict": calibrated_result.get("verdict"),
+                "confidence": calibrated_result.get("confidence"),
+                "explanation": calibrated_result.get("explanation"),
+                "reasoning": calibrated_result.get("reasoning"),
+                "confidence_factors": calibrated_result.get("confidence_factors"),
+                "ai_detection": {
+                    "ai_likelihood": ai_detection_result.get("ai_likelihood", 0.0) if ai_detection_result else 0.0,
+                    "category": ai_detection_result.get("category", "unknown") if ai_detection_result else "unknown",
+                    "pattern_matches": ai_detection_result.get("pattern_matches", {}) if ai_detection_result else {}
+                },
                 "processing_time": (datetime.now() - start_time).total_seconds()
             }
             
@@ -1915,36 +3025,22 @@ class FakeNewsDetectionSystem:
                     "published_date": article_from_url["published_date"],
                     "domain": article_from_url["source_domain"]
                 }
-                
-                contradiction_analysis = self.spark_llm.detect_title_content_contradiction(
-                title=article_from_url['title'], 
-                content=article_from_url['content'])
-                
-                
                 result["credibility_analysis"] = credibility_analysis
-                result['title_content_contradiction'] = contradiction_analysis
             
+        # Add title-content contradiction analysis if available
+            if title_content_contradiction:
+                result['title_content_contradiction'] = title_content_contradiction
             
-            # Also do credibility analysis on the top retrieved article if available
-            elif retrieved_articles and len(retrieved_articles) > 0:
-                top_article = retrieved_articles[0]
-                domain = top_article.get("source", "unknown")
+            # Add trust lens score if available
+            if trust_lens_score is not None:
+                result["trust_lens_score"] = trust_lens_score
+            
+            # Add multi-pass verification results if available
+            if "verification_analysis" in calibrated_result:
+                result["verification_analysis"] = calibrated_result["verification_analysis"]
                 
-                # Try to extract author and date from retrieved article
-                author = "Unknown Author"
-                date = "Unknown Date"
-                
-                # If we have a link, we could potentially fetch the full article to extract more metadata
-                # This would be an enhancement point
-                
-                logger.info("Analyzing top result source credibility...")
-                credibility_analysis = self.credibility_analyzer.assess_overall_source_credibility(
-                    domain=domain,
-                    author=author,
-                    date_str=date,
-                    claim_text=claim_for_analysis
-                )
-                result["credibility_analysis"] = credibility_analysis
+            if "verification_note" in calibrated_result:
+                result["verification_note"] = calibrated_result["verification_note"]
             
             # Cache the result
             result_cache[cache_key] = result
@@ -1957,6 +3053,37 @@ class FakeNewsDetectionSystem:
                 "message": str(e),
                 "claim": claim
             }
+            
+            
+    def suggest_prompt(self, prompt: str) -> Dict[str, Any]:
+        """Analyze a user's prompt and provide suggestions
+        
+        Args:
+            prompt: The user's input prompt
+            
+        Returns:
+            Dictionary with suggestions
+        """
+        return self.prompt_suggester.analyze_prompt_quality(prompt)
+
+    def detect_ai_content(self, text: str) -> Dict[str, Any]:
+        """Detect if content is likely AI-generated and categorize it
+        
+        Args:
+            text: The text to analyze
+            
+        Returns:
+            Dictionary with detection results
+        """
+        ai_detection = self.ai_detector.detect_ai_content(text)
+        content_category = self.ai_detector.categorize_content(text)
+        
+        # Combine results
+        return {
+            "ai_detection": ai_detection,
+            "content_category": content_category
+        }
+    
     def close(self):
         """Close any open connections"""
         if self.knowledge_graph:
@@ -1984,6 +3111,21 @@ class AnalysisResponse(BaseModel):
     processing_time: Optional[float] = None
     entities: Optional[dict] = None
     message: Optional[str] = None
+
+class PromptAnalysisRequest(BaseModel):
+    prompt: str = Field(..., description="The user prompt to analyze")
+
+class PromptAnalysisResponse(BaseModel):
+    is_good_prompt: bool
+    quality_score: float
+    is_url: bool
+    suggestions: List[str]
+    improved_prompt: str
+
+
+
+
+
 # API Server
 app = FastAPI(
     title="TruthLens API",
@@ -2031,6 +3173,48 @@ async def health_check():
         "timestamp": str(datetime.now())
     }
 
+
+
+# Possible fixes for the PromptQualityAnalyzer in Try_train.py
+
+@app.post("/analyze-prompt", response_model=PromptAnalysisResponse)
+async def analyze_prompt(request: PromptAnalysisRequest):
+    """
+    Analyze a user prompt for quality and provide suggestions for improvement.
+    """
+    global truthlens
+    
+    if not truthlens:
+        raise HTTPException(status_code=503, detail="TruthLens system not initialized")
+    
+    try:
+        # Make sure this instance exists and the method is working
+        if not hasattr(truthlens, 'prompt_suggester') or not truthlens.prompt_suggester:
+            # Fallback solution if not initialized
+            return {
+                "is_good_prompt": True,
+                "quality_score": 0.7,
+                "is_url": request.prompt.lower().startswith("http"),
+                "suggestions": ["Try adding more context about the claim."],
+                "improved_prompt": request.prompt
+            }
+            
+        result = truthlens.prompt_suggester.analyze_prompt_quality(request.prompt)
+        return result
+    except Exception as e:
+        logger.error(f"Error analyzing prompt: {e}")
+        # Return a default response instead of raising an exception
+        return {
+            "is_good_prompt": True,
+            "quality_score": 0.5,
+            "is_url": request.prompt.lower().startswith("http"),
+            "suggestions": ["Could not analyze prompt. Try adding more details."],
+            "improved_prompt": request.prompt
+        }
+
+
+
+
 @app.post("/analyze", response_model=AnalysisResponse)
 async def analyze_claim(request: AnalysisRequest):
     """
@@ -2056,7 +3240,7 @@ async def analyze_claim(request: AnalysisRequest):
             "status": result["status"],
             "claim": result["claim"],
             "is_url_input": result.get("is_url_input", False),
-            "verdict": None,
+            "verdict": None,  # We'll set this below
             "confidence": None,
             "explanation": None,
             "emotional_manipulation": {
@@ -2068,9 +3252,59 @@ async def analyze_claim(request: AnalysisRequest):
             "entities": result["entities"]
         }
         
-       
-    
-        
+        # Parse fact_check result if it's a string
+        if isinstance(result["fact_check"], str):
+            fact_check_text = result["fact_check"]
+            
+            # Extract verdict with improved regex
+            verdict_match = re.search(r"Verdict:\s*(.*?)(?:\n|$)", fact_check_text, re.IGNORECASE)
+            if verdict_match:
+                response["verdict"] = verdict_match.group(1).strip()
+            else:
+                # Try alternate patterns for verdict extraction
+                alt_verdict_match = re.search(r"(True|False|Partially True|REAL|FAKE|MISLEADING)", fact_check_text)
+                if alt_verdict_match:
+                    response["verdict"] = alt_verdict_match.group(1).strip()
+                else:
+                    # If we can't extract verdict, use a default based on confidence
+                    if "confidence" in response and response["confidence"]:
+                        conf = response["confidence"]
+                        if conf >= 80:
+                            response["verdict"] = "True"
+                        elif conf >= 40:
+                            response["verdict"] = "Partially True"
+                        else:
+                            response["verdict"] = "False"
+                    else:
+                        response["verdict"] = "Unverified"
+            
+            # Extract confidence
+            confidence_match = re.search(r"Confidence:\s*(\d+)%", fact_check_text)
+            if confidence_match:
+                response["confidence"] = int(confidence_match.group(1))
+            else:
+                # Try to find any number followed by % sign if the standard format fails
+                alt_confidence_match = re.search(r"(\d+)%", fact_check_text)
+                if alt_confidence_match:
+                    response["confidence"] = int(alt_confidence_match.group(1))
+                else:
+                    # Default confidence if we can't extract it
+                    response["confidence"] = 75
+            
+            # Extract explanation
+            explanation_match = re.search(r"Explanation:\s*(.*?)(?:\n\n|$)", fact_check_text, re.DOTALL)
+            if explanation_match:
+                response["explanation"] = explanation_match.group(1).strip()
+            else:
+                # Take a larger chunk as explanation if the format doesn't match
+                explanation_fallback = "\n".join(fact_check_text.split("\n")[3:])
+                response["explanation"] = explanation_fallback[:500] + "..."
+                
+        else:
+            # Handle as dictionary if it's not a string
+            response["verdict"] = result["fact_check"].get("verdict")
+            response["confidence"] = result["fact_check"].get("confidence")
+            response["explanation"] = result["fact_check"].get("explanation")
         
         # Add source metadata if available
         if "source_metadata" in result:
@@ -2084,50 +3318,57 @@ async def analyze_claim(request: AnalysisRequest):
                 "explanation": result["credibility_analysis"]["explanation"],
                 "details": result["credibility_analysis"]["details"]
             }
+            
+            # For URL inputs, if verdict is still None, derive it from credibility assessment
+            if response["verdict"] is None and response["is_url_input"]:
+                cred_score = result["credibility_analysis"]["overall_credibility_score"]
+                if cred_score >= 0.75:
+                    response["verdict"] = "True"
+                elif cred_score >= 0.4:
+                    response["verdict"] = "Partially True"
+                else:
+                    response["verdict"] = "False"
         
-        # Parse fact_check result if it's a string
-        if isinstance(result["fact_check"], str):
-            fact_check_text = result["fact_check"]
-            
-            # Extract verdict
-            verdict_match = re.search(r"Verdict: (.*?)(?:\n|$)", fact_check_text)
-            if verdict_match:
-                response["verdict"] = verdict_match.group(1).strip()
-            
-            # Extract confidence
-            confidence_match = re.search(r"Confidence: (\d+)%", fact_check_text)
-            if confidence_match:
-                response["confidence"] = int(confidence_match.group(1))
-            
-            # Extract explanation
-            explanation_match = re.search(r"Explanation: (.*?)(?:\n\n|$)", fact_check_text, re.DOTALL)
-            if explanation_match:
-                response["explanation"] = explanation_match.group(1).strip()
+        # If verdict is still None or "Unknown", provide a default based on the text assessment
+        if response["verdict"] is None or response["verdict"] == "Unknown":
+            # Check if there's any indication in the explanation
+            if response["explanation"] and "true" in response["explanation"].lower():
+                response["verdict"] = "True"
+            elif response["explanation"] and "false" in response["explanation"].lower():
+                response["verdict"] = "False"
+            elif response["explanation"] and "partially" in response["explanation"].lower():
+                response["verdict"] = "Partially True"
+            else:
+                # Final fallback
+                response["verdict"] = "Unverified"
                 
-        else:
-            # Handle as dictionary if it's not a string
-            response["verdict"] = result["fact_check"].get("verdict")
-            response["confidence"] = result["fact_check"].get("confidence")
-            response["explanation"] = result["fact_check"].get("explanation")
-        
-        # Calculate Trust Lens Score
-        fact_check_confidence = response['confidence'] or 0  # Default to 0 if None
-        author_credibility_factor = result.get('credibility_analysis', {}).get('factors', {}).get('author', {}).get('credibility_factor', 0.5)
-        sentiment_analysis = result.get('sentiment_analysis', {})
-        
-        # Pastikan kita memiliki data yang diperlukan untuk menghitung trust_lens_score
-        if 'credibility_analysis' in result and 'overall_credibility_score' in result['credibility_analysis']:
-            trust_lens_score = truthlens.credibility_analyzer.calculate_trust_lens_score(
-                source_credibility=result['credibility_analysis']['overall_credibility_score'],
-                factual_match=fact_check_confidence/100,  # Convert to 0-1 scale
-                tone_neutrality=1 - sentiment_analysis.get('manipulation_score', 0),
-                source_transparency=author_credibility_factor
-            )
-            response['trust_lens_score'] = trust_lens_score
-        
-        # Tambahkan title_content_contradiction ke response jika ada
+        # Add additional analysis data
         if 'title_content_contradiction' in result:
             response['title_content_contradiction'] = result['title_content_contradiction']
+            
+        if "ai_detection" in result:
+            response["ai_detection"] = result["ai_detection"]
+        
+        # Calculate trust_lens_score
+        if 'credibility_analysis' in result and 'overall_credibility_score' in result['credibility_analysis']:
+           source_credibility = result["credibility_analysis"]["overall_credibility_score"] 
+           fact_confidence = response.get("confidence", 0) / 100.0 if response.get("confidence") else 0.5
+           sentiment_score = result["sentiment_analysis"].get("manipulation_score", 0)
+           tone_neutrality = 1.0 - sentiment_score
+           
+           author_credibility = result.get("credibility_analysis", {}).get("factors", {}).get("author", {}).get("credibility_factor", 0.5)
+           
+           # Calculate trust score
+           trust_lens_score = truthlens.credibility_analyzer.calculate_trust_lens_score(
+                source_credibility=source_credibility,
+                factual_match=fact_confidence,
+                tone_neutrality=tone_neutrality,
+                source_transparency=author_credibility
+            )
+           response["trust_lens_score"] = trust_lens_score
+        
+        # Log the final verdict and confidence
+        logger.info(f"Final verdict: {response['verdict']}, Confidence: {response['confidence']}%")
         
         return response
 
@@ -2136,9 +3377,7 @@ async def analyze_claim(request: AnalysisRequest):
     except Exception as e:
         logger.error(f"Error processing analysis request: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
-    
-    
-    
+
 # Command line interface
 def main():
     """Command line interface for TruthLens"""
