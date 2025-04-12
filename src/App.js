@@ -1,3 +1,4 @@
+import AIDetectionVisualization from "./components/AIDetectionvisualization";
 import React, { useState, useEffect } from "react";
 import {
   AlertTriangle,
@@ -807,6 +808,8 @@ const TruthLensApp = () => {
     );
   };
 
+  console.log("AI Detection data:", result.ai_detection);
+
   const VerificationBadge = ({ verificationPerformed }) => {
     if (!verificationPerformed) return null;
 
@@ -830,7 +833,6 @@ const TruthLensApp = () => {
       </div>
     );
   };
-
 
   // Add this component for visualizing the verdict assessment
   const VerdictVisualization = ({ verdict, confidence }) => {
@@ -1283,25 +1285,27 @@ const TruthLensApp = () => {
     );
   };
 
-  const getConfidenceColor = (score) => {
-    if (score >= 0.8) return "text-red-600";
-    if (score >= 0.5) return "text-yellow-600";
-    return "text-green-600";
-  };
-
   const AIDetectionWidget = ({ aiDetection }) => {
     if (!aiDetection) return null;
 
-    // Normalize the data structure regardless of how it comes in
+    // Extract the score first for use in fallback values
+    const score =
+      aiDetection.ai_score !== undefined
+        ? aiDetection.ai_score
+        : aiDetection.ai_likelihood !== undefined
+        ? aiDetection.ai_likelihood
+        : aiDetection.ai_detection && aiDetection.ai_detection.ai_score
+        ? aiDetection.ai_detection.ai_score
+        : 0;
+
+    // Determine fallback emoji based on score
+    let fallbackEmoji = "❓";
+    if (score >= 0.6) fallbackEmoji = "🤖";
+    if (score <= 0.4) fallbackEmoji = "👤";
+
+    // Now normalize the data structure regardless of how it comes in
     const normalizedData = {
-      score:
-        aiDetection.ai_score !== undefined
-          ? aiDetection.ai_score
-          : aiDetection.ai_likelihood !== undefined
-          ? aiDetection.ai_likelihood
-          : aiDetection.ai_detection && aiDetection.ai_detection.ai_score
-          ? aiDetection.ai_detection.ai_score
-          : 0,
+      score: score,
       verdict:
         aiDetection.ai_verdict ||
         (aiDetection.ai_detection && aiDetection.ai_detection.ai_verdict) ||
@@ -1325,42 +1329,108 @@ const TruthLensApp = () => {
         (aiDetection.ai_detection &&
           aiDetection.ai_detection.pattern_analysis) ||
         null,
+      // New enhanced fields
+      emoji:
+        aiDetection.emoji ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.emoji) ||
+        fallbackEmoji,
+      displayMessage:
+        aiDetection.display_message ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.display_message) ||
+        "Unable to determine if content was written by AI or human",
+      isAi:
+        aiDetection.is_ai !== undefined
+          ? aiDetection.is_ai
+          : aiDetection.ai_detection &&
+            aiDetection.ai_detection.is_ai !== undefined
+          ? aiDetection.ai_detection.is_ai
+          : null,
+      confidenceText:
+        aiDetection.confidence_text ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.confidence_text) ||
+        "with unknown confidence",
+      confidencePercentage:
+        aiDetection.confidence_percentage ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.confidence_percentage) ||
+        Math.round(score * 100),
+      linguisticTraits:
+        aiDetection.linguistic_traits ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.linguistic_traits) ||
+        null,
     };
 
-    const scorePercentage = Math.round(normalizedData.score * 100);
+    // Determine background color based on AI score
+    const getBackgroundColor = () => {
+      if (normalizedData.isAi === true) return "bg-red-50 border-red-100";
+      if (normalizedData.isAi === false) return "bg-green-50 border-green-100";
+      return "bg-gray-50 border-gray-100";
+    };
+
+    // Determine text color based on AI score
+    const getTextColor = () => {
+      if (normalizedData.isAi === true) return "text-red-600";
+      if (normalizedData.isAi === false) return "text-green-600";
+      return "text-gray-600";
+    };
+
+    // Get appropriate emoji size
+    const emojiSize = normalizedData.emoji ? "text-5xl" : "text-4xl";
+
+    const scorePercentage = normalizedData.confidencePercentage;
 
     return (
-      <div className="mb-6 p-4 border rounded-lg bg-white shadow-sm">
-        <h3 className="text-lg font-medium mb-3">Deteksi AI</h3>
+      <div className={`mb-6 p-4 border rounded-lg bg-white shadow-sm`}>
+        <h3 className="text-lg font-medium mb-3">AI Content Detection</h3>
+
+        {/* Large emoji and verdict headline */}
+        <div
+          className={`p-4 mb-4 rounded-lg flex items-center ${getBackgroundColor()}`}
+        >
+          <div className={`${emojiSize} mr-4`}>{normalizedData.emoji}</div>
+          <div>
+            <h4 className="font-bold text-lg">
+              {normalizedData.displayMessage}
+            </h4>
+            <p className={`mt-1 ${getTextColor()}`}>{normalizedData.verdict}</p>
+          </div>
+        </div>
+
         <div className="space-y-3">
           <div className="flex items-center">
-            <span className="font-medium">Probabilitas Konten AI:</span>
-            <span
-              className={`ml-2 font-bold ${getConfidenceColor(
-                normalizedData.score
-              )}`}
-            >
-              {scorePercentage}%
-            </span>
-          </div>
-
-          {normalizedData.verdict && (
-            <div>
-              <span className="font-medium">Verdict:</span>
-              <span className="ml-2">{normalizedData.verdict}</span>
+            <span className="font-medium">AI Probability:</span>
+            <div className="ml-2 flex items-center flex-1">
+              <div className="w-full h-3 bg-gray-200 rounded-full mr-2">
+                <div
+                  className={`h-3 rounded-full ${
+                    normalizedData.isAi === true
+                      ? "bg-red-500"
+                      : normalizedData.isAi === false
+                      ? "bg-green-500"
+                      : "bg-gray-500"
+                  }`}
+                  style={{ width: `${scorePercentage}%` }}
+                ></div>
+              </div>
+              <span className={`font-bold ${getTextColor()}`}>
+                {scorePercentage}%
+              </span>
             </div>
-          )}
+          </div>
 
           {normalizedData.reasoning && (
             <div>
-              <span className="font-medium">Analisis:</span>
+              <span className="font-medium">Analysis:</span>
               <p className="mt-1 text-gray-700">{normalizedData.reasoning}</p>
             </div>
           )}
 
           {normalizedData.category && (
             <div>
-              <span className="font-medium">Kategori Konten:</span>
+              <span className="font-medium">Content Type:</span>
               <span className="ml-2">{normalizedData.category}</span>
               {normalizedData.subcategory && (
                 <span className="ml-1 text-gray-500">
@@ -1370,22 +1440,86 @@ const TruthLensApp = () => {
             </div>
           )}
 
+          {/* Show linguistic traits if available */}
+          {normalizedData.linguisticTraits && (
+            <div className="mt-3">
+              <span className="font-medium mb-1 block">
+                Linguistic Analysis:
+              </span>
+              <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                {normalizedData.linguisticTraits.personal_pronoun_density !==
+                  undefined && (
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span>Personal Pronouns:</span>
+                    <span
+                      className={
+                        normalizedData.linguisticTraits
+                          .personal_pronoun_density > 0.02
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {(
+                        normalizedData.linguisticTraits
+                          .personal_pronoun_density * 100
+                      ).toFixed(1)}
+                      %
+                    </span>
+                  </div>
+                )}
+                {normalizedData.linguisticTraits.contraction_density !==
+                  undefined && (
+                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <span>Contractions:</span>
+                    <span
+                      className={
+                        normalizedData.linguisticTraits.contraction_density >
+                        0.01
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                    >
+                      {(
+                        normalizedData.linguisticTraits.contraction_density *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Show detected AI patterns */}
           {normalizedData.patterns &&
             normalizedData.patterns.patterns_found && (
-              <div>
-                <span className="font-medium">Pola AI Terdeteksi:</span>
-                <div className="mt-1 text-sm text-gray-600">
-                  {Object.entries(normalizedData.patterns.patterns_found).map(
-                    ([pattern, count]) =>
-                      count > 0 && (
-                        <div key={pattern} className="ml-4">
-                          • {pattern}: {count} kali
-                        </div>
-                      )
-                  )}
+              <div className="mt-2 border-t pt-2">
+                <span className="font-medium block mb-1">
+                  AI Patterns Detected:
+                </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs">
+                  {Object.entries(normalizedData.patterns.patterns_found)
+                    .filter(([pattern, count]) => count > 0)
+                    .sort(([, countA], [, countB]) => countB - countA)
+                    .slice(0, 4) // Show top 4 patterns
+                    .map(([pattern, count]) => (
+                      <div key={pattern} className="flex items-center">
+                        <div className="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
+                        <span className="text-gray-600 truncate">
+                          {pattern.replace(/\\b|\(|\)|\?/g, "")}:{" "}
+                        </span>
+                        <span className="ml-1 font-medium">{count}</span>
+                      </div>
+                    ))}
                 </div>
               </div>
             )}
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
+          AI detection is based on linguistic patterns, structural analysis, and
+          content evaluation.
         </div>
       </div>
     );
@@ -1998,8 +2132,6 @@ const TruthLensApp = () => {
                     {/* Replace the existing verdict visualization with our new enhanced component */}
                     <EnhancedVerdictAssessment result={result} />
 
-                   
-
                     {/* Add the confidence factors widget after the verdict assessment */}
                     {result.confidence_factors && (
                       <ConfidenceFactorsWidget
@@ -2055,10 +2187,7 @@ const TruthLensApp = () => {
                         {result.emotional_manipulation.explanation}
                       </p>
                     </div>
-                    {/* You can keep your existing AI Detection Widget */}
-                    {result.ai_detection && (
-                      <AIDetectionWidget aiDetection={result.ai_detection} />
-                    )}
+
                     {result.title_content_contradiction && (
                       <TitleContentContradictionWidget
                         contradiction={result.title_content_contradiction}
@@ -2124,6 +2253,19 @@ const TruthLensApp = () => {
                       </div>
                       {renderEntities(result.entities)}
                     </div>
+
+                   
+
+                    {/* Add this new component here */}
+
+                    {result?.ai_detection && (
+                      <AIDetectionVisualization
+                        aiDetection={result.ai_detection}
+                      />
+                    )}
+
+                    <AIDetectionWidget aiDetection={result.ai_detection} />
+
                     <div className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200 flex items-center justify-end">
                       <Clock size={14} className="mr-1" />
                       Analysis completed in{" "}
