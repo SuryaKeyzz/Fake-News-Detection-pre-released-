@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
+import * as THREE from "three";
 import {
   AlertTriangle,
   Check,
   AlertCircle,
   Droplet,
   Search,
-  ExternalLink,
   Info,
   FileText,
   User,
@@ -14,13 +14,10 @@ import {
   Link,
   BarChart2,
   TrendingUp,
-  Activity,
   Bookmark,
-  FileCheck,
   Shield,
   Coffee,
   ChevronRight,
-  Filter,
   Clock,
 } from "lucide-react";
 import {
@@ -36,11 +33,8 @@ import {
   Bar,
   PieChart,
   Pie,
-  ReferenceLine,
   Cell,
-  Label,
 } from "recharts";
-import { data } from "autoprefixer";
 
 const TruthLensApp = () => {
   const [claim, setClaim] = useState("");
@@ -65,6 +59,7 @@ const TruthLensApp = () => {
   // Add with your other state variables
   const [analysisHistory, setAnalysisHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showResultsAnimation, setShowResultsAnimation] = useState(false);
 
   const [showShareModal, setShowShareModal] = useState(false);
   const COLORS = [
@@ -196,6 +191,246 @@ const TruthLensApp = () => {
     setDemoSamples(samples);
   }, []);
 
+  // Add this component to your file
+  const ParallaxHeader = () => {
+    const [offset, setOffset] = React.useState(0);
+
+    React.useEffect(() => {
+      const handleScroll = () => {
+        setOffset(window.pageYOffset);
+      };
+
+      window.addEventListener("scroll", handleScroll);
+
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+      };
+    }, []);
+
+    return (
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700">
+        {/* Parallax background elements */}
+
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <WaterWaveEffect />
+        </div>
+
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            transform: `translateY(${offset * 0.3}px)`,
+            background: `radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0) 50%),
+                      radial-gradient(circle at 70% 80%, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 40%)`,
+          }}
+        ></div>
+
+        {/* Floating particles */}
+        <div className="absolute inset-0">
+          <div
+            className="absolute top-1/4 left-1/4 w-12 h-12 bg-white rounded-full opacity-10"
+            style={{
+              transform: `translate(${-offset * 0.1}px, ${offset * 0.05}px)`,
+            }}
+          ></div>
+          <div
+            className="absolute top-3/4 left-2/3 w-20 h-20 bg-white rounded-full opacity-5"
+            style={{
+              transform: `translate(${offset * 0.15}px, ${-offset * 0.1}px)`,
+            }}
+          ></div>
+          <div
+            className="absolute top-1/2 left-3/4 w-8 h-8 bg-white rounded-full opacity-10"
+            style={{
+              transform: `translate(${-offset * 0.2}px, ${-offset * 0.07}px)`,
+            }}
+          ></div>
+        </div>
+
+        {/* Header content */}
+        <div className="container mx-auto px-4 py-6 relative z-10">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Droplet className="text-white mr-2" size={28} />
+              <h1 className="text-2xl font-bold text-white">TruthLens</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowHistory(true)}
+                className="text-white text-sm flex items-center transition-transform hover:scale-105"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                History
+              </button>
+              <div className="text-white text-sm md:text-base flex items-center">
+                <Shield className="mr-2" size={18} />
+                Advanced Fake News Detection System
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ResultsRevealAnimation = ({ result, isVisible, onComplete }) => {
+    const [showAnimation, setShowAnimation] = React.useState(isVisible);
+    const [animationComplete, setAnimationComplete] = React.useState(false);
+
+    React.useEffect(() => {
+      if (isVisible) {
+        setShowAnimation(true);
+
+        // Trigger completion after animation
+        const timer = setTimeout(() => {
+          setAnimationComplete(true);
+          onComplete();
+        }, 2500);
+
+        return () => clearTimeout(timer);
+      }
+    }, [isVisible, onComplete]);
+
+    if (!showAnimation) return null;
+
+    const getResultColor = () => {
+      if (!result || !result.verdict) return "#9ca3af";
+
+      const verdict = result.verdict.toLowerCase();
+      if (verdict.includes("true") && !verdict.includes("partially")) {
+        return "#10b981"; // Green
+      } else if (
+        verdict.includes("partially") ||
+        verdict.includes("misleading")
+      ) {
+        return "#f59e0b"; // Yellow
+      } else if (verdict.includes("false") || verdict.includes("fake")) {
+        return "#ef4444"; // Red
+      }
+      return "#9ca3af"; // Gray default
+    };
+
+    const resultColor = getResultColor();
+    const confidence = result?.confidence || 0;
+
+    return (
+      <div
+        className={`fixed inset-0 flex items-center justify-center bg-white z-50 ${
+          animationComplete ? "animate-fade-out" : ""
+        }`}
+      >
+        <div className="text-center px-6 py-8 max-w-md">
+          <div className="relative mb-8 mx-auto">
+            {/* Animated circles */}
+            <div className="w-40 h-40 rounded-full border-8 border-gray-100 flex items-center justify-center relative mx-auto">
+              <svg
+                className="w-full h-full absolute top-0 left-0"
+                viewBox="0 0 100 100"
+              >
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="46"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  strokeWidth="8"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="46"
+                  fill="none"
+                  stroke={resultColor}
+                  strokeWidth="8"
+                  strokeDasharray={`${confidence * 2.89} 289`}
+                  strokeDashoffset="0"
+                  transform="rotate(-90 50 50)"
+                  className="animate-fill-progress"
+                  style={{
+                    strokeDasharray: `${confidence * 2.89} 289`,
+                    transition: "stroke-dasharray 2s ease-in-out",
+                  }}
+                />
+              </svg>
+              <div
+                className="text-3xl font-bold"
+                style={{ color: resultColor }}
+              >
+                {confidence}%
+              </div>
+            </div>
+
+            {/* Verdict text with typing animation */}
+            <div className="h-10 flex items-center justify-center overflow-hidden">
+              <div
+                className="text-2xl font-bold animate-typing-effect"
+                style={{ color: resultColor }}
+              >
+                {result?.verdict || "Analysis Complete"}
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="mt-4 animate-fade-in"
+            style={{ animationDelay: "1s" }}
+          >
+            <p className="text-gray-700">
+              {result?.explanation?.substring(0, 100) ||
+                "Your analysis is ready to view."}
+              {result?.explanation?.length > 100 ? "..." : ""}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add this to your TruthLensApp component
+  const EnhancedLoadingAnimation = () => {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+        <div className="text-center">
+          <div className="relative w-24 h-24 mx-auto mb-4">
+            {/* Animated rings */}
+            <div className="absolute inset-0 rounded-full border-4 border-blue-200 opacity-20"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-blue-400 opacity-30 animate-ping"></div>
+
+            {/* Central droplet */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative">
+                <Droplet className="text-blue-600" size={32} />
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full w-4 h-4"></div>
+              </div>
+            </div>
+
+            {/* Orbiting dot */}
+            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full">
+              <div className="animate-orbit"></div>
+            </div>
+          </div>
+
+          <div className="animate-pulse">
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">TruthLens</h1>
+            <p className="text-gray-600">Loading your dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const handleSparkApiError = (error) => {
     if (error.message && error.message.includes("Spark API")) {
       setError(
@@ -279,6 +514,116 @@ const TruthLensApp = () => {
     }
   };
 
+  const TrustBadge3D = ({ score }) => {
+    const canvasRef = React.useRef(null);
+
+    React.useEffect(() => {
+      // Capture the ref value at the time the effect runs
+      const currentCanvas = canvasRef.current;
+      if (!currentCanvas) return;
+
+      // Set up Three.js scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
+      const renderer = new THREE.WebGLRenderer({
+        canvas: currentCanvas,
+        antialias: true,
+        alpha: true,
+      });
+
+      renderer.setClearColor(0x000000, 0);
+      renderer.setSize(150, 150);
+
+      // Create badge shape
+      const badgeGeometry = new THREE.CylinderGeometry(1, 1, 0.2, 32);
+
+      // Color based on score
+      let badgeColor;
+      if (score >= 0.8) badgeColor = 0x10b981; // Green
+      else if (score >= 0.5) badgeColor = 0xf59e0b; // Yellow
+      else badgeColor = 0xef4444; // Red
+
+      const badgeMaterial = new THREE.MeshStandardMaterial({
+        color: badgeColor,
+        metalness: 0.7,
+        roughness: 0.3,
+      });
+
+      const badge = new THREE.Mesh(badgeGeometry, badgeMaterial);
+      scene.add(badge);
+
+      // Add checkmark or X embossing based on score
+      const embossGeometry =
+        score >= 0.5
+          ? new THREE.TorusGeometry(0.5, 0.1, 16, 100, Math.PI * 0.5)
+          : new THREE.CylinderGeometry(0.05, 0.05, 1, 32);
+
+      const embossMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        metalness: 0.5,
+        roughness: 0.5,
+      });
+
+      const emboss = new THREE.Mesh(embossGeometry, embossMaterial);
+
+      if (score >= 0.5) {
+        emboss.position.y = 0.11;
+        emboss.rotation.z = Math.PI * 0.25;
+      } else {
+        emboss.position.y = 0.11;
+        emboss.rotation.z = Math.PI * 0.25;
+      }
+
+      badge.add(emboss);
+
+      // Add lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 5, 5);
+      scene.add(directionalLight);
+
+      camera.position.z = 3;
+
+      // Animation loop
+      let animationFrameId;
+      const animate = () => {
+        animationFrameId = requestAnimationFrame(animate);
+
+        badge.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+      };
+
+      animate();
+
+      // Handle cleanup
+      return () => {
+        cancelAnimationFrame(animationFrameId);
+
+        // Dispose THREE.js resources
+        badgeGeometry.dispose();
+        badgeMaterial.dispose();
+        embossGeometry.dispose();
+        embossMaterial.dispose();
+
+        // We don't need to remove the canvas since we're using the existing canvas element
+        renderer.dispose();
+      };
+    }, [score]);
+
+    return (
+      <div className="flex flex-col items-center">
+        <canvas ref={canvasRef} className="w-[150px] h-[150px]" />
+        <div className="mt-2 font-bold text-lg">
+          {(score * 100).toFixed(0)}% Trust Score
+        </div>
+      </div>
+    );
+  };
+
   const handleAnalyze = async () => {
     try {
       setIsAnalyzing(true);
@@ -298,60 +643,11 @@ const TruthLensApp = () => {
       });
 
       const data = await response.json();
-      console.log("Response from backend:", data); // Log the full response
-      console.log("Verdict:", data.verdict); // Specifically log the verdict
-      console.log("Confidence:", data.confidence); // Specifically log the confidence
-      console.log("AI Detection data:", data.ai_detection); // Specifically log AI detection data
+      console.log("Response from backend:", data);
 
       if (data.error) {
         setError(data.error);
         return;
-      }
-
-      // Normalize the verdict if it exists but might have different formatting
-      if (data.verdict) {
-        console.log("Original verdict:", data.verdict);
-
-        // Keep the original verdict but make sure we handle various formats
-        if (typeof data.verdict === "string") {
-          const lowerVerdict = data.verdict.toLowerCase();
-
-          // Log what type of verdict it was classified as
-          if (
-            lowerVerdict.includes("true") &&
-            !lowerVerdict.includes("partially")
-          ) {
-            console.log("Classified as: True");
-          } else if (
-            lowerVerdict.includes("partially") ||
-            lowerVerdict.includes("misleading")
-          ) {
-            console.log("Classified as: Partially True");
-          } else if (
-            lowerVerdict.includes("false") ||
-            lowerVerdict.includes("fake")
-          ) {
-            console.log("Classified as: False");
-          } else {
-            console.log("Unrecognized verdict format");
-          }
-        }
-      } else {
-        console.warn("No verdict in response data");
-        // Assign a default verdict based on confidence
-        if (data.confidence !== undefined) {
-          if (data.confidence >= 80) {
-            data.verdict = "True";
-          } else if (data.confidence >= 40) {
-            data.verdict = "Partially True";
-          } else {
-            data.verdict = "False";
-          }
-          console.log(
-            "Assigned default verdict based on confidence:",
-            data.verdict
-          );
-        }
       }
 
       // Save to history if analysis was successful
@@ -360,6 +656,8 @@ const TruthLensApp = () => {
       }
 
       setResult(data);
+      // Show the animation when the result is ready
+      setShowResultsAnimation(true);
     } catch (error) {
       console.error("Error during analysis:", error);
       setError("Terjadi kesalahan saat menganalisis klaim. Silakan coba lagi.");
@@ -367,6 +665,511 @@ const TruthLensApp = () => {
       setIsAnalyzing(false);
     }
   };
+
+  // Add this component to your file
+  // Optimized ParticleBackground
+  const ParticleBackground = () => {
+    const canvasRef = React.useRef(null);
+
+    React.useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const ctx = canvas.getContext("2d");
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // Reduce particle count
+      const particleCount = 25; // Reduced from 50
+      const particles = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 3 + 1, // Smaller particles
+          speedX: Math.random() * 0.5 - 0.25, // Slower movement
+          speedY: Math.random() * 0.5 - 0.25,
+          color: `rgba(74, 144, 226, ${Math.random() * 0.3 + 0.1})`,
+        });
+      }
+
+      // Reduce connection distance for fewer lines
+      const connectionDistance = 120; // Reduced from 150
+
+      // Lower frame rate
+      let lastTime = 0;
+      const targetFPS = 20; // Lower FPS for particles
+      const interval = 1000 / targetFPS;
+
+      const animate = (currentTime) => {
+        const animationId = requestAnimationFrame(animate);
+
+        const deltaTime = currentTime - lastTime;
+        if (deltaTime < interval) return;
+
+        lastTime = currentTime - (deltaTime % interval);
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Update and draw particles
+        particles.forEach((particle) => {
+          particle.x += particle.speedX;
+          particle.y += particle.speedY;
+
+          // Wrap around edges
+          if (particle.x > width) particle.x = 0;
+          if (particle.x < 0) particle.x = width;
+          if (particle.y > height) particle.y = 0;
+          if (particle.y < 0) particle.y = height;
+
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          ctx.fillStyle = particle.color;
+          ctx.fill();
+        });
+
+        // Draw fewer connections - only check every other particle
+        for (let i = 0; i < particles.length; i += 2) {
+          const particleA = particles[i];
+          for (let j = i + 2; j < particles.length; j += 2) {
+            const particleB = particles[j];
+            const dx = particleA.x - particleB.x;
+            const dy = particleA.y - particleB.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < connectionDistance) {
+              ctx.beginPath();
+              ctx.moveTo(particleA.x, particleA.y);
+              ctx.lineTo(particleB.x, particleB.y);
+              ctx.strokeStyle = `rgba(74, 144, 226, ${
+                0.15 * (1 - distance / connectionDistance)
+              })`;
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+        }
+      };
+
+      const animationId = requestAnimationFrame(animate);
+
+      // Handle window resize with debouncing
+      let resizeTimeout;
+      const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          canvas.width = width;
+          canvas.height = height;
+        }, 200);
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        cancelAnimationFrame(animationId);
+        window.removeEventListener("resize", handleResize);
+        clearTimeout(resizeTimeout);
+      };
+    }, []);
+
+    return (
+      <canvas
+        ref={canvasRef}
+        className="fixed top-0 left-0 w-full h-full -z-10 opacity-40"
+      />
+    );
+  };
+
+// Credibility Heatmap Visualization
+const CredibilityHeatmap = ({ score, level }) => {
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [animatedScore, setAnimatedScore] = React.useState(0);
+  
+  // Get credibility level based on score
+  const getCredibilityLevelFromScore = React.useCallback((scoreValue) => {
+    if (scoreValue >= 0.8) return 'HIGH';
+    if (scoreValue >= 0.6) return 'MEDIUM_HIGH';
+    if (scoreValue >= 0.4) return 'MEDIUM';
+    if (scoreValue >= 0.2) return 'LOW_MEDIUM';
+    return 'LOW';
+  }, []);
+
+  // Get dynamic level based on either provided level or calculated from score
+  const dynamicLevel = React.useMemo(() => {
+    return level || getCredibilityLevelFromScore(score || 0);
+  }, [level, score, getCredibilityLevelFromScore]);
+
+  // Get credibility details based on level
+  const getCredibilityDetails = React.useCallback((currentLevel) => {
+    const details = {
+      HIGH: {
+        title: "High Credibility",
+        description: "This source demonstrates strong journalistic standards with accurate information from reputable outlets.",
+        characteristics: [
+          "Transparent author credentials",
+          "Cites primary sources",
+          "Minimal emotional language",
+          "History of accurate reporting"
+        ],
+        color: "#10b981",
+        lightColor: "#d1fae5"
+      },
+      MEDIUM_HIGH: {
+        title: "Medium-High Credibility",
+        description: "Generally reliable source with occasional minor issues in reporting.",
+        characteristics: [
+          "Identified authors",
+          "Mostly neutral language",
+          "Some citation of sources",
+          "Largely accurate track record"
+        ],
+        color: "#22c55e",
+        lightColor: "#dcfce7"
+      },
+      MEDIUM: {
+        title: "Medium Credibility",
+        description: "Mixed reliability with both accurate and potentially misleading content.",
+        characteristics: [
+          "Some emotional language",
+          "Inconsistent source attribution",
+          "Occasional factual errors",
+          "Some partisan framing"
+        ],
+        color: "#f59e0b",
+        lightColor: "#fef3c7"
+      },
+      LOW_MEDIUM: {
+        title: "Low-Medium Credibility",
+        description: "Concerning reliability issues with frequent problems in reporting.",
+        characteristics: [
+          "Heavy use of emotional language",
+          "Limited source attribution",
+          "History of misleading claims",
+          "Strong partisan bias"
+        ],
+        color: "#f97316",
+        lightColor: "#ffedd5"
+      },
+      LOW: {
+        title: "Low Credibility",
+        description: "Serious reliability concerns with evidence of misleading or false information.",
+        characteristics: [
+          "Anonymous authors",
+          "Highly emotional language",
+          "No source citations",
+          "History of false claims"
+        ],
+        color: "#ef4444",
+        lightColor: "#fee2e2"
+      }
+    };
+    
+    return details[currentLevel] || {
+      title: "Unknown Credibility",
+      description: "Insufficient data to determine credibility level.",
+      characteristics: ["Unknown source", "Unable to verify credentials", "Limited publication history"],
+      color: "#9ca3af",
+      lightColor: "#f3f4f6"
+    };
+  }, []);
+
+  // Get credibility details for the current level
+  const credibilityDetails = React.useMemo(() => 
+    getCredibilityDetails(dynamicLevel), 
+  [getCredibilityDetails, dynamicLevel]);
+  
+  // Helper function to convert hex to RGBA
+  const hexToRgba = React.useCallback((hex, alpha = 1) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result 
+      ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${alpha})`
+      : `rgba(0, 0, 0, ${alpha})`;
+  }, []);
+
+  // Generate the heatmap cells data based on score
+  const generateHeatmapData = React.useCallback((credScore) => {
+    const numCells = 20; // 20 cells for 5% increments
+    const cells = [];
+    
+    for (let i = 0; i < numCells; i++) {
+      const cellScore = (i + 1) / numCells;
+      let color;
+      
+      if (cellScore <= 0.2) {
+        color = "#ef4444"; // Low - Red
+      } else if (cellScore <= 0.4) {
+        color = "#f97316"; // Low-Medium - Orange
+      } else if (cellScore <= 0.6) {
+        color = "#f59e0b"; // Medium - Amber
+      } else if (cellScore <= 0.8) {
+        color = "#22c55e"; // Medium-High - Light Green
+      } else {
+        color = "#10b981"; // High - Green
+      }
+      
+      cells.push({
+        index: i,
+        value: cellScore,
+        active: cellScore <= credScore,
+        color: color,
+        alpha: cellScore <= credScore ? 1 : 0.15
+      });
+    }
+    
+    return cells;
+  }, []);
+  
+  // Animate the score value on component mount or when score changes
+  React.useEffect(() => {
+    const targetScore = score || 0;
+    let startTimestamp;
+    const duration = 1500; // 1.5 seconds animation
+    
+    const animateScore = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const elapsed = timestamp - startTimestamp;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smoother animation
+      const eased = progress < 0.5 
+        ? 4 * progress * progress * progress 
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+      
+      setAnimatedScore(targetScore * eased);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateScore);
+      }
+    };
+    
+    const animationId = requestAnimationFrame(animateScore);
+    
+    return () => {
+      cancelAnimationFrame(animationId);
+    };
+  }, [score]);
+  
+  // Generate heatmap cells based on the animated score
+  const heatmapCells = React.useMemo(() => 
+    generateHeatmapData(animatedScore), 
+  [generateHeatmapData, animatedScore]);
+  
+  return (
+    <div className="relative">
+      <h3 className="text-sm text-gray-500 mb-2">Source Credibility</h3>
+      
+      {/* Heatmap Visualization */}
+      <div 
+        className="mb-2 relative" 
+        onClick={() => setShowDetails(!showDetails)}
+        title="Click for more details"
+      >
+        {/* Credibility Scale Labels */}
+        <div className="flex justify-between mb-1 text-xs">
+          <span className="text-red-500 font-medium">Low</span>
+          <span className="text-yellow-500 font-medium">Medium</span>
+          <span className="text-green-500 font-medium">High</span>
+        </div>
+        
+        {/* Heatmap Cells */}
+        <div className="flex h-10 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer">
+          {heatmapCells.map((cell) => (
+            <div
+              key={cell.index}
+              className="flex-1 transition-all duration-300 flex items-center justify-center relative"
+              style={{ 
+                backgroundColor: hexToRgba(cell.color, cell.alpha),
+                height: cell.active ? '100%' : '80%',
+                alignSelf: cell.active ? 'flex-start' : 'center'
+              }}
+            >
+              {cell.value === 0.25 && (
+                <div className="absolute top-full text-xs text-gray-500 mt-1">25%</div>
+              )}
+              {cell.value === 0.5 && (
+                <div className="absolute top-full text-xs text-gray-500 mt-1">50%</div>
+              )}
+              {cell.value === 0.75 && (
+                <div className="absolute top-full text-xs text-gray-500 mt-1">75%</div>
+              )}
+            </div>
+          ))}
+          
+          {/* Current Value Indicator */}
+          <div 
+            className="absolute top-0 h-full transition-all duration-300"
+            style={{ 
+              left: `${Math.min(Math.max(animatedScore * 100, 0), 100)}%`,
+              transform: 'translateX(-50%)'
+            }}
+          >
+            <div className="w-px h-full bg-gray-800"></div>
+            <div className="w-3 h-3 bg-white border-2 border-gray-800 rounded-full -mt-1.5 transform translate-x(-50%)"></div>
+          </div>
+        </div>
+        
+        {/* Score & Level Display */}
+        <div className="mt-5 flex justify-between items-center">
+          <div className="text-3xl font-bold" style={{ color: credibilityDetails.color }}>
+            {Math.round(animatedScore * 100)}%
+          </div>
+          <div 
+            className="px-3 py-1 rounded-full text-sm font-medium"
+            style={{ 
+              backgroundColor: hexToRgba(credibilityDetails.color, 0.15),
+              color: credibilityDetails.color
+            }}
+          >
+            {credibilityDetails.title}
+          </div>
+        </div>
+        
+        <div className="mt-2 text-sm text-gray-600">
+          {credibilityDetails.description.split('.')[0]}.
+        </div>
+        
+        <div className="text-xs text-center text-gray-500 mt-2 animate-pulse">
+          Click for more details
+        </div>
+      </div>
+      
+      {/* Detailed Information Panel */}
+      {showDetails && (
+        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 animate-fade-in transition-all duration-300">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-medium text-lg" style={{ color: credibilityDetails.color }}>
+              {credibilityDetails.title}
+            </h4>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowDetails(false); }}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+          
+          <p className="text-gray-600 mb-3">
+            {credibilityDetails.description}
+          </p>
+          
+          <div className="mt-3">
+            <h5 className="font-medium text-gray-700 mb-2">Characteristics:</h5>
+            <ul className="space-y-1">
+              {credibilityDetails.characteristics.map((item, index) => (
+                <li key={index} className="flex items-start">
+                  <span 
+                    className="inline-block w-2 h-2 mt-1.5 mr-2 rounded-full" 
+                    style={{ backgroundColor: credibilityDetails.color }}
+                  ></span>
+                  <span className="text-gray-600">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          {/* Credibility Factors */}
+          <div 
+            className="mt-4 p-3 rounded-lg text-sm"
+            style={{ 
+              backgroundColor: hexToRgba(credibilityDetails.color, 0.1),
+              borderLeft: `3px solid ${credibilityDetails.color}`
+            }}
+          >
+            <span className="font-medium" style={{ color: credibilityDetails.color }}>
+              Recommendation:
+            </span>{' '}
+            {dynamicLevel === 'HIGH' || dynamicLevel === 'MEDIUM_HIGH' ? (
+              <span className="text-gray-700">This source appears reliable for fact-based information.</span>
+            ) : dynamicLevel === 'MEDIUM' ? (
+              <span className="text-gray-700">Verify key claims from this source with additional evidence.</span>
+            ) : (
+              <span className="text-gray-700">Treat information from this source with significant caution.</span>
+            )}
+          </div>
+          
+          {/* Credibility Score Distribution */}
+          <div className="mt-4">
+            <h5 className="font-medium text-gray-700 mb-2">Credibility Analysis:</h5>
+            <div className="space-y-2">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-gray-600">Source Reputation</span>
+                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.9 + Math.random() * 0.1) * 100)}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.round((animatedScore * 0.9 + Math.random() * 0.1) * 100)}%`,
+                      backgroundColor: credibilityDetails.color 
+                    }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-gray-600">Factual Accuracy</span>
+                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.95 + Math.random() * 0.05) * 100)}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.round((animatedScore * 0.95 + Math.random() * 0.05) * 100)}%`,
+                      backgroundColor: credibilityDetails.color 
+                    }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-gray-600">Source Transparency</span>
+                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.85 + Math.random() * 0.15) * 100)}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.round((animatedScore * 0.85 + Math.random() * 0.15) * 100)}%`,
+                      backgroundColor: credibilityDetails.color 
+                    }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-gray-600">Neutrality</span>
+                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.8 + Math.random() * 0.2) * 100)}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${Math.round((animatedScore * 0.8 + Math.random() * 0.2) * 100)}%`,
+                      backgroundColor: credibilityDetails.color 
+                    }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
   const saveToHistory = (result) => {
     // Create a new history item with timestamp
@@ -653,127 +1456,300 @@ const TruthLensApp = () => {
     );
   };
 
-  const createMockResult = (claim, isFake, isUrl = false) => {
-    const confidence = isFake ? 89 : 78;
-    const verdict = isFake ? "FAKE" : "REAL";
-
-    const emotionalScore = isFake ? 0.82 : 0.35;
-    const emotionalLevel = isFake ? "HIGH" : "LOW";
-
-    const entities = {
-      PERSON: isFake ? ["doctor", "researcher"] : ["scientist"],
-      ORG: isFake ? ["government", "pharma companies"] : ["university"],
-      DATE: ["2023"],
-    };
-
-    // Basic result first
-    const result = {
-      status: "success",
-      claim: claim,
-      is_url_input: isUrl,
-      verdict: verdict,
-      confidence: confidence,
-      explanation: isFake
-        ? "This claim contains common misinformation patterns and is contradicted by scientific evidence. No credible sources support the claim."
-        : "This claim is supported by scientific evidence and corroborated by multiple reliable sources.",
-      emotional_manipulation: {
-        score: emotionalScore,
-        level: emotionalLevel,
-        explanation: isFake
-          ? "The text shows signs of emotional manipulation, using fear-based language and urgent calls to action."
-          : "The text appears to be relatively neutral with limited emotional manipulation.",
-      },
-      processing_time: 2.3,
-      entities: entities,
-    };
-
-    // Add source metadata and credibility assessment for URL inputs
-    if (isUrl) {
-      result.source_metadata = {
-        title: isFake
-          ? "SHOCKING: The Truth They Don't Want You To Know"
-          : "Research Update: New Findings on Topic",
-        author: isFake ? "Health Freedom Warrior" : "Dr. Jane Smith, PhD",
-        published_date: "2024-05-15",
-        domain: isFake
-          ? "truth-revealed.example.com"
-          : "research-journal.example.org",
-      };
-
-      result.credibility_assessment = {
-        score: isFake ? 0.23 : 0.87,
-        level: isFake ? "LOW" : "HIGH",
-        explanation: isFake
-          ? "This source has low credibility based on domain reputation, author information, and publication patterns."
-          : "This is a highly credible source with proper attribution and established reputation.",
-        details: [
-          isFake
-            ? "Source: truth-revealed.example.com is not a recognized mainstream news source."
-            : "Source: research-journal.example.org is recognized as a highly credible source with established fact-checking processes.",
-          isFake
-            ? "Author: Generic attribution reduces credibility. Articles without clear professional credentials are less verifiable."
-            : "Author: Named author with credentials increases credibility as it provides accountability and verification possibilities.",
-          isFake
-            ? "Date: Publication date is recent but content contradicts established facts."
-            : "Date: Publication date is recent and appropriate for the topic being discussed.",
-        ],
-      };
-    }
-
-    return result;
-  };
   const loadSample = (sample) => {
     setClaim(sample.claim);
   };
 
-  const renderCredibilityLevel = (level, score) => {
-    switch (level) {
-      case "HIGH":
-      case "MEDIUM_HIGH":
-        return (
+
+
+  const InteractiveAIDetectionBadge = ({ aiDetection }) => {
+    const [isExpanded, setIsExpanded] = React.useState(false);
+
+    if (!aiDetection) return null;
+
+    // Extract the score first for use in fallback values
+    const score =
+      aiDetection.ai_score !== undefined
+        ? aiDetection.ai_score
+        : aiDetection.ai_likelihood !== undefined
+        ? aiDetection.ai_likelihood
+        : aiDetection.ai_detection && aiDetection.ai_detection.ai_score
+        ? aiDetection.ai_detection.ai_score
+        : 0;
+
+    // Determine fallback emoji based on score
+    let fallbackEmoji = "❓";
+    if (score >= 0.6) fallbackEmoji = "🤖";
+    if (score <= 0.4) fallbackEmoji = "👤";
+
+    // Now normalize the data structure regardless of how it comes in
+    const normalizedData = {
+      score: score,
+      verdict:
+        aiDetection.ai_verdict ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.ai_verdict) ||
+        "Unknown",
+      reasoning:
+        aiDetection.reasoning ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.reasoning) ||
+        "No analysis available",
+      category:
+        aiDetection.content_category ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.content_category) ||
+        "Unknown",
+      subcategory:
+        aiDetection.content_subcategory ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.content_subcategory) ||
+        null,
+      patterns:
+        aiDetection.pattern_analysis ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.pattern_analysis) ||
+        null,
+      emoji:
+        aiDetection.emoji ||
+        (aiDetection.ai_detection && aiDetection.ai_detection.emoji) ||
+        fallbackEmoji,
+      displayMessage:
+        aiDetection.display_message ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.display_message) ||
+        "Unable to determine if content was written by AI or human",
+      isAi:
+        aiDetection.is_ai !== undefined
+          ? aiDetection.is_ai
+          : aiDetection.ai_detection &&
+            aiDetection.ai_detection.is_ai !== undefined
+          ? aiDetection.ai_detection.is_ai
+          : null,
+      confidencePercentage:
+        aiDetection.confidence_percentage ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.confidence_percentage) ||
+        Math.round(score * 100),
+      linguisticTraits:
+        aiDetection.linguistic_traits ||
+        (aiDetection.ai_detection &&
+          aiDetection.ai_detection.linguistic_traits) ||
+        null,
+    };
+
+    // Determine background color based on AI score
+    const getBackgroundColor = () => {
+      if (normalizedData.isAi === true) return "bg-red-50 border-red-100";
+      if (normalizedData.isAi === false) return "bg-green-50 border-green-100";
+      return "bg-gray-50 border-gray-100";
+    };
+
+    // Determine text color based on AI score
+    const getTextColor = () => {
+      if (normalizedData.isAi === true) return "text-red-600";
+      if (normalizedData.isAi === false) return "text-green-600";
+      return "text-gray-600";
+    };
+
+    const scorePercentage = normalizedData.confidencePercentage;
+
+    return (
+      <div
+        className={`mb-6 border rounded-lg bg-white shadow-sm overflow-hidden transition-all duration-500 ${
+          isExpanded ? "p-6" : "p-4"
+        }`}
+      >
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium">AI Content Detection</h3>
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {isExpanded ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Large emoji and verdict headline */}
+        <div
+          className={`p-4 mb-4 rounded-lg flex items-center ${getBackgroundColor()} transition-transform duration-500 ${
+            isExpanded ? "scale-100" : "hover:scale-105"
+          }`}
+          onClick={() => !isExpanded && setIsExpanded(true)}
+        >
+          <div className={`text-5xl mr-4 ${isExpanded ? "" : "animate-pulse"}`}>
+            {normalizedData.emoji}
+          </div>
+          <div>
+            <h4 className="font-bold text-lg">
+              {normalizedData.displayMessage}
+            </h4>
+            <p className={`mt-1 ${getTextColor()}`}>{normalizedData.verdict}</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
           <div className="flex items-center">
-            <div className="w-24 h-3 bg-gray-200 rounded-full">
-              <div
-                className="h-3 bg-green-500 rounded-full"
-                style={{ width: `${score * 100}%` }}
-              ></div>
+            <span className="font-medium">AI Probability:</span>
+            <div className="ml-2 flex items-center flex-1">
+              <div className="w-full h-3 bg-gray-200 rounded-full mr-2 overflow-hidden">
+                <div
+                  className={`h-3 rounded-full ${
+                    normalizedData.isAi === true
+                      ? "bg-red-500"
+                      : normalizedData.isAi === false
+                      ? "bg-green-500"
+                      : "bg-gray-500"
+                  } transition-all duration-1000 ease-out`}
+                  style={{ width: `${scorePercentage}%` }}
+                ></div>
+              </div>
+              <span className={`font-bold ${getTextColor()}`}>
+                {scorePercentage}%
+              </span>
             </div>
-            <span className="ml-2 text-green-600">High Credibility</span>
           </div>
-        );
-      case "MEDIUM":
-        return (
-          <div className="flex items-center">
-            <div className="w-24 h-3 bg-gray-200 rounded-full">
-              <div
-                className="h-3 bg-yellow-500 rounded-full"
-                style={{ width: `${score * 100}%` }}
-              ></div>
-            </div>
-            <span className="ml-2 text-yellow-600">Medium Credibility</span>
-          </div>
-        );
-      case "LOW_MEDIUM":
-      case "LOW":
-        return (
-          <div className="flex items-center">
-            <div className="w-24 h-3 bg-gray-200 rounded-full">
-              <div
-                className="h-3 bg-red-500 rounded-full"
-                style={{ width: `${score * 100}%` }}
-              ></div>
-            </div>
-            <span className="ml-2 text-red-600">Low Credibility</span>
-          </div>
-        );
-      default:
-        return (
-          <div className="flex items-center">
-            <div className="w-24 h-3 bg-gray-200 rounded-full"></div>
-            <span className="ml-2 text-gray-600">Unknown</span>
-          </div>
-        );
-    }
+
+          {isExpanded && (
+            <>
+              {normalizedData.reasoning && (
+                <div className="animate-fade-in">
+                  <span className="font-medium">Analysis:</span>
+                  <p className="mt-1 text-gray-700">
+                    {normalizedData.reasoning}
+                  </p>
+                </div>
+              )}
+
+              {normalizedData.category && (
+                <div className="animate-fade-in">
+                  <span className="font-medium">Content Type:</span>
+                  <span className="ml-2">{normalizedData.category}</span>
+                  {normalizedData.subcategory && (
+                    <span className="ml-1 text-gray-500">
+                      ({normalizedData.subcategory})
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Show linguistic traits if available */}
+              {normalizedData.linguisticTraits && (
+                <div className="mt-3 animate-fade-in">
+                  <span className="font-medium mb-1 block">
+                    Linguistic Analysis:
+                  </span>
+                  <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                    {normalizedData.linguisticTraits
+                      .personal_pronoun_density !== undefined && (
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span>Personal Pronouns:</span>
+                        <span
+                          className={
+                            normalizedData.linguisticTraits
+                              .personal_pronoun_density > 0.02
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }
+                        >
+                          {(
+                            normalizedData.linguisticTraits
+                              .personal_pronoun_density * 100
+                          ).toFixed(1)}
+                          %
+                        </span>
+                      </div>
+                    )}
+                    {normalizedData.linguisticTraits.contraction_density !==
+                      undefined && (
+                      <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span>Contractions:</span>
+                        <span
+                          className={
+                            normalizedData.linguisticTraits
+                              .contraction_density > 0.01
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }
+                        >
+                          {(
+                            normalizedData.linguisticTraits
+                              .contraction_density * 100
+                          ).toFixed(1)}
+                          %
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Show detected AI patterns */}
+              {normalizedData.patterns &&
+                normalizedData.patterns.patterns_found && (
+                  <div className="mt-2 border-t pt-2 animate-fade-in">
+                    <span className="font-medium block mb-1">
+                      AI Patterns Detected:
+                    </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs">
+                      {Object.entries(normalizedData.patterns.patterns_found)
+                        .filter(([pattern, count]) => count > 0)
+                        .sort(([, countA], [, countB]) => countB - countA)
+                        .slice(0, 4) // Show top 4 patterns
+                        .map(([pattern, count]) => (
+                          <div key={pattern} className="flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
+                            <span className="text-gray-600 truncate">
+                              {pattern.replace(/\\b|\(|\)|\?/g, "")}:{" "}
+                            </span>
+                            <span className="ml-1 font-medium">{count}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+            </>
+          )}
+        </div>
+
+        <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
+          {isExpanded ? (
+            "AI detection is based on linguistic patterns, structural analysis, and content evaluation."
+          ) : (
+            <button
+              className="text-blue-500 hover:text-blue-700 transition-colors"
+              onClick={() => setIsExpanded(true)}
+            >
+              Click to see detailed analysis
+            </button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   const renderSourceMetadata = (metadata) => {
@@ -811,7 +1787,6 @@ const TruthLensApp = () => {
       </div>
     );
   };
-  
 
   const VerificationBadge = ({ verificationPerformed }) => {
     if (!verificationPerformed) return null;
@@ -833,76 +1808,6 @@ const TruthLensApp = () => {
           />
         </svg>
         Advanced verification analysis performed
-      </div>
-    );
-  };
-
-  // Add this component for visualizing the verdict assessment
-  const VerdictVisualization = ({ verdict, confidence }) => {
-    // Determine colors and position based on verdict
-    let position = 50; // Default position (middle)
-    let color = "#9ca3af"; // Default color (gray)
-
-    if (verdict) {
-      const verdictLower = verdict.toLowerCase();
-      if (
-        verdictLower.includes("true") &&
-        !verdictLower.includes("partially")
-      ) {
-        position = 85;
-        color = "#10b981"; // Green
-      } else if (
-        verdictLower.includes("partially") ||
-        verdictLower.includes("misleading")
-      ) {
-        position = 50;
-        color = "#f59e0b"; // Yellow
-      } else if (
-        verdictLower.includes("false") ||
-        verdictLower.includes("fake")
-      ) {
-        position = 15;
-        color = "#ef4444"; // Red
-      }
-    }
-
-    // Data for bullet chart
-    const bulletData = [
-      {
-        name: "Verdict",
-        ranges: [100],
-        measures: [confidence || 0],
-        markers: [position],
-      },
-    ];
-
-    return (
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-medium mb-3">Verdict Assessment Visualization</h4>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-red-600 font-medium">False</span>
-          <span className="text-yellow-600 font-medium">Partially True</span>
-          <span className="text-green-600 font-medium">True</span>
-        </div>
-        <div className="h-24">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              layout="vertical"
-              data={bulletData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <YAxis dataKey="name" type="category" />
-              <XAxis type="number" domain={[0, 100]} />
-              <Tooltip />
-              <Bar dataKey="ranges" fill="#e5e7eb" barSize={30} />
-              <Bar dataKey="measures" fill={color} barSize={20} />
-              <ReferenceLine x={position} stroke={color} strokeWidth={2}>
-                <Label value={verdict} position="top" fill={color} />
-              </ReferenceLine>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
       </div>
     );
   };
@@ -1163,9 +2068,12 @@ const TruthLensApp = () => {
 
     return (
       <div className="mt-4">
-        <div className="mb-3 flex justify-between items-center">
-          <div className="text-sm text-gray-500">Source Credibility</div>
-          {renderCredibilityLevel(assessment.level, assessment.score)}
+        <div className="mb-3">
+          <CredibilityHeatmap
+            score={assessment.score}
+            level={assessment.level}
+          />
+          <br></br>
         </div>
 
         <div className="mb-3">
@@ -1191,9 +2099,12 @@ const TruthLensApp = () => {
     // True verdicts
     if (normalizedVerdict === "real" || normalizedVerdict === "true") {
       return (
-        <div className="bg-green-100 text-green-800 rounded-full px-3 py-1 flex items-center">
-          <Check size={16} className="mr-1" />
-          Reliable
+        <div className="relative">
+          <div className="bg-green-100 text-green-800 rounded-full px-3 py-1 flex items-center">
+            <Check size={16} className="mr-1" />
+            Reliable
+          </div>
+          <div className="absolute inset-0 bg-green-100 rounded-full animate-pulse-slow opacity-60"></div>
         </div>
       );
     }
@@ -1204,18 +2115,24 @@ const TruthLensApp = () => {
       normalizedVerdict.includes("partial")
     ) {
       return (
-        <div className="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 flex items-center">
-          <AlertTriangle size={16} className="mr-1" />
-          Misleading
+        <div className="relative">
+          <div className="bg-yellow-100 text-yellow-800 rounded-full px-3 py-1 flex items-center">
+            <AlertTriangle size={16} className="mr-1" />
+            Misleading
+          </div>
+          <div className="absolute inset-0 bg-yellow-100 rounded-full animate-pulse-slow opacity-60"></div>
         </div>
       );
     }
     // False verdicts
     else if (normalizedVerdict === "fake" || normalizedVerdict === "false") {
       return (
-        <div className="bg-red-100 text-red-800 rounded-full px-3 py-1 flex items-center">
-          <AlertCircle size={16} className="mr-1" />
-          Fake News
+        <div className="relative">
+          <div className="bg-red-100 text-red-800 rounded-full px-3 py-1 flex items-center">
+            <AlertCircle size={16} className="mr-1" />
+            Fake News
+          </div>
+          <div className="absolute inset-0 bg-red-100 rounded-full animate-pulse-slow opacity-60"></div>
         </div>
       );
     }
@@ -1228,27 +2145,6 @@ const TruthLensApp = () => {
         </div>
       );
     }
-  };
-  const TrustLensScoreWidget = ({ score }) => {
-    const getColor = (score) => {
-      if (score >= 0.8) return "bg-green-500";
-      if (score >= 0.5) return "bg-yellow-500";
-      return "bg-red-500";
-    };
-
-    return (
-      <div className="flex items-center">
-        <div className="w-24 h-3 bg-gray-200 rounded-full">
-          <div
-            className={`h-3 rounded-full ${getColor(score)}`}
-            style={{ width: `${score * 100}%` }}
-          ></div>
-        </div>
-        <span className="ml-2 text-sm font-medium">
-          {(score * 100).toFixed(0)}% Trust Score
-        </span>
-      </div>
-    );
   };
 
   // Add this component inside your TruthLensApp component but outside the return statement
@@ -1288,243 +2184,126 @@ const TruthLensApp = () => {
     );
   };
 
-  const AIDetectionWidget = ({ aiDetection }) => {
-    if (!aiDetection) return null;
+  // Optimized WaterWaveEffect
+  const WaterWaveEffect = () => {
+    const canvasRef = React.useRef(null);
 
-    // Extract the score first for use in fallback values
-    const score =
-      aiDetection.ai_score !== undefined
-        ? aiDetection.ai_score
-        : aiDetection.ai_likelihood !== undefined
-        ? aiDetection.ai_likelihood
-        : aiDetection.ai_detection && aiDetection.ai_detection.ai_score
-        ? aiDetection.ai_detection.ai_score
-        : 0;
+    React.useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
 
-    // Determine fallback emoji based on score
-    let fallbackEmoji = "❓";
-    if (score >= 0.6) fallbackEmoji = "🤖";
-    if (score <= 0.4) fallbackEmoji = "👤";
+      const ctx = canvas.getContext("2d");
 
-    // Now normalize the data structure regardless of how it comes in
-    const normalizedData = {
-      score: score,
-      verdict:
-        aiDetection.ai_verdict ||
-        (aiDetection.ai_detection && aiDetection.ai_detection.ai_verdict) ||
-        "Unknown",
-      reasoning:
-        aiDetection.reasoning ||
-        (aiDetection.ai_detection && aiDetection.ai_detection.reasoning) ||
-        "No analysis available",
-      category:
-        aiDetection.content_category ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.content_category) ||
-        "Unknown",
-      subcategory:
-        aiDetection.content_subcategory ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.content_subcategory) ||
-        null,
-      patterns:
-        aiDetection.pattern_analysis ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.pattern_analysis) ||
-        null,
-      // New enhanced fields
-      emoji:
-        aiDetection.emoji ||
-        (aiDetection.ai_detection && aiDetection.ai_detection.emoji) ||
-        fallbackEmoji,
-      displayMessage:
-        aiDetection.display_message ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.display_message) ||
-        "Unable to determine if content was written by AI or human",
-      isAi:
-        aiDetection.is_ai !== undefined
-          ? aiDetection.is_ai
-          : aiDetection.ai_detection &&
-            aiDetection.ai_detection.is_ai !== undefined
-          ? aiDetection.ai_detection.is_ai
-          : null,
-      confidenceText:
-        aiDetection.confidence_text ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.confidence_text) ||
-        "with unknown confidence",
-      confidencePercentage:
-        aiDetection.confidence_percentage ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.confidence_percentage) ||
-        Math.round(score * 100),
-      linguisticTraits:
-        aiDetection.linguistic_traits ||
-        (aiDetection.ai_detection &&
-          aiDetection.ai_detection.linguistic_traits) ||
-        null,
-    };
+      let width = canvas.offsetWidth;
+      let height = canvas.offsetHeight;
 
-    // Determine background color based on AI score
-    const getBackgroundColor = () => {
-      if (normalizedData.isAi === true) return "bg-red-50 border-red-100";
-      if (normalizedData.isAi === false) return "bg-green-50 border-green-100";
-      return "bg-gray-50 border-gray-100";
-    };
+      canvas.width = width;
+      canvas.height = height;
 
-    // Determine text color based on AI score
-    const getTextColor = () => {
-      if (normalizedData.isAi === true) return "text-red-600";
-      if (normalizedData.isAi === false) return "text-green-600";
-      return "text-gray-600";
-    };
+      // Reduce wave count
+      const waveCount = 2; // Reduced from 3
+      const waves = [];
 
-    // Get appropriate emoji size
-    const emojiSize = normalizedData.emoji ? "text-5xl" : "text-4xl";
+      for (let i = 0; i < waveCount; i++) {
+        waves.push({
+          frequency: 0.04 + i * 0.005,
+          amplitude: 15 - i * 5, // Smaller amplitude
+          speed: 0.015 + i * 0.008, // Slower speed
+          color: `rgba(255, 255, 255, ${0.06 - i * 0.02})`,
+          offset: Math.random() * Math.PI * 2,
+        });
+      }
 
-    const scorePercentage = normalizedData.confidencePercentage;
+      // Lower the frame rate
+      let lastTime = 0;
+      const targetFPS = 24; // Lower FPS
+      const interval = 1000 / targetFPS;
+
+      const drawWave = (wave, time) => {
+        ctx.beginPath();
+
+        const { frequency, amplitude, speed, offset } = wave;
+
+        // Use fewer points for drawing the wave
+        const step = Math.ceil(width / 100); // Only calculate points every few pixels
+
+        for (let x = 0; x < width; x += step) {
+          const y =
+            height -
+            Math.sin(x * frequency + time * speed + offset) * amplitude -
+            20;
+
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+
+        // Add the last point if needed
+        if ((width - 1) % step !== 0) {
+          const x = width - 1;
+          const y =
+            height -
+            Math.sin(x * frequency + time * speed + offset) * amplitude -
+            20;
+          ctx.lineTo(x, y);
+        }
+
+        // Close the path
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.closePath();
+
+        ctx.fillStyle = wave.color;
+        ctx.fill();
+      };
+
+      let animationFrame;
+      let startTime = Date.now();
+
+      const animate = (currentTime) => {
+        animationFrame = requestAnimationFrame(animate);
+
+        const deltaTime = currentTime - lastTime;
+        if (deltaTime < interval) return;
+
+        lastTime = currentTime - (deltaTime % interval);
+
+        ctx.clearRect(0, 0, width, height);
+
+        const elapsed = Date.now() - startTime;
+
+        waves.forEach((wave) => {
+          drawWave(wave, elapsed);
+        });
+      };
+
+      animationFrame = requestAnimationFrame(animate);
+
+      // Debounced resize handler
+      let resizeTimeout;
+      const handleResize = () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          width = canvas.offsetWidth;
+          height = canvas.offsetHeight;
+          canvas.width = width;
+          canvas.height = height;
+        }, 200);
+      };
+
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        cancelAnimationFrame(animationFrame);
+        window.removeEventListener("resize", handleResize);
+        clearTimeout(resizeTimeout);
+      };
+    }, []);
 
     return (
-      <div className={`mb-6 p-4 border rounded-lg bg-white shadow-sm`}>
-        <h3 className="text-lg font-medium mb-3">AI Content Detection</h3>
-
-        {/* Large emoji and verdict headline */}
-        <div
-          className={`p-4 mb-4 rounded-lg flex items-center ${getBackgroundColor()}`}
-        >
-          <div className={`${emojiSize} mr-4`}>{normalizedData.emoji}</div>
-          <div>
-            <h4 className="font-bold text-lg">
-              {normalizedData.displayMessage}
-            </h4>
-            <p className={`mt-1 ${getTextColor()}`}>{normalizedData.verdict}</p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center">
-            <span className="font-medium">AI Probability:</span>
-            <div className="ml-2 flex items-center flex-1">
-              <div className="w-full h-3 bg-gray-200 rounded-full mr-2">
-                <div
-                  className={`h-3 rounded-full ${
-                    normalizedData.isAi === true
-                      ? "bg-red-500"
-                      : normalizedData.isAi === false
-                      ? "bg-green-500"
-                      : "bg-gray-500"
-                  }`}
-                  style={{ width: `${scorePercentage}%` }}
-                ></div>
-              </div>
-              <span className={`font-bold ${getTextColor()}`}>
-                {scorePercentage}%
-              </span>
-            </div>
-          </div>
-
-          {normalizedData.reasoning && (
-            <div>
-              <span className="font-medium">Analysis:</span>
-              <p className="mt-1 text-gray-700">{normalizedData.reasoning}</p>
-            </div>
-          )}
-
-          {normalizedData.category && (
-            <div>
-              <span className="font-medium">Content Type:</span>
-              <span className="ml-2">{normalizedData.category}</span>
-              {normalizedData.subcategory && (
-                <span className="ml-1 text-gray-500">
-                  ({normalizedData.subcategory})
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Show linguistic traits if available */}
-          {normalizedData.linguisticTraits && (
-            <div className="mt-3">
-              <span className="font-medium mb-1 block">
-                Linguistic Analysis:
-              </span>
-              <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
-                {normalizedData.linguisticTraits.personal_pronoun_density !==
-                  undefined && (
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span>Personal Pronouns:</span>
-                    <span
-                      className={
-                        normalizedData.linguisticTraits
-                          .personal_pronoun_density > 0.02
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {(
-                        normalizedData.linguisticTraits
-                          .personal_pronoun_density * 100
-                      ).toFixed(1)}
-                      %
-                    </span>
-                  </div>
-                )}
-                {normalizedData.linguisticTraits.contraction_density !==
-                  undefined && (
-                  <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                    <span>Contractions:</span>
-                    <span
-                      className={
-                        normalizedData.linguisticTraits.contraction_density >
-                        0.01
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                    >
-                      {(
-                        normalizedData.linguisticTraits.contraction_density *
-                        100
-                      ).toFixed(1)}
-                      %
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Show detected AI patterns */}
-          {normalizedData.patterns &&
-            normalizedData.patterns.patterns_found && (
-              <div className="mt-2 border-t pt-2">
-                <span className="font-medium block mb-1">
-                  AI Patterns Detected:
-                </span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-1 text-xs">
-                  {Object.entries(normalizedData.patterns.patterns_found)
-                    .filter(([pattern, count]) => count > 0)
-                    .sort(([, countA], [, countB]) => countB - countA)
-                    .slice(0, 4) // Show top 4 patterns
-                    .map(([pattern, count]) => (
-                      <div key={pattern} className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
-                        <span className="text-gray-600 truncate">
-                          {pattern.replace(/\\b|\(|\)|\?/g, "")}:{" "}
-                        </span>
-                        <span className="ml-1 font-medium">{count}</span>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
-        </div>
-
-        <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
-          AI detection is based on linguistic patterns, structural analysis, and
-          content evaluation.
-        </div>
-      </div>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     );
   };
 
@@ -1705,59 +2484,11 @@ const TruthLensApp = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700">
-        <div className="container mx-auto px-4 py-6">
-          {/* Modify your header to include a history button */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Droplet className="text-white mr-2" size={28} />
-              <h1 className="text-2xl font-bold text-white">TruthLens</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowHistory(true)}
-                className="text-white text-sm flex items-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                History
-              </button>
-              <div className="text-white text-sm md:text-base flex items-center">
-                <Shield className="mr-2" size={18} />
-                Advanced Fake News Detection System
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ParticleBackground />
+      <ParallaxHeader />
 
       {isPageLoading ? (
-        <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-          <div className="text-center">
-            <Droplet
-              className="text-blue-600 animate-bounce mx-auto mb-4"
-              size={48}
-            />
-            <div className="animate-pulse">
-              <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                TruthLens
-              </h1>
-              <p className="text-gray-600">Loading your dashboard...</p>
-            </div>
-          </div>
-        </div>
+        <EnhancedLoadingAnimation />
       ) : (
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
@@ -1978,6 +2709,14 @@ const TruthLensApp = () => {
                       </div>
                     </div>
 
+                    {showResultsAnimation && (
+                      <ResultsRevealAnimation
+                        result={result}
+                        isVisible={showResultsAnimation}
+                        onComplete={() => setShowResultsAnimation(false)}
+                      />
+                    )}
+
                     {/* Add confidence gauge chart */}
                     <div className="mb-6">
                       <div className="text-sm text-gray-500 mb-1">
@@ -2063,7 +2802,6 @@ const TruthLensApp = () => {
                         </div>
                       </div>
                     </div>
-
                     <div className="mb-6">
                       <div className="text-sm text-gray-500 mb-1">
                         Confidence Factors
@@ -2127,21 +2865,14 @@ const TruthLensApp = () => {
                       </div>
                     </div>
 
-                    <VerdictVisualization
-                      verdict={result.verdict}
-                      confidence={result.confidence}
-                    />
-
                     {/* Replace the existing verdict visualization with our new enhanced component */}
                     <EnhancedVerdictAssessment result={result} />
-
                     {/* Add the confidence factors widget after the verdict assessment */}
                     {result.confidence_factors && (
                       <ConfidenceFactorsWidget
                         factors={result.confidence_factors}
                       />
                     )}
-
                     {/* Add this Spark LLM badge */}
                     <div className="mb-4 flex justify-end">
                       <div className="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded flex items-center">
@@ -2176,7 +2907,6 @@ const TruthLensApp = () => {
                         result.emotional_manipulation.score
                       )}
                     </div>
-                   
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">
                         Emotional Analysis
@@ -2185,34 +2915,27 @@ const TruthLensApp = () => {
                         {result.emotional_manipulation.explanation}
                       </p>
                     </div>
-
                     {result.title_content_contradiction && (
                       <TitleContentContradictionWidget
                         contradiction={result.title_content_contradiction}
                       />
                     )}
 
-                    {/* Add Trust Lens Score widget here */}
                     {result.trust_lens_score !== undefined &&
                       result.trust_lens_score !== null && (
                         <div className="mb-4 p-3 bg-gray-50 rounded-lg">
                           <div className="text-sm text-gray-500 mb-1">
                             Trust Lens Score
                           </div>
-                          <div className="flex items-center">
-                            <div className="w-full max-w-md">
-                              <TrustLensScoreWidget
-                                score={result.trust_lens_score}
-                              />
-                            </div>
+                          <div className="flex items-center justify-center">
+                            <TrustBadge3D score={result.trust_lens_score} />
                           </div>
-                          <p className="text-xs text-gray-600 mt-2">
+                          <p className="text-xs text-gray-600 mt-2 text-center">
                             A comprehensive score combining source credibility,
                             factual accuracy, and content neutrality.
                           </p>
                         </div>
                       )}
-
                     {/* Add propaganda techniques display */}
                     {result.emotional_manipulation &&
                       result.emotional_manipulation.propaganda_analysis &&
@@ -2244,16 +2967,12 @@ const TruthLensApp = () => {
                           </div>
                         </div>
                       )}
-
                     <div className="mb-4">
                       <div className="text-sm text-gray-500 mb-1">
                         Detected Entities
                       </div>
                       {renderEntities(result.entities)}
                     </div>
-
-            
-
                     {result && (
                       <>
                         {/* Debug information */}
@@ -2263,12 +2982,11 @@ const TruthLensApp = () => {
                         </div>
 
                         {/* Enhanced AI Detection Widget with better prop handling */}
-                        <AIDetectionWidget
+                        <InteractiveAIDetectionBadge
                           aiDetection={result.ai_detection || null}
                         />
                       </>
                     )}
-
                     <div className="text-xs text-gray-500 mt-6 pt-4 border-t border-gray-200 flex items-center justify-end">
                       <Clock size={14} className="mr-1" />
                       Analysis completed in{" "}
