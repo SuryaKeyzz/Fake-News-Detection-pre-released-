@@ -445,21 +445,6 @@ const TruthLensApp = () => {
     );
   };
 
-  const handleSparkApiError = (error) => {
-    if (error.message && error.message.includes("Spark API")) {
-      setError(
-        "Spark LLM API error: The AI model is currently unavailable. Falling back to local analysis."
-      );
-    } else if (error.message && error.message.includes("429")) {
-      setError(
-        "Spark LLM API rate limit exceeded. Please try again in a moment."
-      );
-    } else {
-      setError("Error analyzing claim. Falling back to local analysis.");
-    }
-
-    console.error("API Error:", error);
-  };
 
   // Add this function to analyze prompts as the user types
   const analyzePrompt = async (promptText) => {
