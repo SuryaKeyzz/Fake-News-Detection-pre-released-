@@ -1,7 +1,7 @@
 # TruthLens - Advanced Fake News Detection System
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/username/truthlens/main/assets/truthlens-logo.png" alt="TruthLens Logo" width="200"/>
+ <Droplet className="text-white mr-2" size={28} />
 </p>
 
 <p align="center">
