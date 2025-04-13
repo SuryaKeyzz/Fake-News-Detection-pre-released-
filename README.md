@@ -1,7 +1,7 @@
 # TruthLens - Advanced Fake News Detection System
 
 <p align="center">
- <Droplet className="text-white mr-2" size={28} />
+ <Droplet className="text-black mr-2" size={28} />
 </p>
 
 <p align="center">
