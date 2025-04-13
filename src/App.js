@@ -72,6 +72,20 @@ const TruthLensApp = () => {
   ];
   const [isPageLoading, setIsPageLoading] = useState(true);
 
+  React.useEffect(() => {
+    return () => {
+      // Cancel any pending prompt analysis requests when component unmounts
+      if (window.lastPromptController) {
+        window.lastPromptController.abort();
+      }
+
+      // Clear any pending timeouts
+      if (promptAnalysisTimeout) {
+        clearTimeout(promptAnalysisTimeout);
+      }
+    };
+  }, [promptAnalysisTimeout]);
+
   // Add this useEffect for the loading animation
   useEffect(() => {
     // Simulate loading time
@@ -449,12 +463,26 @@ const TruthLensApp = () => {
 
   // Add this function to analyze prompts as the user types
   const analyzePrompt = async (promptText) => {
-    if (!promptText || promptText.trim().length < 5) {
+    // Skip processing for short inputs
+    if (!promptText || promptText.trim().length < 15) {
+      setShowPromptSuggestions(false);
+      return;
+    }
+
+    // Skip API calls during typing for URLs (which don't need prompt suggestions)
+    if (promptText.trim().toLowerCase().startsWith("http")) {
       setShowPromptSuggestions(false);
       return;
     }
 
     try {
+      // Use AbortController to cancel pending requests when a new one starts
+      const controller = new AbortController();
+      const signal = controller.signal;
+
+      // Store the controller reference to cancel it if needed
+      window.lastPromptController = controller;
+
       const response = await fetch(`${apiBaseUrl}/analyze-prompt`, {
         method: "POST",
         headers: {
@@ -463,6 +491,7 @@ const TruthLensApp = () => {
         body: JSON.stringify({
           prompt: promptText,
         }),
+        signal: signal,
       });
 
       if (!response.ok) {
@@ -483,7 +512,10 @@ const TruthLensApp = () => {
         setShowPromptSuggestions(false);
       }
     } catch (err) {
-      console.error("Error analyzing prompt:", err);
+      // Ignore aborted fetch errors (these are expected when typing quickly)
+      if (err.name !== "AbortError") {
+        console.error("Error analyzing prompt:", err);
+      }
       setShowPromptSuggestions(false);
     }
   };
@@ -493,15 +525,20 @@ const TruthLensApp = () => {
     const newClaim = e.target.value;
     setClaim(newClaim);
 
-    // Clear previous timeout
+    // Clear previous timeout with a more significant delay
     if (promptAnalysisTimeout) {
       clearTimeout(promptAnalysisTimeout);
     }
 
-    // Set new timeout for prompt analysis (800ms debounce)
+    // Increase debounce time to reduce frequency of analyses
     const newTimeout = setTimeout(() => {
-      analyzePrompt(newClaim);
-    }, 800);
+      // Only analyze if text is substantial to avoid unnecessary processing
+      if (newClaim.trim().length > 15) {
+        analyzePrompt(newClaim);
+      } else {
+        setShowPromptSuggestions(false);
+      }
+    }, 1200); // Increased from 800ms to 1200ms
 
     setPromptAnalysisTimeout(newTimeout);
   };
@@ -666,99 +703,136 @@ const TruthLensApp = () => {
     }
   };
 
-  // Add this component to your file
-  // Optimized ParticleBackground
   const ParticleBackground = () => {
     const canvasRef = React.useRef(null);
+    const animationRef = React.useRef(null);
+    const particlesRef = React.useRef([]);
+    const initialized = React.useRef(false);
 
     React.useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
-
+      const ctx = canvas.getContext("2d", { alpha: true });
       let width = window.innerWidth;
       let height = window.innerHeight;
 
-      canvas.width = width;
-      canvas.height = height;
+      // Only initialize particles once
+      if (!initialized.current) {
+        canvas.width = width;
+        canvas.height = height;
 
-      // Reduce particle count
-      const particleCount = 25; // Reduced from 50
-      const particles = [];
+        // Further reduce particle count for better performance
+        const particleCount = 15; // Reduced from 25
 
-      for (let i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          size: Math.random() * 3 + 1, // Smaller particles
-          speedX: Math.random() * 0.5 - 0.25, // Slower movement
-          speedY: Math.random() * 0.5 - 0.25,
-          color: `rgba(74, 144, 226, ${Math.random() * 0.3 + 0.1})`,
-        });
+        for (let i = 0; i < particleCount; i++) {
+          particlesRef.current.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 2 + 1, // Even smaller particles
+            speedX: Math.random() * 0.3 - 0.15, // Even slower movement
+            speedY: Math.random() * 0.3 - 0.15,
+            color: `rgba(74, 144, 226, ${Math.random() * 0.2 + 0.1})`, // Reduced opacity
+          });
+        }
+
+        initialized.current = true;
       }
 
-      // Reduce connection distance for fewer lines
-      const connectionDistance = 120; // Reduced from 150
+      // Further reduce connection distance
+      const connectionDistance = 100; // Reduced from 120
 
-      // Lower frame rate
+      // Even lower frame rate
       let lastTime = 0;
-      const targetFPS = 20; // Lower FPS for particles
+      const targetFPS = 15; // Reduced from 20
       const interval = 1000 / targetFPS;
 
+      // Pre-calculate some values to avoid calculations in render loop
+      const particles = particlesRef.current;
+      const particleCount = particles.length;
+
+      // Use a visibility check to avoid rendering offscreen particles
+      const isVisible = () => document.visibilityState === "visible";
+
       const animate = (currentTime) => {
-        const animationId = requestAnimationFrame(animate);
+        // Skip animation when tab is not visible
+        if (!isVisible()) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
         const deltaTime = currentTime - lastTime;
-        if (deltaTime < interval) return;
+        if (deltaTime < interval) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
         lastTime = currentTime - (deltaTime % interval);
 
         ctx.clearRect(0, 0, width, height);
 
         // Update and draw particles
-        particles.forEach((particle) => {
+        for (let i = 0; i < particleCount; i++) {
+          const particle = particles[i];
+
           particle.x += particle.speedX;
           particle.y += particle.speedY;
 
-          // Wrap around edges
+          // Simplified wrap-around
           if (particle.x > width) particle.x = 0;
-          if (particle.x < 0) particle.x = width;
+          else if (particle.x < 0) particle.x = width;
           if (particle.y > height) particle.y = 0;
-          if (particle.y < 0) particle.y = height;
+          else if (particle.y < 0) particle.y = height;
 
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-          ctx.fillStyle = particle.color;
-          ctx.fill();
-        });
+          // Only draw particles that are in the viewport
+          if (
+            particle.x >= 0 &&
+            particle.x <= width &&
+            particle.y >= 0 &&
+            particle.y <= height
+          ) {
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fillStyle = particle.color;
+            ctx.fill();
+          }
+        }
 
-        // Draw fewer connections - only check every other particle
-        for (let i = 0; i < particles.length; i += 2) {
+        // Only connect every third particle to every fourth particle for much fewer connections
+        for (let i = 0; i < particleCount; i += 3) {
           const particleA = particles[i];
-          for (let j = i + 2; j < particles.length; j += 2) {
+          for (let j = i + 4; j < particleCount; j += 4) {
             const particleB = particles[j];
-            const dx = particleA.x - particleB.x;
-            const dy = particleA.y - particleB.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < connectionDistance) {
-              ctx.beginPath();
-              ctx.moveTo(particleA.x, particleA.y);
-              ctx.lineTo(particleB.x, particleB.y);
-              ctx.strokeStyle = `rgba(74, 144, 226, ${
-                0.15 * (1 - distance / connectionDistance)
-              })`;
-              ctx.lineWidth = 1;
-              ctx.stroke();
+            // Quick distance check using manhattan distance first (faster)
+            const dx = Math.abs(particleA.x - particleB.x);
+            const dy = Math.abs(particleA.y - particleB.y);
+
+            if (dx + dy < connectionDistance * 1.5) {
+              // Now do the more expensive Euclidean distance calculation
+              const distance = Math.sqrt(dx * dx + dy * dy);
+
+              if (distance < connectionDistance) {
+                ctx.beginPath();
+                ctx.moveTo(particleA.x, particleA.y);
+                ctx.lineTo(particleB.x, particleB.y);
+                // Simplified opacity calculation
+                ctx.strokeStyle = `rgba(74, 144, 226, ${
+                  0.1 * (1 - distance / connectionDistance)
+                })`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+              }
             }
           }
         }
+
+        animationRef.current = requestAnimationFrame(animate);
       };
 
-      const animationId = requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
 
-      // Handle window resize with debouncing
+      // Heavily debounced resize handler
       let resizeTimeout;
       const handleResize = () => {
         clearTimeout(resizeTimeout);
@@ -767,14 +841,24 @@ const TruthLensApp = () => {
           height = window.innerHeight;
           canvas.width = width;
           canvas.height = height;
-        }, 200);
+        }, 500); // Increased from 200ms to 500ms
       };
 
-      window.addEventListener("resize", handleResize);
+      window.addEventListener("resize", handleResize, { passive: true });
+
+      // Add visibility change listener to pause animation when tab is not visible
+      document.addEventListener("visibilitychange", () => {
+        if (isVisible() && !animationRef.current) {
+          animationRef.current = requestAnimationFrame(animate);
+        }
+      });
 
       return () => {
-        cancelAnimationFrame(animationId);
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
         window.removeEventListener("resize", handleResize);
+        document.removeEventListener("visibilitychange", () => {});
         clearTimeout(resizeTimeout);
       };
     }, []);
@@ -782,394 +866,482 @@ const TruthLensApp = () => {
     return (
       <canvas
         ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full -z-10 opacity-40"
+        className="fixed top-0 left-0 w-full h-full -z-10 opacity-30"
       />
     );
   };
 
-// Credibility Heatmap Visualization
-const CredibilityHeatmap = ({ score, level }) => {
-  const [showDetails, setShowDetails] = React.useState(false);
-  const [animatedScore, setAnimatedScore] = React.useState(0);
-  
-  // Get credibility level based on score
-  const getCredibilityLevelFromScore = React.useCallback((scoreValue) => {
-    if (scoreValue >= 0.8) return 'HIGH';
-    if (scoreValue >= 0.6) return 'MEDIUM_HIGH';
-    if (scoreValue >= 0.4) return 'MEDIUM';
-    if (scoreValue >= 0.2) return 'LOW_MEDIUM';
-    return 'LOW';
-  }, []);
+  // Optimized CredibilityHeatmap Component
+  const CredibilityHeatmap = ({ score, level }) => {
+    const [showDetails, setShowDetails] = React.useState(false);
+    const [animatedScore, setAnimatedScore] = React.useState(0);
 
-  // Get dynamic level based on either provided level or calculated from score
-  const dynamicLevel = React.useMemo(() => {
-    return level || getCredibilityLevelFromScore(score || 0);
-  }, [level, score, getCredibilityLevelFromScore]);
+    // Get credibility level based on score
+    const getCredibilityLevelFromScore = React.useCallback((scoreValue) => {
+      if (scoreValue >= 0.8) return "HIGH";
+      if (scoreValue >= 0.6) return "MEDIUM_HIGH";
+      if (scoreValue >= 0.4) return "MEDIUM";
+      if (scoreValue >= 0.2) return "LOW_MEDIUM";
+      return "LOW";
+    }, []);
 
-  // Get credibility details based on level
-  const getCredibilityDetails = React.useCallback((currentLevel) => {
-    const details = {
-      HIGH: {
-        title: "High Credibility",
-        description: "This source demonstrates strong journalistic standards with accurate information from reputable outlets.",
-        characteristics: [
-          "Transparent author credentials",
-          "Cites primary sources",
-          "Minimal emotional language",
-          "History of accurate reporting"
-        ],
-        color: "#10b981",
-        lightColor: "#d1fae5"
-      },
-      MEDIUM_HIGH: {
-        title: "Medium-High Credibility",
-        description: "Generally reliable source with occasional minor issues in reporting.",
-        characteristics: [
-          "Identified authors",
-          "Mostly neutral language",
-          "Some citation of sources",
-          "Largely accurate track record"
-        ],
-        color: "#22c55e",
-        lightColor: "#dcfce7"
-      },
-      MEDIUM: {
-        title: "Medium Credibility",
-        description: "Mixed reliability with both accurate and potentially misleading content.",
-        characteristics: [
-          "Some emotional language",
-          "Inconsistent source attribution",
-          "Occasional factual errors",
-          "Some partisan framing"
-        ],
-        color: "#f59e0b",
-        lightColor: "#fef3c7"
-      },
-      LOW_MEDIUM: {
-        title: "Low-Medium Credibility",
-        description: "Concerning reliability issues with frequent problems in reporting.",
-        characteristics: [
-          "Heavy use of emotional language",
-          "Limited source attribution",
-          "History of misleading claims",
-          "Strong partisan bias"
-        ],
-        color: "#f97316",
-        lightColor: "#ffedd5"
-      },
-      LOW: {
-        title: "Low Credibility",
-        description: "Serious reliability concerns with evidence of misleading or false information.",
-        characteristics: [
-          "Anonymous authors",
-          "Highly emotional language",
-          "No source citations",
-          "History of false claims"
-        ],
-        color: "#ef4444",
-        lightColor: "#fee2e2"
+    // Get dynamic level based on either provided level or calculated from score
+    const dynamicLevel = React.useMemo(() => {
+      return level || getCredibilityLevelFromScore(score || 0);
+    }, [level, score, getCredibilityLevelFromScore]);
+
+    // Get credibility details based on level
+    const getCredibilityDetails = React.useCallback((currentLevel) => {
+      const details = {
+        HIGH: {
+          title: "High Credibility",
+          description:
+            "This source demonstrates strong journalistic standards with accurate information from reputable outlets.",
+          characteristics: [
+            "Transparent author credentials",
+            "Cites primary sources",
+            "Minimal emotional language",
+            "History of accurate reporting",
+          ],
+          color: "#10b981",
+          lightColor: "#d1fae5",
+        },
+        MEDIUM_HIGH: {
+          title: "Medium-High Credibility",
+          description:
+            "Generally reliable source with occasional minor issues in reporting.",
+          characteristics: [
+            "Identified authors",
+            "Mostly neutral language",
+            "Some citation of sources",
+            "Largely accurate track record",
+          ],
+          color: "#22c55e",
+          lightColor: "#dcfce7",
+        },
+        MEDIUM: {
+          title: "Medium Credibility",
+          description:
+            "Mixed reliability with both accurate and potentially misleading content.",
+          characteristics: [
+            "Some emotional language",
+            "Inconsistent source attribution",
+            "Occasional factual errors",
+            "Some partisan framing",
+          ],
+          color: "#f59e0b",
+          lightColor: "#fef3c7",
+        },
+        LOW_MEDIUM: {
+          title: "Low-Medium Credibility",
+          description:
+            "Concerning reliability issues with frequent problems in reporting.",
+          characteristics: [
+            "Heavy use of emotional language",
+            "Limited source attribution",
+            "History of misleading claims",
+            "Strong partisan bias",
+          ],
+          color: "#f97316",
+          lightColor: "#ffedd5",
+        },
+        LOW: {
+          title: "Low Credibility",
+          description:
+            "Serious reliability concerns with evidence of misleading or false information.",
+          characteristics: [
+            "Anonymous authors",
+            "Highly emotional language",
+            "No source citations",
+            "History of false claims",
+          ],
+          color: "#ef4444",
+          lightColor: "#fee2e2",
+        },
+      };
+
+      return (
+        details[currentLevel] || {
+          title: "Unknown Credibility",
+          description: "Insufficient data to determine credibility level.",
+          characteristics: [
+            "Unknown source",
+            "Unable to verify credentials",
+            "Limited publication history",
+          ],
+          color: "#9ca3af",
+          lightColor: "#f3f4f6",
+        }
+      );
+    }, []);
+
+    // Get credibility details for the current level
+    const credibilityDetails = React.useMemo(
+      () => getCredibilityDetails(dynamicLevel),
+      [getCredibilityDetails, dynamicLevel]
+    );
+
+    // Helper function to convert hex to RGBA
+    const hexToRgba = React.useCallback((hex, alpha = 1) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result
+        ? `rgba(${parseInt(result[1], 16)}, ${parseInt(
+            result[2],
+            16
+          )}, ${parseInt(result[3], 16)}, ${alpha})`
+        : `rgba(0, 0, 0, ${alpha})`;
+    }, []);
+
+    // Generate the heatmap cells data based on score
+    const generateHeatmapData = React.useCallback((credScore) => {
+      const numCells = 20; // 20 cells for 5% increments
+      const cells = [];
+
+      for (let i = 0; i < numCells; i++) {
+        const cellScore = (i + 1) / numCells;
+        let color;
+
+        if (cellScore <= 0.2) {
+          color = "#ef4444"; // Low - Red
+        } else if (cellScore <= 0.4) {
+          color = "#f97316"; // Low-Medium - Orange
+        } else if (cellScore <= 0.6) {
+          color = "#f59e0b"; // Medium - Amber
+        } else if (cellScore <= 0.8) {
+          color = "#22c55e"; // Medium-High - Light Green
+        } else {
+          color = "#10b981"; // High - Green
+        }
+
+        cells.push({
+          index: i,
+          value: cellScore,
+          active: cellScore <= credScore,
+          color: color,
+          alpha: cellScore <= credScore ? 1 : 0.15,
+        });
       }
-    };
-    
-    return details[currentLevel] || {
-      title: "Unknown Credibility",
-      description: "Insufficient data to determine credibility level.",
-      characteristics: ["Unknown source", "Unable to verify credentials", "Limited publication history"],
-      color: "#9ca3af",
-      lightColor: "#f3f4f6"
-    };
-  }, []);
 
-  // Get credibility details for the current level
-  const credibilityDetails = React.useMemo(() => 
-    getCredibilityDetails(dynamicLevel), 
-  [getCredibilityDetails, dynamicLevel]);
-  
-  // Helper function to convert hex to RGBA
-  const hexToRgba = React.useCallback((hex, alpha = 1) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result 
-      ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${alpha})`
-      : `rgba(0, 0, 0, ${alpha})`;
-  }, []);
+      return cells;
+    }, []);
 
-  // Generate the heatmap cells data based on score
-  const generateHeatmapData = React.useCallback((credScore) => {
-    const numCells = 20; // 20 cells for 5% increments
-    const cells = [];
-    
-    for (let i = 0; i < numCells; i++) {
-      const cellScore = (i + 1) / numCells;
-      let color;
-      
-      if (cellScore <= 0.2) {
-        color = "#ef4444"; // Low - Red
-      } else if (cellScore <= 0.4) {
-        color = "#f97316"; // Low-Medium - Orange
-      } else if (cellScore <= 0.6) {
-        color = "#f59e0b"; // Medium - Amber
-      } else if (cellScore <= 0.8) {
-        color = "#22c55e"; // Medium-High - Light Green
-      } else {
-        color = "#10b981"; // High - Green
-      }
-      
-      cells.push({
-        index: i,
-        value: cellScore,
-        active: cellScore <= credScore,
-        color: color,
-        alpha: cellScore <= credScore ? 1 : 0.15
-      });
-    }
-    
-    return cells;
-  }, []);
-  
-  // Animate the score value on component mount or when score changes
-  React.useEffect(() => {
-    const targetScore = score || 0;
-    let startTimestamp;
-    const duration = 1500; // 1.5 seconds animation
-    
-    const animateScore = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const elapsed = timestamp - startTimestamp;
-      const progress = Math.min(elapsed / duration, 1);
-      
-      // Easing function for smoother animation
-      const eased = progress < 0.5 
-        ? 4 * progress * progress * progress 
-        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-      
-      setAnimatedScore(targetScore * eased);
-      
-      if (progress < 1) {
-        requestAnimationFrame(animateScore);
-      }
-    };
-    
-    const animationId = requestAnimationFrame(animateScore);
-    
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, [score]);
-  
-  // Generate heatmap cells based on the animated score
-  const heatmapCells = React.useMemo(() => 
-    generateHeatmapData(animatedScore), 
-  [generateHeatmapData, animatedScore]);
-  
-  return (
-    <div className="relative">
-      <h3 className="text-sm text-gray-500 mb-2">Source Credibility</h3>
-      
-      {/* Heatmap Visualization */}
-      <div 
-        className="mb-2 relative" 
-        onClick={() => setShowDetails(!showDetails)}
-        title="Click for more details"
-      >
-        {/* Credibility Scale Labels */}
-        <div className="flex justify-between mb-1 text-xs">
-          <span className="text-red-500 font-medium">Low</span>
-          <span className="text-yellow-500 font-medium">Medium</span>
-          <span className="text-green-500 font-medium">High</span>
-        </div>
-        
-        {/* Heatmap Cells */}
-        <div className="flex h-10 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer">
-          {heatmapCells.map((cell) => (
+    // Animate the score value on component mount or when score changes
+    React.useEffect(() => {
+      const targetScore = score || 0;
+      let startTimestamp;
+      const duration = 1500; // 1.5 seconds animation
+
+      const animateScore = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const elapsed = timestamp - startTimestamp;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function for smoother animation
+        const eased =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+        setAnimatedScore(targetScore * eased);
+
+        if (progress < 1) {
+          requestAnimationFrame(animateScore);
+        }
+      };
+
+      const animationId = requestAnimationFrame(animateScore);
+
+      return () => {
+        cancelAnimationFrame(animationId);
+      };
+    }, [score]);
+
+    // Generate heatmap cells based on the animated score
+    const heatmapCells = React.useMemo(
+      () => generateHeatmapData(animatedScore),
+      [generateHeatmapData, animatedScore]
+    );
+
+    return (
+      <div className="relative">
+        <h3 className="text-sm text-gray-500 mb-2">Source Credibility</h3>
+
+        {/* Heatmap Visualization */}
+        <div
+          className="mb-2 relative"
+          onClick={() => setShowDetails(!showDetails)}
+          title="Click for more details"
+        >
+          {/* Credibility Scale Labels */}
+          <div className="flex justify-between mb-1 text-xs">
+            <span className="text-red-500 font-medium">Low</span>
+            <span className="text-yellow-500 font-medium">Medium</span>
+            <span className="text-green-500 font-medium">High</span>
+          </div>
+
+          {/* Heatmap Cells */}
+          <div className="flex h-10 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md cursor-pointer">
+            {heatmapCells.map((cell) => (
+              <div
+                key={cell.index}
+                className="flex-1 transition-all duration-300 flex items-center justify-center relative"
+                style={{
+                  backgroundColor: hexToRgba(cell.color, cell.alpha),
+                  height: cell.active ? "100%" : "80%",
+                  alignSelf: cell.active ? "flex-start" : "center",
+                }}
+              >
+                {cell.value === 0.25 && (
+                  <div className="absolute top-full text-xs text-gray-500 mt-1">
+                    25%
+                  </div>
+                )}
+                {cell.value === 0.5 && (
+                  <div className="absolute top-full text-xs text-gray-500 mt-1">
+                    50%
+                  </div>
+                )}
+                {cell.value === 0.75 && (
+                  <div className="absolute top-full text-xs text-gray-500 mt-1">
+                    75%
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Current Value Indicator */}
             <div
-              key={cell.index}
-              className="flex-1 transition-all duration-300 flex items-center justify-center relative"
-              style={{ 
-                backgroundColor: hexToRgba(cell.color, cell.alpha),
-                height: cell.active ? '100%' : '80%',
-                alignSelf: cell.active ? 'flex-start' : 'center'
+              className="absolute top-0 h-full transition-all duration-300"
+              style={{
+                left: `${Math.min(Math.max(animatedScore * 100, 0), 100)}%`,
+                transform: "translateX(-50%)",
               }}
             >
-              {cell.value === 0.25 && (
-                <div className="absolute top-full text-xs text-gray-500 mt-1">25%</div>
-              )}
-              {cell.value === 0.5 && (
-                <div className="absolute top-full text-xs text-gray-500 mt-1">50%</div>
-              )}
-              {cell.value === 0.75 && (
-                <div className="absolute top-full text-xs text-gray-500 mt-1">75%</div>
-              )}
+              <div className="w-px h-full bg-gray-800"></div>
+              <div className="w-3 h-3 bg-white border-2 border-gray-800 rounded-full -mt-1.5 transform translate-x(-50%)"></div>
             </div>
-          ))}
-          
-          {/* Current Value Indicator */}
-          <div 
-            className="absolute top-0 h-full transition-all duration-300"
-            style={{ 
-              left: `${Math.min(Math.max(animatedScore * 100, 0), 100)}%`,
-              transform: 'translateX(-50%)'
-            }}
-          >
-            <div className="w-px h-full bg-gray-800"></div>
-            <div className="w-3 h-3 bg-white border-2 border-gray-800 rounded-full -mt-1.5 transform translate-x(-50%)"></div>
           </div>
-        </div>
-        
-        {/* Score & Level Display */}
-        <div className="mt-5 flex justify-between items-center">
-          <div className="text-3xl font-bold" style={{ color: credibilityDetails.color }}>
-            {Math.round(animatedScore * 100)}%
-          </div>
-          <div 
-            className="px-3 py-1 rounded-full text-sm font-medium"
-            style={{ 
-              backgroundColor: hexToRgba(credibilityDetails.color, 0.15),
-              color: credibilityDetails.color
-            }}
-          >
-            {credibilityDetails.title}
-          </div>
-        </div>
-        
-        <div className="mt-2 text-sm text-gray-600">
-          {credibilityDetails.description.split('.')[0]}.
-        </div>
-        
-        <div className="text-xs text-center text-gray-500 mt-2 animate-pulse">
-          Click for more details
-        </div>
-      </div>
-      
-      {/* Detailed Information Panel */}
-      {showDetails && (
-        <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 animate-fade-in transition-all duration-300">
-          <div className="flex justify-between items-center mb-2">
-            <h4 className="font-medium text-lg" style={{ color: credibilityDetails.color }}>
-              {credibilityDetails.title}
-            </h4>
-            <button 
-              onClick={(e) => { e.stopPropagation(); setShowDetails(false); }}
-              className="text-gray-500 hover:text-gray-700"
+
+          {/* Score & Level Display */}
+          <div className="mt-5 flex justify-between items-center">
+            <div
+              className="text-3xl font-bold"
+              style={{ color: credibilityDetails.color }}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
+              {Math.round(animatedScore * 100)}%
+            </div>
+            <div
+              className="px-3 py-1 rounded-full text-sm font-medium"
+              style={{
+                backgroundColor: hexToRgba(credibilityDetails.color, 0.15),
+                color: credibilityDetails.color,
+              }}
+            >
+              {credibilityDetails.title}
+            </div>
           </div>
-          
-          <p className="text-gray-600 mb-3">
-            {credibilityDetails.description}
-          </p>
-          
-          <div className="mt-3">
-            <h5 className="font-medium text-gray-700 mb-2">Characteristics:</h5>
-            <ul className="space-y-1">
-              {credibilityDetails.characteristics.map((item, index) => (
-                <li key={index} className="flex items-start">
-                  <span 
-                    className="inline-block w-2 h-2 mt-1.5 mr-2 rounded-full" 
-                    style={{ backgroundColor: credibilityDetails.color }}
-                  ></span>
-                  <span className="text-gray-600">{item}</span>
-                </li>
-              ))}
-            </ul>
+
+          <div className="mt-2 text-sm text-gray-600">
+            {credibilityDetails.description.split(".")[0]}.
           </div>
-          
-          {/* Credibility Factors */}
-          <div 
-            className="mt-4 p-3 rounded-lg text-sm"
-            style={{ 
-              backgroundColor: hexToRgba(credibilityDetails.color, 0.1),
-              borderLeft: `3px solid ${credibilityDetails.color}`
-            }}
-          >
-            <span className="font-medium" style={{ color: credibilityDetails.color }}>
-              Recommendation:
-            </span>{' '}
-            {dynamicLevel === 'HIGH' || dynamicLevel === 'MEDIUM_HIGH' ? (
-              <span className="text-gray-700">This source appears reliable for fact-based information.</span>
-            ) : dynamicLevel === 'MEDIUM' ? (
-              <span className="text-gray-700">Verify key claims from this source with additional evidence.</span>
-            ) : (
-              <span className="text-gray-700">Treat information from this source with significant caution.</span>
-            )}
+
+          <div className="text-xs text-center text-gray-500 mt-2 animate-pulse">
+            Click for more details
           </div>
-          
-          {/* Credibility Score Distribution */}
-          <div className="mt-4">
-            <h5 className="font-medium text-gray-700 mb-2">Credibility Analysis:</h5>
-            <div className="space-y-2">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-600">Source Reputation</span>
-                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.9 + Math.random() * 0.1) * 100)}%</span>
+        </div>
+
+        {/* Detailed Information Panel */}
+        {showDetails && (
+          <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4 animate-fade-in transition-all duration-300">
+            <div className="flex justify-between items-center mb-2">
+              <h4
+                className="font-medium text-lg"
+                style={{ color: credibilityDetails.color }}
+              >
+                {credibilityDetails.title}
+              </h4>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDetails(false);
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <p className="text-gray-600 mb-3">
+              {credibilityDetails.description}
+            </p>
+
+            <div className="mt-3">
+              <h5 className="font-medium text-gray-700 mb-2">
+                Characteristics:
+              </h5>
+              <ul className="space-y-1">
+                {credibilityDetails.characteristics.map((item, index) => (
+                  <li key={index} className="flex items-start">
+                    <span
+                      className="inline-block w-2 h-2 mt-1.5 mr-2 rounded-full"
+                      style={{ backgroundColor: credibilityDetails.color }}
+                    ></span>
+                    <span className="text-gray-600">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Credibility Factors */}
+            <div
+              className="mt-4 p-3 rounded-lg text-sm"
+              style={{
+                backgroundColor: hexToRgba(credibilityDetails.color, 0.1),
+                borderLeft: `3px solid ${credibilityDetails.color}`,
+              }}
+            >
+              <span
+                className="font-medium"
+                style={{ color: credibilityDetails.color }}
+              >
+                Recommendation:
+              </span>{" "}
+              {dynamicLevel === "HIGH" || dynamicLevel === "MEDIUM_HIGH" ? (
+                <span className="text-gray-700">
+                  This source appears reliable for fact-based information.
+                </span>
+              ) : dynamicLevel === "MEDIUM" ? (
+                <span className="text-gray-700">
+                  Verify key claims from this source with additional evidence.
+                </span>
+              ) : (
+                <span className="text-gray-700">
+                  Treat information from this source with significant caution.
+                </span>
+              )}
+            </div>
+
+            {/* Credibility Score Distribution */}
+            <div className="mt-4">
+              <h5 className="font-medium text-gray-700 mb-2">
+                Credibility Analysis:
+              </h5>
+              <div className="space-y-2">
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-600">
+                      Source Reputation
+                    </span>
+                    <span className="text-sm text-gray-700">
+                      {Math.round(
+                        (animatedScore * 0.9 + Math.random() * 0.1) * 100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.round(
+                          (animatedScore * 0.9 + Math.random() * 0.1) * 100
+                        )}%`,
+                        backgroundColor: credibilityDetails.color,
+                      }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.round((animatedScore * 0.9 + Math.random() * 0.1) * 100)}%`,
-                      backgroundColor: credibilityDetails.color 
-                    }}
-                  ></div>
+
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-600">
+                      Factual Accuracy
+                    </span>
+                    <span className="text-sm text-gray-700">
+                      {Math.round(
+                        (animatedScore * 0.95 + Math.random() * 0.05) * 100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.round(
+                          (animatedScore * 0.95 + Math.random() * 0.05) * 100
+                        )}%`,
+                        backgroundColor: credibilityDetails.color,
+                      }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-600">Factual Accuracy</span>
-                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.95 + Math.random() * 0.05) * 100)}%</span>
+
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-600">
+                      Source Transparency
+                    </span>
+                    <span className="text-sm text-gray-700">
+                      {Math.round(
+                        (animatedScore * 0.85 + Math.random() * 0.15) * 100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.round(
+                          (animatedScore * 0.85 + Math.random() * 0.15) * 100
+                        )}%`,
+                        backgroundColor: credibilityDetails.color,
+                      }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.round((animatedScore * 0.95 + Math.random() * 0.05) * 100)}%`,
-                      backgroundColor: credibilityDetails.color 
-                    }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-600">Source Transparency</span>
-                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.85 + Math.random() * 0.15) * 100)}%</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.round((animatedScore * 0.85 + Math.random() * 0.15) * 100)}%`,
-                      backgroundColor: credibilityDetails.color 
-                    }}
-                  ></div>
-                </div>
-              </div>
-              
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span className="text-sm text-gray-600">Neutrality</span>
-                  <span className="text-sm text-gray-700">{Math.round((animatedScore * 0.8 + Math.random() * 0.2) * 100)}%</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.round((animatedScore * 0.8 + Math.random() * 0.2) * 100)}%`,
-                      backgroundColor: credibilityDetails.color 
-                    }}
-                  ></div>
+
+                <div>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm text-gray-600">Neutrality</span>
+                    <span className="text-sm text-gray-700">
+                      {Math.round(
+                        (animatedScore * 0.8 + Math.random() * 0.2) * 100
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.round(
+                          (animatedScore * 0.8 + Math.random() * 0.2) * 100
+                        )}%`,
+                        backgroundColor: credibilityDetails.color,
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
+        )}
+      </div>
+    );
+  };
 
   const saveToHistory = (result) => {
     // Create a new history item with timestamp
@@ -1459,8 +1631,6 @@ const CredibilityHeatmap = ({ score, level }) => {
   const loadSample = (sample) => {
     setClaim(sample.claim);
   };
-
-
 
   const InteractiveAIDetectionBadge = ({ aiDetection }) => {
     const [isExpanded, setIsExpanded] = React.useState(false);
@@ -2184,15 +2354,18 @@ const CredibilityHeatmap = ({ score, level }) => {
     );
   };
 
-  // Optimized WaterWaveEffect
+  // Optimized WaterWaveEffect Component
   const WaterWaveEffect = () => {
     const canvasRef = React.useRef(null);
+    const animationRef = React.useRef(null);
+    const initialized = React.useRef(false);
+    const wavesRef = React.useRef([]);
 
     React.useEffect(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { alpha: true });
 
       let width = canvas.offsetWidth;
       let height = canvas.offsetHeight;
@@ -2200,32 +2373,39 @@ const CredibilityHeatmap = ({ score, level }) => {
       canvas.width = width;
       canvas.height = height;
 
-      // Reduce wave count
-      const waveCount = 2; // Reduced from 3
-      const waves = [];
+      // Initialize waves only once
+      if (!initialized.current) {
+        // Only use 1 wave for better performance (reduced from 2)
+        wavesRef.current = [
+          {
+            frequency: 0.04,
+            amplitude: 12, // Reduced amplitude
+            speed: 0.01, // Slower speed
+            color: "rgba(255, 255, 255, 0.05)", // Reduced opacity
+            offset: Math.random() * Math.PI * 2,
+          },
+        ];
 
-      for (let i = 0; i < waveCount; i++) {
-        waves.push({
-          frequency: 0.04 + i * 0.005,
-          amplitude: 15 - i * 5, // Smaller amplitude
-          speed: 0.015 + i * 0.008, // Slower speed
-          color: `rgba(255, 255, 255, ${0.06 - i * 0.02})`,
-          offset: Math.random() * Math.PI * 2,
-        });
+        initialized.current = true;
       }
 
-      // Lower the frame rate
+      // Even lower frame rate
       let lastTime = 0;
-      const targetFPS = 24; // Lower FPS
+      const targetFPS = 12; // Further reduced from 24
       const interval = 1000 / targetFPS;
+
+      const waves = wavesRef.current;
+
+      // Pre-compute values for optimization
+      const step = Math.ceil(width / 50); // Increased step size for fewer points
+
+      // Visibility check to avoid rendering when tab is not visible
+      const isVisible = () => document.visibilityState === "visible";
 
       const drawWave = (wave, time) => {
         ctx.beginPath();
 
         const { frequency, amplitude, speed, offset } = wave;
-
-        // Use fewer points for drawing the wave
-        const step = Math.ceil(width / 100); // Only calculate points every few pixels
 
         for (let x = 0; x < width; x += step) {
           const y =
@@ -2240,15 +2420,13 @@ const CredibilityHeatmap = ({ score, level }) => {
           }
         }
 
-        // Add the last point if needed
-        if ((width - 1) % step !== 0) {
-          const x = width - 1;
-          const y =
-            height -
-            Math.sin(x * frequency + time * speed + offset) * amplitude -
-            20;
-          ctx.lineTo(x, y);
-        }
+        // Add the last point
+        const x = width - 1;
+        const y =
+          height -
+          Math.sin(x * frequency + time * speed + offset) * amplitude -
+          20;
+        ctx.lineTo(x, y);
 
         // Close the path
         ctx.lineTo(width, height);
@@ -2259,14 +2437,20 @@ const CredibilityHeatmap = ({ score, level }) => {
         ctx.fill();
       };
 
-      let animationFrame;
       let startTime = Date.now();
 
       const animate = (currentTime) => {
-        animationFrame = requestAnimationFrame(animate);
+        // Skip animation when tab is not visible
+        if (!isVisible()) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
         const deltaTime = currentTime - lastTime;
-        if (deltaTime < interval) return;
+        if (deltaTime < interval) {
+          animationRef.current = requestAnimationFrame(animate);
+          return;
+        }
 
         lastTime = currentTime - (deltaTime % interval);
 
@@ -2277,11 +2461,13 @@ const CredibilityHeatmap = ({ score, level }) => {
         waves.forEach((wave) => {
           drawWave(wave, elapsed);
         });
+
+        animationRef.current = requestAnimationFrame(animate);
       };
 
-      animationFrame = requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(animate);
 
-      // Debounced resize handler
+      // Heavily debounced resize handler
       let resizeTimeout;
       const handleResize = () => {
         clearTimeout(resizeTimeout);
@@ -2290,20 +2476,33 @@ const CredibilityHeatmap = ({ score, level }) => {
           height = canvas.offsetHeight;
           canvas.width = width;
           canvas.height = height;
-        }, 200);
+        }, 500); // Increased from 200ms to 500ms
       };
 
-      window.addEventListener("resize", handleResize);
+      window.addEventListener("resize", handleResize, { passive: true });
+
+      // Add visibility change listener
+      document.addEventListener("visibilitychange", () => {
+        if (isVisible() && !animationRef.current) {
+          animationRef.current = requestAnimationFrame(animate);
+        }
+      });
 
       return () => {
-        cancelAnimationFrame(animationFrame);
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
         window.removeEventListener("resize", handleResize);
+        document.removeEventListener("visibilitychange", () => {});
         clearTimeout(resizeTimeout);
       };
     }, []);
 
     return (
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full opacity-80"
+      />
     );
   };
 
