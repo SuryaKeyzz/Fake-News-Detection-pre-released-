@@ -742,10 +742,6 @@ For internal collaborators:
 - Update documentation alongside code changes
 - Use descriptive commit messages that reference internal task IDs
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ---
 
 <p align="center">
