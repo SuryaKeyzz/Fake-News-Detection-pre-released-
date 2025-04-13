@@ -1,18 +1,18 @@
 # TruthLens - Advanced Fake News Detection System
 
 <p align="center">
- <Droplet className="text-black mr-2" size={28} />
+  <img src="https://raw.githubusercontent.com/username/Fake-News-Detection-pre-released-/main/assets/truthlens-logo.png" alt="TruthLens Logo" width="200"/>
 </p>
 
 <p align="center">
-  <a href="https://github.com/username/truthlens/releases">
-    <img src="https://img.shields.io/github/v/release/username/truthlens" alt="Version">
+  <a href="https://github.com/username/Fake-News-Detection-pre-released-/releases">
+    <img src="https://img.shields.io/github/v/release/username/Fake-News-Detection-pre-released-" alt="Version">
   </a>
-  <a href="https://github.com/username/truthlens/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/username/truthlens" alt="License">
+  <a href="https://github.com/username/Fake-News-Detection-pre-released-/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/username/Fake-News-Detection-pre-released-" alt="License">
   </a>
-  <a href="https://github.com/username/truthlens/issues">
-    <img src="https://img.shields.io/github/issues/username/truthlens" alt="Issues">
+  <a href="https://github.com/username/Fake-News-Detection-pre-released-/issues">
+    <img src="https://img.shields.io/github/issues/username/Fake-News-Detection-pre-released-" alt="Issues">
   </a>
 </p>
 
@@ -336,8 +336,8 @@ class FakeNewsDetectionSystem:
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/truthlens.git
-cd truthlens
+git clone https://github.com/username/Fake-News-Detection-pre-released-.git
+cd Fake-News-Detection-pre-released-
 
 # Create and activate virtual environment
 python -m venv venv
@@ -742,7 +742,7 @@ For internal collaborators:
 - Update documentation alongside code changes
 - Use descriptive commit messages that reference internal task IDs
 
----
+
 
 <p align="center">
   Made with ❤️ for a more truthful internet
