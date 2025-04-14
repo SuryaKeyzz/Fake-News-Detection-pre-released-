@@ -3887,7 +3887,7 @@ const TruthLensApp = () => {
               </div>
               <div className="mt-4 flex space-x-4">
                 <a
-                  href="https://github.com/SuryaKeyzz"
+                  href="#"
                   className="text-gray-400 hover:text-white transition"
                 >
                   <span className="sr-only">GitHub</span>
