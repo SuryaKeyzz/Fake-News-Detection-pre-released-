@@ -5,7 +5,7 @@ This system combines:
 1. Web search for retrieving relevant articles
 2. Embedding-based similarity for pre-filtering
 3. FAISS for efficient similarity search
-4. XLM-RoBERTa for fact-checking and verdict generation
+4. Spark LLM for fact-checking and verdict generation
 5. Sentiment analysis to detect emotional manipulation
 6. Named Entity Recognition to extract key entities
 """
@@ -41,10 +41,6 @@ from cachetools import TTLCache
 
 
 nltk.download('punkt_tab')
-# New imports for XLM-RoBERTa
-import torch
-from transformers import AlbertTokenizer, AlbertModel, pipeline, AutoTokenizer, AutoModelForSequenceClassification
-
 # Download NLTK resources if needed
 try:
     nltk.data.find('tokenizers/punkt')
@@ -856,7 +852,7 @@ class KnowledgeGraph:
             self.driver.close()
 
 
-# Spark LLM component (replacing XLM-RoBERTa)
+# Spark LLM component (replacing Spark LLM)
 class SparkLLMFactChecker:
     """Component for fact-checking using Spark LLM API"""
    
@@ -2974,7 +2970,7 @@ class PromptQualityAnalyzer:
 
 # Main Fake News Detection System
 class FakeNewsDetectionSystem:
-    """Complete system for fake news detection using XLM-RoBERTa and RAG"""
+    """Complete system for fake news detection using Spark LLM and RAG"""
     
     def __init__(self):
         """Initialize the fake news detection system"""
@@ -2983,7 +2979,7 @@ class FakeNewsDetectionSystem:
         self.search_engine = WebSearchEngine(GOOGLE_API_KEY, GOOGLE_CX)
         self.embedding_engine = EmbeddingEngine()
         self.faiss_indexer = FAISSIndexer()
-        self.spark_llm = SparkLLMFactChecker(SPARK_API_PASSWORD)  # Replace XLM-RoBERTa with Spark LLM
+        self.spark_llm = SparkLLMFactChecker(SPARK_API_PASSWORD)  # Replace Spark LLM with Spark LLM
         self.sentiment_analyzer = SentimentAnalyzer()
         self.entity_extractor = EntityExtractor()
         self.url_handler = URLHandler()
