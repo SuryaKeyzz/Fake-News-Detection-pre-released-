@@ -2094,6 +2094,10 @@ class CredibilityAnalyzer:
                     else:
                         raise ValueError(f"Could not parse date: {date_str}")
             
+            # Ensure both dates are timezone-naive for comparison
+            if pub_date.tzinfo is not None:
+                pub_date = pub_date.replace(tzinfo=None)
+            
             current_date = datetime.now()
             
             # Calculate days difference
