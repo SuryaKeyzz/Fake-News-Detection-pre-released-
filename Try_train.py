@@ -35,6 +35,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
 import re
+from functools import lru_cache
+import time
+from cachetools import TTLCache
+
 
 nltk.download('punkt_tab')
 # New imports for XLM-RoBERTa
@@ -84,6 +88,7 @@ NEO4J_USER = os.getenv('NEO4J_USER')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
 SPARK_API_PASSWORD = os.getenv('SPARK_API_PASSWORD')
+llm_cache = TTLCache(maxsize=1000, ttl=3600)
 
 # Validate credentials
 def validate_credentials():
@@ -854,6 +859,7 @@ class KnowledgeGraph:
 # Spark LLM component (replacing XLM-RoBERTa)
 class SparkLLMFactChecker:
     """Component for fact-checking using Spark LLM API"""
+   
     
     def __init__(self, api_password: str = None):
         """Initialize with Spark API password
@@ -870,7 +876,7 @@ class SparkLLMFactChecker:
         print(f"✓ Spark LLM API configured with password: {self.api_password[:5]}... (length: {len(self.api_password)})")
     
     def preprocess_evidence(self, retrieved_articles: List[Dict[str, str]]) -> str:
-        """Preprocess evidence from retrieved articles
+        """Optimized evidence preprocessing to reduce token count
         
         Args:
             retrieved_articles: List of retrieved articles
@@ -879,48 +885,130 @@ class SparkLLMFactChecker:
             Preprocessed evidence text
         """
         evidence_text = ""
-        for i, article in enumerate(retrieved_articles[:3], 1):  # Use top 3 articles
-            title = article.get("title", "Untitled")
-            snippet = article.get("snippet", "")
-            source = article.get("source", "Unknown")
-            link = article.get("link", "")
+        # Use fewer articles (2 max) and shorter snippets
+        for i, article in enumerate(retrieved_articles[:2], 1):
+            title = article.get("title", "")[:100]  # Truncate long titles
+            snippet = article.get("snippet", "")[:150]  # Shorter snippets
+            source = article.get("source", "")[:30]  # Shorter source names
             
-            evidence_text += f"[Article {i}] {title}\n"
-            evidence_text += f"Source: {source}\n"
-            evidence_text += f"Content: {snippet}\n"
-            evidence_text += f"URL: {link}\n\n"
+            evidence_text += f"[{i}] {title} | {source} | {snippet}\n"
         
-        # Truncate if too long
-        evidence_text = evidence_text[:2500]
+        # Truncate if still too long
+        evidence_text = evidence_text[:1500]  # Reduced from 2500
         return evidence_text
-    
-    def build_fact_check_prompt(self, claim: str, evidence_text: str, entities: Dict[str, List[str]] = None, source_credibility: float = None) -> str:
-        """Build an enhanced prompt for fact-checking with better structure and context
+
+    def get_cache_key(self, text, model="4.0Ultra"):
+        """Generate a deterministic cache key for a prompt and model
         
         Args:
-            claim: The claim to fact-check
-            evidence_text: Preprocessed evidence text
-            entities: Named entities found in the claim
-            source_credibility: Optional credibility score of the source
+            text: The prompt text
+            model: The model name
             
         Returns:
-            Enhanced prompt string
+            String cache key
         """
-        # Format entity information if available
+        # Use a hash function to create a compact, unique key
+        import hashlib
+        text_bytes = text.encode('utf-8')
+        hash_obj = hashlib.md5(text_bytes)
+        return f"{model}_{hash_obj.hexdigest()}"
+    
+    def query_with_cache(self, prompt, model="4.0Ultra", temperature=0.2, max_tokens=1000):
+        """Query the Spark LLM with caching
+        
+        Args:
+            prompt: The prompt to send
+            model: Model name
+            temperature: Temperature parameter
+            max_tokens: Maximum tokens to generate
+            
+        Returns:
+            LLM response
+        """
+        cache_key = self.get_cache_key(prompt, model)
+        
+        # Check if result is in cache
+        if cache_key in llm_cache:
+            logger.info(f"Cache hit for prompt: {prompt[:50]}...")
+            return llm_cache[cache_key]
+        
+        # Make the API request
+        try:
+            payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a professional fact-checker with expertise in detecting misinformation."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": False
+            }
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_password}"
+            }
+            
+            response = requests.post(self.api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            
+            if result.get("code") == 0:
+                content = result["choices"][0]["message"]["content"]
+                # Store in cache
+                llm_cache[cache_key] = content
+                return content
+            else:
+                logger.error(f"API Error {result.get('code')}: {result.get('message')}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"API Error: {str(e)}")
+            return None
+    
+    def build_optimized_prompt(self, claim: str, evidence_text: str, entities: Dict[str, List[str]] = None, source_credibility: float = None) -> str:
+        """
+        Build an optimized prompt for accurate and concise fact-checking.
+
+        Args:
+            claim: The claim to verify.
+            evidence_text: Supporting evidence for evaluation.
+            entities: Named entities extracted from the claim (optional).
+            source_credibility: Credibility score of the source, if available.
+
+        Returns:
+            A refined prompt string to guide the language model in English.
+        """
+
+        # Format key entities for context
         entity_context = ""
         if entities:
-            entity_context = "Named entities in the claim:\n"
-            for entity_type, entity_list in entities.items():
-                if entity_list:
-                    entity_context += f"- {entity_type}: {', '.join(entity_list)}\n"
-        
-        # Format source credibility if available
+            key_types = {"PERSON", "ORG", "GPE", "DATE"}
+            filtered_entities = {k: v for k, v in entities.items() if k in key_types and v}
+            if filtered_entities:
+                entity_parts = [f"{etype}: {', '.join(entities[etype][:3])}" for etype in filtered_entities]
+                entity_context = "Entities: " + "; ".join(entity_parts)
+
+        # Format source credibility
         credibility_context = ""
         if source_credibility is not None:
-            credibility_level = "HIGH" if source_credibility > 0.7 else "MEDIUM" if source_credibility > 0.4 else "LOW"
-            credibility_context = f"Source credibility: {credibility_level} ({source_credibility:.2f}/1.0)\n"
-        
-        # Few-shot examples to guide the model
+            credibility_level = (
+                "HIGH" if source_credibility > 0.7 else 
+                "MEDIUM" if source_credibility > 0.4 else 
+                "LOW"
+            )
+            credibility_context = f"Source Credibility: {credibility_level}"
+
+        # Combine additional context if available
+        additional_context = "\n".join(filter(None, [entity_context, credibility_context]))
+
         few_shot_examples = """
     Example 1:
     Claim: "Scientists have confirmed that drinking lemon water cures cancer."
@@ -928,60 +1016,85 @@ class SparkLLMFactChecker:
     Verdict: False
     Confidence: 95%
     Reasoning: This claim contradicts established medical science. While lemons have health benefits, no peer-reviewed studies support anticancer properties of the magnitude claimed.
-
-    Example 2:
-    Claim: "The government announced a 2% increase in healthcare spending."
-    Evidence: Official budget documents show a 1.8% increase in healthcare allocation for the next fiscal year.
-    Verdict: True
-    Confidence: 90%
-    Reasoning: The claim is essentially accurate with only a minor numerical discrepancy that doesn't change the overall message.
-
-    Example 3:
-    Claim: "New study shows coffee might reduce risk of certain diseases."
-    Evidence: Several studies indicate potential benefits of moderate coffee consumption for specific conditions, but results are preliminary and scientists caution more research is needed.
-    Verdict: Partially True
-    Confidence: 75%
-    Reasoning: The claim accurately represents that research exists, but overstates the certainty of the findings.
     """
-        
-        # Enhanced prompt with better structure
-        prompt = f"""
-    I need you to carefully evaluate the following claim using the evidence provided. This is critical for detecting misinformation.
 
-    CLAIM TO EVALUATE: "{claim}"
 
-    EVIDENCE FROM SOURCES:
+        # Final optimized prompt
+        prompt = f"""You are an expert fact-checking assistant. Analyze the claim based on the given evidence and provide your response in ENGLISH.
+
+    Claim:
+    "{claim}"
+
+    Evidence:
     {evidence_text}
 
-    {entity_context}
-    {credibility_context}
-
-    ANALYSIS INSTRUCTIONS:
-    Follow this step-by-step reasoning process:
-    1) Identify the main factual assertions in the claim
-    2) Compare these factual assertions with the evidence provided
-    3) Check if the named entities and relationships between them are accurately represented
-    4) Evaluate if there are logical fallacies or emotional manipulation in the claim
-    5) Determine if the evidence is sufficient to make a definitive assessment
-    6) Consider the credibility of the sources when weighing evidence
-    7) Provide a final assessment with a specific confidence level
-
+    {additional_context}
     {few_shot_examples}
 
-    FORMAT YOUR RESPONSE EXACTLY AS FOLLOWS:
-    Verdict: [True/Partially True/False/Unverified]
-    Confidence: [percentage between 0-100]
-    Reasoning:
-    - Factual assertions: [List the main factual claims]
-    - Evidence analysis: [How evidence supports or contradicts each assertion]
-    - Entity verification: [Whether entities and relationships are accurate]
-    - Logical assessment: [Identify any fallacies or manipulation]
-    - Evidence sufficiency: [Is there enough evidence for a verdict?]
-    - Final assessment: [Overall conclusion with justification]
-
-    Remember that "Unverified" is an appropriate verdict when evidence is insufficient.
+    Respond using this format:
+    Verdict: [True / Partially True / False / Unverified]
+    Confidence: [0-100%]
+    Explanation: [Brief explanation based on the evidence]
     """
         return prompt
+
+    def batch_process_requests(self, prompts, model="4.0Ultra", temperature=0.2, max_tokens=1000):
+        """Process multiple requests in a single batch to reduce API call overhead
+        
+        Args:
+            prompts: List of prompts to process
+            model: Model name
+            temperature: Temperature parameter
+            max_tokens: Maximum tokens to generate
+            
+        Returns:
+            List of responses
+        """
+        try:
+            # Create a batch request
+            batch_payload = {
+                "model": model,
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a professional fact-checker with expertise in detecting misinformation."
+                    }
+                ],
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+                "stream": False
+            }
+            
+            # Add all prompts as separate messages
+            for i, prompt in enumerate(prompts):
+                batch_payload["messages"].append({
+                    "role": "user",
+                    "content": prompt
+                })
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.api_password}"
+            }
+            
+            # Make a single API call for all prompts
+            response = requests.post(self.api_url, headers=headers, json=batch_payload)
+            response.raise_for_status()
+            result = response.json()
+            
+            # Extract and return all responses
+            responses = []
+            if result.get("code") == 0:
+                for choice in result["choices"]:
+                    responses.append(choice["message"]["content"])
+                return responses
+            else:
+                logger.error(f"Batch API Error {result.get('code')}: {result.get('message')}")
+                return [None] * len(prompts)
+                
+        except Exception as e:
+            logger.error(f"Batch API Error: {str(e)}")
+            return [None] * len(prompts)
     
     
     
@@ -1044,8 +1157,8 @@ class SparkLLMFactChecker:
         }
     
     def fact_check(self, claim: str, retrieved_articles: List[Dict[str, str]], entities: Dict[str, List[str]] = None, source_credibility: float = None) -> Optional[str]:
-        """Perform enhanced fact-checking using Spark LLM with chain-of-thought reasoning
-    
+        """Optimized fact-checking using Spark LLM
+        
         Args:
             claim: The claim to fact-check
             retrieved_articles: List of retrieved articles
@@ -1061,74 +1174,34 @@ class SparkLLMFactChecker:
             logger.info(f"Returning cached fact-check result for: {claim}")
             return result_cache[cache_key]
         
-        # Preprocess evidence
-        evidence = self.preprocess_evidence(retrieved_articles)
+        # Preprocess evidence - limit to top 2 articles instead of 3 to reduce token count
+        evidence = self.preprocess_evidence(retrieved_articles[:2])
         
-        # Build the enhanced prompt
-        prompt = self.build_fact_check_prompt(claim, evidence, entities, source_credibility)
+        # Build a more concise prompt
+        prompt = self.build_optimized_prompt(claim, evidence, entities, source_credibility)
         
-        # Make API request to Spark LLM
-        try:
-            logger.info("Sending request to Spark LLM API...")
+        # Use the cached query method
+        content = self.query_with_cache(prompt)
+        
+        if content:
+            # Parse the response to extract structured information
+            parsed_result = self.parse_fact_check_response(content, claim, retrieved_articles)
             
-            # Using the format from the documentation
-            payload = {
-                "model": "4.0Ultra",  # Using Ultra version
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are a professional fact-checker with expertise in detecting misinformation. Your analysis must be thorough, objective, and evidence-based. You should reason step-by-step and avoid making assumptions not supported by the provided evidence."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "temperature": 0.2,  # Lower temperature for more factual responses
-                "top_k": 4,          # From documentation
-                "max_tokens": 2000,   # Increased for more detailed reasoning
-                "stream": False      # Non-streaming mode
-            }
+            # Skip the secondary verification to save an API call
+            # Directly calculate confidence based on existing information
+            verified_result = self.calibrate_confidence(
+                parsed_result, 
+                claim, 
+                evidence, 
+                source_credibility, 
+                entities
+            )
             
-            # Simple Bearer token authentication as per docs
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.api_password}"
-            }
-            
-            response = requests.post(self.api_url, headers=headers, json=payload)
-            logger.info(f"API Response Status: {response.status_code}")
-            
-            response.raise_for_status()
-            result = response.json()
-            
-            # Extract content based on API response structure
-            if result.get("code") == 0:  # Success code per documentation
-                content = result["choices"][0]["message"]["content"]
-                
-                # Parse the response to extract structured information
-                parsed_result = self.parse_fact_check_response(content, claim, retrieved_articles)
-                
-                # Perform secondary verification (multi-pass)
-                verified_result = self.verify_fact_check_result(parsed_result, claim, evidence)
-                
-                # Cache the result
-                result_cache[cache_key] = verified_result
-                return verified_result
-            else:
-                error_message = result.get("message", "Unknown error")
-                error_code = result.get("code", "Unknown code")
-                logger.error(f"Spark API Error {error_code}: {error_message}")
-                
-                # If API fails, fall back to using alignment analysis for a basic response
-                return self._generate_fallback_response(claim, evidence, retrieved_articles, entities)
-                    
-        except Exception as e:
-            logger.error(f"Spark API Error: {str(e)}")
-            if 'response' in locals():
-                logger.error(f"Response text: {response.text}")
-            
-            # Generate fallback response
+            # Cache the result
+            result_cache[cache_key] = verified_result
+            return verified_result
+        else:
+            # If API fails, fall back to using alignment analysis for a basic response
             return self._generate_fallback_response(claim, evidence, retrieved_articles, entities)
      
      
@@ -1229,7 +1302,7 @@ class SparkLLMFactChecker:
             return result
      
     def parse_fact_check_response(self, content: str, claim: str, retrieved_articles: List[Dict[str, str]]) -> Dict[str, Any]:
-        """Parse the fact-check response to extract structured information
+        """Optimized parser that handles incomplete or malformed responses better
         
         Args:
             content: The response content from Spark LLM
@@ -1239,108 +1312,34 @@ class SparkLLMFactChecker:
         Returns:
             Structured fact-check result
         """
-        # Initialize the result dictionary
+        # Initialize with default values to handle parsing errors gracefully
         result = {
             "claim": claim,
             "full_response": content,
-            "retrieved_article_count": len(retrieved_articles)
+            "retrieved_article_count": len(retrieved_articles),
+            "verdict": "Unverified",
+            "confidence": 50,
+            "explanation": "Unable to determine the veracity of this claim."
         }
         
         # Extract verdict with improved regex
         verdict_match = re.search(r"Verdict:\s*(True|Partially True|False|Unverified)", content, re.IGNORECASE)
         if verdict_match:
             result["verdict"] = verdict_match.group(1)
-        else:
-            # Try to infer verdict from content
-            content_lower = content.lower()
-            if "true" in content_lower and "partially" not in content_lower and "not true" not in content_lower:
-                result["verdict"] = "True"
-            elif "partially true" in content_lower or "somewhat true" in content_lower or "misleading" in content_lower:
-                result["verdict"] = "Partially True"
-            elif "false" in content_lower or "not true" in content_lower:
-                result["verdict"] = "False"
-            else:
-                result["verdict"] = "Unverified"
         
         # Extract confidence
-        confidence_match = re.search(r"Confidence:\s*(\d+)%", content)
+        confidence_match = re.search(r"Confidence:\s*(\d+)%?", content)
         if confidence_match:
             result["confidence"] = int(confidence_match.group(1))
-        else:
-            # Default confidence based on verdict
-            if result["verdict"] == "True":
-                result["confidence"] = 85
-            elif result["verdict"] == "Partially True":
-                result["confidence"] = 65
-            elif result["verdict"] == "False":
-                result["confidence"] = 80
-            else:  # Unverified
-                result["confidence"] = 50
         
-        # Extract reasoning
-        factual_assertions_match = re.search(r"Factual assertions:(.*?)(?:Evidence analysis:|$)", content, re.DOTALL)
-        evidence_analysis_match = re.search(r"Evidence analysis:(.*?)(?:Entity verification:|$)", content, re.DOTALL)
-        entity_verification_match = re.search(r"Entity verification:(.*?)(?:Logical assessment:|$)", content, re.DOTALL)
-        logical_assessment_match = re.search(r"Logical assessment:(.*?)(?:Evidence sufficiency:|$)", content, re.DOTALL)
-        evidence_sufficiency_match = re.search(r"Evidence sufficiency:(.*?)(?:Final assessment:|$)", content, re.DOTALL)
-        final_assessment_match = re.search(r"Final assessment:(.*?)(?:\n\n|$)", content, re.DOTALL)
-        
-        # Build structured reasoning
-        reasoning_parts = []
-        
-        if factual_assertions_match:
-            fact_assertions = factual_assertions_match.group(1).strip()
-            result["factual_assertions"] = fact_assertions
-            reasoning_parts.append(f"Factual assertions: {fact_assertions}")
-        
-        if evidence_analysis_match:
-            evidence_analysis = evidence_analysis_match.group(1).strip()
-            result["evidence_analysis"] = evidence_analysis
-            reasoning_parts.append(f"Evidence analysis: {evidence_analysis}")
-        
-        if entity_verification_match:
-            entity_verification = entity_verification_match.group(1).strip()
-            result["entity_verification"] = entity_verification
-            reasoning_parts.append(f"Entity verification: {entity_verification}")
-        
-        if logical_assessment_match:
-            logical_assessment = logical_assessment_match.group(1).strip()
-            result["logical_assessment"] = logical_assessment
-            reasoning_parts.append(f"Logical assessment: {logical_assessment}")
-        
-        if evidence_sufficiency_match:
-            evidence_sufficiency = evidence_sufficiency_match.group(1).strip()
-            result["evidence_sufficiency"] = evidence_sufficiency
-            reasoning_parts.append(f"Evidence sufficiency: {evidence_sufficiency}")
-        
-        if final_assessment_match:
-            final_assessment = final_assessment_match.group(1).strip()
-            result["final_assessment"] = final_assessment
-            reasoning_parts.append(f"Final assessment: {final_assessment}")
-        
-        # Combine all reasoning parts
-        result["reasoning"] = "\n\n".join(reasoning_parts)
-        
-        # Extract or generate a concise explanation
-        explanation_match = re.search(r"Explanation:(.*?)(?:\n\n|$)", content, re.DOTALL)
+        # Extract explanation
+        explanation_match = re.search(r"Explanation:\s*(.*?)(?:\n\n|$)", content, re.DOTALL)
         if explanation_match:
             result["explanation"] = explanation_match.group(1).strip()
-        elif "final_assessment" in result:
-            result["explanation"] = result["final_assessment"]
-        else:
-            # Generate a generic explanation based on verdict
-            if result["verdict"] == "True":
-                result["explanation"] = "The claim is well-supported by available evidence."
-            elif result["verdict"] == "Partially True":
-                result["explanation"] = "The claim contains some accurate information but is misleading or includes unverified assertions."
-            elif result["verdict"] == "False":
-                result["explanation"] = "The claim is contradicted by available evidence."
-            else:  # Unverified
-                result["explanation"] = "There is insufficient evidence to verify this claim."
         
         # Add article sources
         if retrieved_articles:
-            result["sources"] = [article.get("source", "Unknown source") for article in retrieved_articles[:3]]
+            result["sources"] = [article.get("source", "Unknown source") for article in retrieved_articles[:2]]
         
         return result
      
